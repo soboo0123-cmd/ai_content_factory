@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import json
 import time
@@ -8,6 +8,7 @@ from google import genai
 
 # 환경 변수 로드 및 정제 (눈에 보이지 않는 탭/공백 제거)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL='gemini-3.1-flash-lite'
 
 # 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -85,7 +86,7 @@ def execute_v1_draft(client, book, section, sub, guidelines):
     
     prompt = f"[집필 지침]\n{guidelines}\n\n[작성 대상]\n도서: {book['book_title']}\n섹션: {section['section_title']}\n소제목: {sub['sub_title']}\n\n위 정보를 바탕으로 'v1 초안'을 작성하세요."
     
-    response = call_gemini_with_retry(client, "gemini-2.0-flash", prompt)
+    response = call_gemini_with_retry(client, GEMINI_MODEL, prompt)
     
     target_dir = os.path.join(CONTENTS_DIR, sanitize_id(book['book_id']), sanitize_id(section['section_id']))
     ensure_dir(target_dir)
@@ -111,7 +112,7 @@ def execute_v2_zerobase(client, book, section, sub, guidelines):
     
     prompt = f"[집필 지침]\n{guidelines}\n\n[작성 대상]\n소제목: {sub['sub_title']}\n\n이전에 쓴 v1은 잊고 완전히 새로운 관점에서 v2를 작성하세요."
     
-    response = call_gemini_with_retry(client, "gemini-2.0-flash", prompt)
+    response = call_gemini_with_retry(client, GEMINI_MODEL, prompt)
     
     target_dir = os.path.join(CONTENTS_DIR, sanitize_id(book['book_id']), sanitize_id(section['section_id']))
     ensure_dir(target_dir)
@@ -190,7 +191,7 @@ def execute_v3_integration(client, book, section, sub, guidelines):
     [/TIP]
     """
     
-    response = call_gemini_with_retry(client, "gemini-2.0-flash", prompt)
+    response = call_gemini_with_retry(client, GEMINI_MODEL, prompt)
     full_text = response.text
     
     # 본문과 팁 추출
@@ -245,7 +246,7 @@ def execute_polishing(client, book, section, sub, guidelines):
     [/CONTENT]
     """
     
-    response = call_gemini_with_retry(client, "gemini-2.0-flash", prompt)
+    response = call_gemini_with_retry(client, GEMINI_MODEL, prompt)
     full_text = response.text
     
     # 본문 추출
