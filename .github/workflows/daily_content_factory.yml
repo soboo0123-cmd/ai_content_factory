@@ -1,0 +1,49 @@
+name: Daily AI Content Factory
+
+on:
+  schedule:
+    # 한국 시간(KST) 새벽 3시 = UTC 기준 전날 오후 6시 (18:00)
+    - cron: '0 18 * * *'
+  workflow_dispatch: # 수동 실행 버튼 허용
+
+jobs:
+  build-and-generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.10
+
+      - name: Install Dependencies
+        run: |
+          uv pip install -r ai_content_factory/requirements.txt
+
+      - name: Run Content Factory Orchestrator
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          uv run ai_content_factory/orchestrator.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "AI-Content-Bot"
+          git config --global user.email "content-bot@github.actions"
+          git add .
+          
+          # 변경사항이 있을 때만 커밋
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit today."
+          else
+            git commit -m "Auto-generate: Daily AI Content Update ($(date +'%Y-%m-%d'))"
+            git push
+          fi
