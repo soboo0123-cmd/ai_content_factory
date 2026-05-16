@@ -8,7 +8,7 @@ from google import genai
 
 # 환경 변수 로드 및 정제 (눈에 보이지 않는 탭/공백 제거)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL='gemini-3-flash-preview'
+GEMINI_MODEL='gemini-3.1-flash-lite'
 
 # 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,19 +41,30 @@ def call_gemini_with_retry(client, model_name, contents, max_retries=3):
             return client.models.generate_content(model=model_name, contents=contents)
         except Exception as e:
             error_str = str(e).lower()
-            if "quota" in error_str or "limit exceeded" in error_str:
-                print(f"\n[종료] 할당량 초과. 상태 저장 후 종료합니다.")
-                sys.exit(0)
-            elif "429" in error_str or "rate limit" in error_str:
+            # 1. 일시적인 제한(429, Rate Limit)을 먼저 체크하여 재시도 유도
+            if "429" in error_str or "rate limit" in error_str or "resource exhausted" in error_str:
                 if attempt < max_retries:
                     wait = 60 * (attempt + 1)
-                    print(f"[대기] Rate Limit 발생. {wait}초 후 재시도 ({attempt+1}/{max_retries})...")
+                    print(f"\n[대기] Rate Limit 발생. {wait}초 후 재시도 ({attempt+1}/{max_retries})...")
                     time.sleep(wait)
-                else: raise e
+                    continue
+                else:
+                    print(f"\n[실패] Rate Limit 최대 재시도 횟수 초과.")
+                    raise e
+            
+            # 2. 진짜 할당량 초과(Quota)인 경우에만 종료
+            elif "quota" in error_str or "limit exceeded" in error_str:
+                print(f"\n[종료] 할당량 초과. 상태 저장 후 종료합니다.")
+                sys.exit(0)
+            
+            # 3. 기타 서버 오류 등
             else:
                 if attempt < max_retries:
+                    print(f"\n[대기] 오류 발생. 10초 후 재시도 ({attempt+1}/{max_retries}): {e}")
                     time.sleep(10)
-                else: raise e
+                else:
+                    print(f"\n[실패] 치명적 오류로 재시도 포기: {e}")
+                    raise e
 
 def get_next_task(index_data, exclude_ids=None):
     """우선순위: Review_Pending -> Drafting_V1 -> Drafting_V2 -> Integrating_V3 -> Polishing -> Ready
@@ -321,7 +332,8 @@ def main():
                 break
                 
             save_index(index_data)
-            time.sleep(5)
+            # 작업 안정성을 위해 30초 대기
+            time.sleep(30)
 
         except Exception as e:
             print(f"오류 발생: {e}")
