@@ -8,7 +8,7 @@ from google import genai
 
 # 환경 변수 로드 및 정제 (눈에 보이지 않는 탭/공백 제거)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL='gemini-3.1-flash-lite'
+GEMINI_MODEL='gemini-3-flash-preview'
 
 # 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
