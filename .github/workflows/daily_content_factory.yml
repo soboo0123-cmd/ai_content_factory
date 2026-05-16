@@ -26,13 +26,13 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          uv pip install -r ai_content_factory/requirements.txt
+          uv pip install -r requirements.txt
 
       - name: Run Content Factory Orchestrator
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          uv run ai_content_factory/orchestrator.py
+          uv run orchestrator.py
 
       - name: Commit and Push Changes
         run: |
