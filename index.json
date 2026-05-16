@@ -290,12 +290,14 @@
             {
               "sub_id": "sub_04_01",
               "sub_title": "4.1 모집단과 표본(샘플)",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Drafting_V2",
+              "current_version_code": "v1",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_01_v1.md",
+                  "created_at": "2026-05-16T19:02:30.592681"
                 },
                 "v2": {
                   "status": "Pending"
