@@ -55,15 +55,25 @@ def call_gemini_with_retry(client, model_name, contents, max_retries=3):
                     time.sleep(10)
                 else: raise e
 
-def get_next_task(index_data):
-    """우선순위: Review_Pending -> Drafting_V1 -> Drafting_V2 -> Integrating_V3 -> Polishing -> Ready"""
+def get_next_task(index_data, exclude_ids=None):
+    """우선순위: Review_Pending -> Drafting_V1 -> Drafting_V2 -> Integrating_V3 -> Polishing -> Ready
+    단, 피드백이 없는 Review_Pending은 건너뜀.
+    """
+    if exclude_ids is None: exclude_ids = []
     priority_order = ["Review_Pending", "Drafting_V1", "Drafting_V2", "Integrating_V3", "Polishing", "Ready"]
     
     for status in priority_order:
         for book in index_data.get("books", []):
             for section in book.get("sections", []):
                 for sub in section.get("sub_sections", []):
+                    sub_id = sanitize_id(sub['sub_id'])
+                    if sub_id in exclude_ids:
+                        continue
+                        
                     if sub.get("status") == status:
+                        # Review_Pending인데 피드백이 없으면 이번 실행에서는 건너뜀
+                        if status == "Review_Pending" and not sub['history']['v3'].get('user_feedback'):
+                            continue
                         return book, section, sub
     return None, None, None
 
@@ -316,6 +326,10 @@ def main():
         except Exception as e:
             print(f"오류 발생: {e}")
             break
+
+if __name__ == "__main__":
+    main()
+도
 
 if __name__ == "__main__":
     main()
