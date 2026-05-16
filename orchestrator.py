@@ -85,7 +85,7 @@ def execute_v1_draft(client, book, section, sub, guidelines):
     응답은 마크다운 본문만 출력하세요.
     """
     
-    response = call_gemini_with_retry(client, "gemini-2.0-flash", prompt)
+    response = call_gemini_with_retry(client, "gemini-3.1-flash-lite", prompt)
     content = response.text
     
     # 파일 저장
