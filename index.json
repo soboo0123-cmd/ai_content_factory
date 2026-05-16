@@ -1,0 +1,93 @@
+{
+  "last_synced": "2026-05-16T16:30:00Z",
+  "status_registry": {
+    "Ready": "집필 대기",
+    "Drafting_V1": "v1 초안 작성 중",
+    "Drafting_V2": "v2 재집필 중",
+    "Review_Pending": "사용자 통합 의견 대기",
+    "Integrating_V3": "v3 통합본 작성 중",
+    "Polishing": "시각화 및 수식 보강 중",
+    "Maintenance": "완료 후 수정 중",
+    "Published": "최종 완료"
+  },
+  "books": [
+    {
+      "book_id": "py_basic_01",
+      "book_title": "파이썬 기초 입문",
+      "sections": [
+        {
+          "section_id": "sec_01",
+          "section_title": "변수와 자료형",
+          "sub_sections": [
+            {
+              "sub_id": "sub_01_01",
+              "sub_title": "변수의 개념과 선언",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending",
+                  "file_path": null,
+                  "created_at": null,
+                  "tokens_used": 0
+                },
+                "v2": {
+                  "status": "Pending",
+                  "file_path": null,
+                  "created_at": null,
+                  "tokens_used": 0
+                },
+                "v3": {
+                  "status": "Pending",
+                  "file_path": null,
+                  "created_at": null,
+                  "tokens_used": 0,
+                  "user_feedback": null
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16T16:30:00Z",
+                "is_paused": false,
+                "resume_point": null
+              }
+            },
+            {
+              "sub_id": "sub_01_02",
+              "sub_title": "숫자형과 문자열",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending",
+                  "file_path": null,
+                  "created_at": null,
+                  "tokens_used": 0
+                },
+                "v2": {
+                  "status": "Pending",
+                  "file_path": null,
+                  "created_at": null,
+                  "tokens_used": 0
+                },
+                "v3": {
+                  "status": "Pending",
+                  "file_path": null,
+                  "created_at": null,
+                  "tokens_used": 0,
+                  "user_feedback": null
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16T16:30:00Z",
+                "is_paused": false,
+                "resume_point": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
