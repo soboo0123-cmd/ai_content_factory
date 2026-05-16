@@ -19,89 +19,793 @@
           "section_id": "sec_01",
           "section_title": "01 의사결정론에 대하여",
           "sub_sections": [
-            { "sub_id": "sub_01_01", "sub_title": "1.1 인간의 주권과 이론", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_01_02", "sub_title": "1.2 평균치의 공과", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_01_03", "sub_title": "1.3 리스크와 데이터 분석", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_01_04", "sub_title": "1.4 모델링(Decision Modeling)", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_01_01",
+              "sub_title": "1.1 인간의 주권과 이론",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_01/sub_01_01_v1.md",
+                  "created_at": "2026-05-16T06:32:53.215262"
+                },
+                "v2": {
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_01/sub_01_01_v2.md",
+                  "created_at": "2026-05-16T06:33:11.023314"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_01_02",
+              "sub_title": "1.2 평균치의 공과",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_01_03",
+              "sub_title": "1.3 리스크와 데이터 분석",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_01_04",
+              "sub_title": "1.4 모델링(Decision Modeling)",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_02",
           "section_title": "02 데이터 분석을 위한 기초지식",
           "sub_sections": [
-            { "sub_id": "sub_02_01", "sub_title": "2.1 통계와 관련된 Excel 함수", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_02_02", "sub_title": "2.2 의사결정에 필요한 통계방법", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_02_01",
+              "sub_title": "2.1 통계와 관련된 Excel 함수",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_02_02",
+              "sub_title": "2.2 의사결정에 필요한 통계방법",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_03",
           "section_title": "03 상관계수",
           "sub_sections": [
-            { "sub_id": "sub_03_01", "sub_title": "3.1 상관계수에서", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_03_02", "sub_title": "3.2 상관계수", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_03_03", "sub_title": "3.3 상관계수의 산출", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_03_04", "sub_title": "3.4 상관계수를 이용한 응용 예", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_03_01",
+              "sub_title": "3.1 상관계수에서",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_03_02",
+              "sub_title": "3.2 상관계수",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_03_03",
+              "sub_title": "3.3 상관계수의 산출",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_03_04",
+              "sub_title": "3.4 상관계수를 이용한 응용 예",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_04",
           "section_title": "04 검정(차이를 증명한다)",
           "sub_sections": [
-            { "sub_id": "sub_04_01", "sub_title": "4.1 모집단과 표본(샘플)", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_04_02", "sub_title": "4.2 검정이란", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_04_03", "sub_title": "4.3 독립성의 검정", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_04_04", "sub_title": "4.4 t 검정", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_04_05", "sub_title": "4.5 분산 분석", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_04_01",
+              "sub_title": "4.1 모집단과 표본(샘플)",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_04_02",
+              "sub_title": "4.2 검정이란",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_04_03",
+              "sub_title": "4.3 독립성의 검정",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_04_04",
+              "sub_title": "4.4 t 검정",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_04_05",
+              "sub_title": "4.5 분산 분석",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_05",
           "section_title": "05 회귀분석",
           "sub_sections": [
-            { "sub_id": "sub_05_01", "sub_title": "5.1 회귀분석의 개요", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_05_02", "sub_title": "5.2 회귀분석의 방법", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_05_03", "sub_title": "5.3 회귀분석의 메커니즘", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_05_04", "sub_title": "5.4 다중회귀분석(3변수 이상의 회귀분석)", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_05_05", "sub_title": "5.5 회귀분석의 응용", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_05_01",
+              "sub_title": "5.1 회귀분석의 개요",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_05_02",
+              "sub_title": "5.2 회귀분석의 방법",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_05_03",
+              "sub_title": "5.3 회귀분석의 메커니즘",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_05_04",
+              "sub_title": "5.4 다중회귀분석(3변수 이상의 회귀분석)",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_05_05",
+              "sub_title": "5.5 회귀분석의 응용",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_06",
           "section_title": "06 최적화문제(선형계획법)",
           "sub_sections": [
-            { "sub_id": "sub_06_01", "sub_title": "6.1 최적화문제란", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_06_02", "sub_title": "6.2 최적화문제의 방법", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_06_03", "sub_title": "6.3 Excel Solver를 이용한 최적화문제", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_06_04", "sub_title": "6.4 다양한 응용 예", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_06_01",
+              "sub_title": "6.1 최적화문제란",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_06_02",
+              "sub_title": "6.2 최적화문제의 방법",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_06_03",
+              "sub_title": "6.3 Excel Solver를 이용한 최적화문제",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_06_04",
+              "sub_title": "6.4 다양한 응용 예",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_07",
           "section_title": "07 기대치와 Decision Tree",
           "sub_sections": [
-            { "sub_id": "sub_07_01", "sub_title": "7.1 기대치란", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_07_02", "sub_title": "7.2 Decision Tree", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_07_03", "sub_title": "7.3 Decision Tree의 한계", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_07_04", "sub_title": "7.3.1 Decision Tree의 한계 예", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_07_01",
+              "sub_title": "7.1 기대치란",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_07_02",
+              "sub_title": "7.2 Decision Tree",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_07_03",
+              "sub_title": "7.3 Decision Tree의 한계",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_07_04",
+              "sub_title": "7.3.1 Decision Tree의 한계 예",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_08",
           "section_title": "08 게임이론",
           "sub_sections": [
-            { "sub_id": "sub_08_01", "sub_title": "8.1 게임이론에 대하여", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_08_02", "sub_title": "8.2 동시진행의 1회성 게임", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_08_03", "sub_title": "8.3 동시진행의 반복게임", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_08_04", "sub_title": "8.4 교호진행의 반복게임", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_08_05", "sub_title": "8.5 협력게임", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_08_01",
+              "sub_title": "8.1 게임이론에 대하여",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_08_02",
+              "sub_title": "8.2 동시진행의 1회성 게임",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_08_03",
+              "sub_title": "8.3 동시진행의 반복게임",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_08_04",
+              "sub_title": "8.4 교호진행의 반복게임",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_08_05",
+              "sub_title": "8.5 협력게임",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         },
         {
           "section_id": "sec_09",
           "section_title": "09 의사결정에 관한 심리적 요소",
           "sub_sections": [
-            { "sub_id": "sub_09_01", "sub_title": "9.1 합리적인 의사결정과 Heuristics", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } },
-            { "sub_id": "sub_09_02", "sub_title": "9.2 심리적 요소에 얽힌 예제", "status": "Ready", "current_version_code": "v0", "final_file_path": null, "history": { "v1": { "status": "Pending" }, "v2": { "status": "Pending" }, "v3": { "status": "Pending" } }, "metadata": { "last_modified": "2026-05-16" } }
+            {
+              "sub_id": "sub_09_01",
+              "sub_title": "9.1 합리적인 의사결정과 Heuristics",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            },
+            {
+              "sub_id": "sub_09_02",
+              "sub_title": "9.2 심리적 요소에 얽힌 예제",
+              "status": "Ready",
+              "current_version_code": "v0",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-16"
+              }
+            }
           ]
         }
       ]
