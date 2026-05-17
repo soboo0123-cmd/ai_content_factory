@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import json
 import time
@@ -27,6 +27,37 @@ def load_index():
 def save_index(index_data):
     with open(INDEX_FILE, "w", encoding="utf-8") as f:
         json.dump(index_data, f, ensure_ascii=False, indent=2)
+    generate_sidebar(index_data)
+
+def generate_sidebar(index_data):
+    """index.json 상태를 기반으로 _sidebar.md 파일을 자동 갱신합니다."""
+    sidebar_path = os.path.join(BASE_DIR, "_sidebar.md")
+    lines = ["* [🏠 홈](home.md)", ""]
+    
+    for book in index_data.get("books", []):
+        for section in book.get("sections", []):
+            lines.append(f"* **{section['section_title']}**")
+            for sub in section.get("sub_sections", []):
+                # 최신 파일 경로 찾기
+                target_path = None
+                if sub.get("final_file_path"):
+                    target_path = sub["final_file_path"]
+                elif sub.get("history", {}).get("v3", {}).get("file_path"):
+                    target_path = sub["history"]["v3"]["file_path"]
+                elif sub.get("history", {}).get("v1", {}).get("file_path"):
+                    target_path = sub["history"]["v1"]["file_path"]
+                
+                if target_path:
+                    # 윈도우 경로(\)를 웹 URL 호환 경로(/)로 치환
+                    web_path = target_path.replace("\\", "/")
+                    lines.append(f"  * [{sub['sub_title']}]({web_path})")
+                else:
+                    # 파일이 없는 경우 링크 없이 텍스트만 렌더링
+                    lines.append(f"  * {sub['sub_title']}")
+            lines.append("")
+            
+    with open(sidebar_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
 
 def load_guidelines():
     if os.path.exists(GUIDELINES_FILE):
