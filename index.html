@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"
     title="docsify-darklight-theme" type="text/css" />
 
+  <!-- 사이드바 접기 플러그인 CSS -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
+
   <!-- 수학 수식(LaTeX)을 위한 필수 엔진 -->
   <script src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
@@ -33,6 +36,7 @@
       name: 'AI Content Factory',
       repo: 'https://github.com/soboo0123-cmd/ai_content_factory',
       loadSidebar: true,
+      sidebarDisplayLevel: 1, // 사이드바 기본 접힘 상태 유지 (1레벨까지만 표시)
       subMaxLevel: 3,
       auto2top: true,
       homepage: 'docsify.md',
@@ -114,9 +118,10 @@
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-latex@0"></script>
 
-  <!-- 추가 플러그인: 코드 복사 및 페이지네이션 -->
+  <!-- 추가 플러그인: 코드 복사, 페이지네이션, 사이드바 접기 -->
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
 
   <!-- 문법 강조 (Syntax Highlighting) 지원 언어 -->
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
