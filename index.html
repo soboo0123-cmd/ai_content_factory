@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta charset="UTF-8">
   <title>AI Content Factory</title>
-  <!-- 테마 선택 (다른 테마: vue.css, dark.css 등) -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css">
 </head>
 <body>
   <div id="app">로딩 중...</div>
   <script>
     window.$docsify = {
-      name: 'AI Content Factory', // 사이트 제목
-      repo: 'https://github.com/soboo0123-cmd/ai_content_factory', // 깃허브 링크 수정 완료
-      loadSidebar: true, // _sidebar.md 파일 사용
-      subMaxLevel: 3,    // 페이지 내 제목(#, ##)을 목차에 표시할 수준
-      auto2top: true,    // 페이지 전환 시 상단으로 스크롤
-      homepage: 'README.md', // 홈페이지 명시
+      name: 'AI Content Factory',
+      repo: 'https://github.com/soboo0123-cmd/ai_content_factory',
+      loadSidebar: true,
+      subMaxLevel: 3,
+      auto2top: true,
+      homepage: 'contents/py_decision_01/sec_01/sub_01_01_v1.md',
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -25,12 +24,10 @@
         noData: '결과가 없습니다',
         depth: 6
       }
-    }
+    };
   </script>
-  <!-- Docsify 엔진 및 검색 플러그인 -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-  <!-- 수학 수식(LaTeX) 지원 -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
   <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 </body>
