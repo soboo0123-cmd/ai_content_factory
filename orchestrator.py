@@ -8,7 +8,7 @@ from google import genai
 
 # 환경 변수 로드 및 정제 (눈에 보이지 않는 탭/공백 제거)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL='gemini-3.1-flash-lite'
+GEMINI_MODEL='gemini-3-flash-preview'
 
 # 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +69,10 @@ def call_gemini_with_retry(client, model_name, contents, max_retries=3):
     """API 호출 실패 시 재시도 및 할당량 관리"""
     for attempt in range(max_retries + 1):
         try:
-            return client.models.generate_content(model=model_name, contents=contents)
+            print("   [진행] AI에게 원고 작성을 요청했습니다. (약 10~30초 소요, 대기해주세요...)", flush=True)
+            response = client.models.generate_content(model=model_name, contents=contents)
+            print("   [완료] AI 원고 작성이 완료되었습니다!", flush=True)
+            return response
         except Exception as e:
             error_str = str(e).lower()
             # 1. 일시적인 제한(429, Rate Limit)을 먼저 체크하여 재시도 유도
