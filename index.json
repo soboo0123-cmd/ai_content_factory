@@ -315,8 +315,8 @@
             {
               "sub_id": "sub_04_02",
               "sub_title": "4.2 검정이란",
-              "status": "Drafting_V2",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -325,7 +325,9 @@
                   "created_at": "2026-05-16T22:28:21.657535"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_02_v2.md",
+                  "created_at": "2026-05-17T14:36:53.872966"
                 },
                 "v3": {
                   "status": "Pending"
@@ -338,15 +340,19 @@
             {
               "sub_id": "sub_04_03",
               "sub_title": "4.3 독립성의 검정",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_03_v1.md",
+                  "created_at": "2026-05-17T14:37:37.062278"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_03_v2.md",
+                  "created_at": "2026-05-17T14:38:18.777262"
                 },
                 "v3": {
                   "status": "Pending"
@@ -359,15 +365,19 @@
             {
               "sub_id": "sub_04_04",
               "sub_title": "4.4 t 검정",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_04_v1.md",
+                  "created_at": "2026-05-17T14:39:01.184272"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_04_v2.md",
+                  "created_at": "2026-05-17T14:39:46.292163"
                 },
                 "v3": {
                   "status": "Pending"
@@ -380,15 +390,19 @@
             {
               "sub_id": "sub_04_05",
               "sub_title": "4.5 분산 분석",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_05_v1.md",
+                  "created_at": "2026-05-17T14:40:29.710297"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_04/sub_04_05_v2.md",
+                  "created_at": "2026-05-17T14:41:12.626111"
                 },
                 "v3": {
                   "status": "Pending"
@@ -407,15 +421,19 @@
             {
               "sub_id": "sub_05_01",
               "sub_title": "5.1 회귀분석의 개요",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_01_v1.md",
+                  "created_at": "2026-05-17T14:41:55.316015"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_01_v2.md",
+                  "created_at": "2026-05-17T14:42:37.707344"
                 },
                 "v3": {
                   "status": "Pending"
@@ -428,15 +446,19 @@
             {
               "sub_id": "sub_05_02",
               "sub_title": "5.2 회귀분석의 방법",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_02_v1.md",
+                  "created_at": "2026-05-17T14:43:21.012063"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_02_v2.md",
+                  "created_at": "2026-05-17T14:44:04.542388"
                 },
                 "v3": {
                   "status": "Pending"
@@ -449,15 +471,19 @@
             {
               "sub_id": "sub_05_03",
               "sub_title": "5.3 회귀분석의 메커니즘",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_03_v1.md",
+                  "created_at": "2026-05-17T14:44:44.801364"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_03_v2.md",
+                  "created_at": "2026-05-17T14:45:28.633219"
                 },
                 "v3": {
                   "status": "Pending"
@@ -470,15 +496,19 @@
             {
               "sub_id": "sub_05_04",
               "sub_title": "5.4 다중회귀분석(3변수 이상의 회귀분석)",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_04_v1.md",
+                  "created_at": "2026-05-17T14:46:09.201161"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_04_v2.md",
+                  "created_at": "2026-05-17T14:46:52.768773"
                 },
                 "v3": {
                   "status": "Pending"
@@ -491,15 +521,19 @@
             {
               "sub_id": "sub_05_05",
               "sub_title": "5.5 회귀분석의 응용",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_05_v1.md",
+                  "created_at": "2026-05-17T14:47:38.530864"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_05/sub_05_05_v2.md",
+                  "created_at": "2026-05-17T14:48:21.059703"
                 },
                 "v3": {
                   "status": "Pending"
@@ -518,15 +552,19 @@
             {
               "sub_id": "sub_06_01",
               "sub_title": "6.1 최적화문제란",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_01_v1.md",
+                  "created_at": "2026-05-17T14:49:01.165386"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_01_v2.md",
+                  "created_at": "2026-05-17T14:49:44.091325"
                 },
                 "v3": {
                   "status": "Pending"
@@ -539,15 +577,19 @@
             {
               "sub_id": "sub_06_02",
               "sub_title": "6.2 최적화문제의 방법",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_02_v1.md",
+                  "created_at": "2026-05-17T14:50:27.774287"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_02_v2.md",
+                  "created_at": "2026-05-17T14:51:09.982754"
                 },
                 "v3": {
                   "status": "Pending"
@@ -560,15 +602,19 @@
             {
               "sub_id": "sub_06_03",
               "sub_title": "6.3 python을 이용한 최적화문제",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_03_v1.md",
+                  "created_at": "2026-05-17T14:51:53.468968"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_03_v2.md",
+                  "created_at": "2026-05-17T14:52:36.984540"
                 },
                 "v3": {
                   "status": "Pending"
@@ -581,12 +627,14 @@
             {
               "sub_id": "sub_06_04",
               "sub_title": "6.4 다양한 응용 예",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Drafting_V2",
+              "current_version_code": "v1",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_04_v1.md",
+                  "created_at": "2026-05-17T14:59:22.257564"
                 },
                 "v2": {
                   "status": "Pending"
