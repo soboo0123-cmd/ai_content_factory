@@ -19,11 +19,10 @@
       homepage: 'contents/py_decision_01/sec_01/sub_01_01_v1.md',
       relativePath: false,
       
-      // MathJax 설정 추가
-      mathjax: {
-        chtml: {
-          scale: 1
-        }
+      // 2026년형 최신 수식 설정 (docsify-latex 전용)
+      latex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$']]
       },
       
       // 사이드바 404 방지 설정
@@ -41,14 +40,14 @@
     };
   </script>
   
-  <!-- Docsify 엔진 -->
+  <!-- Docsify 핵심 엔진 -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
   
   <!-- 검색 플러그인 -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
 
-  <!-- MathJax 공식 지원 스크립트 (LaTeX 수식 렌더링용) -->
-  <script src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-mathjax/dist/docsify-mathjax.min.js"></script>
+  <!-- 2026년 최신 수식 렌더링 조합 (MathJax v4 + docsify-latex) -->
+  <script src="//cdn.jsdelivr.net/npm/mathjax@4/es5/tex-mml-chtml.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-latex@0"></script>
 </body>
 </html>
