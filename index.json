@@ -559,7 +559,7 @@
             },
             {
               "sub_id": "sub_06_03",
-              "sub_title": "6.3 Excel Solver를 이용한 최적화문제",
+              "sub_title": "6.3 python을 이용한 최적화문제",
               "status": "Ready",
               "current_version_code": "v0",
               "final_file_path": null,
