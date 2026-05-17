@@ -37,7 +37,7 @@
   * [6.4 다양한 응용 예](contents/py_decision_01/sec_06/sub_06_04_v1.md)
 
 * **07 기대치와 Decision Tree**
-  * 7.1 기대치란
+  * [7.1 기대치란](contents/py_decision_01/sec_07/sub_07_01_v1.md)
   * 7.2 Decision Tree
   * 7.3 Decision Tree의 한계
   * 7.3.1 Decision Tree의 한계 예

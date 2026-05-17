@@ -627,8 +627,8 @@
             {
               "sub_id": "sub_06_04",
               "sub_title": "6.4 다양한 응용 예",
-              "status": "Drafting_V2",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -637,7 +637,9 @@
                   "created_at": "2026-05-17T14:59:22.257564"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_06/sub_06_04_v2.md",
+                  "created_at": "2026-05-17T19:06:52.190464"
                 },
                 "v3": {
                   "status": "Pending"
@@ -656,15 +658,19 @@
             {
               "sub_id": "sub_07_01",
               "sub_title": "7.1 기대치란",
-              "status": "Ready",
-              "current_version_code": "v0",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_07/sub_07_01_v1.md",
+                  "created_at": "2026-05-17T19:07:34.358871"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/py_decision_01/sec_07/sub_07_01_v2.md",
+                  "created_at": "2026-05-17T19:08:17.111061"
                 },
                 "v3": {
                   "status": "Pending"
