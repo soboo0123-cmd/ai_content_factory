@@ -17,6 +17,8 @@
       subMaxLevel: 3,
       auto2top: true,
       homepage: 'contents/py_decision_01/sec_01/sub_01_01_v1.md',
+      // 경로 안정성을 위한 설정 추가
+      relativePath: false,
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -33,7 +35,7 @@
   <!-- 검색 플러그인 -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
 
-  <!-- MathJax 플러그인 (LaTeX 수식 렌더링용) -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-mathjax@latest/dist/docsify-mathjax.min.js"></script>
+  <!-- MathJax 플러그인 (안정적인 버전 2.x 주소로 수정) -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-mathjax@2/dist/docsify-mathjax.min.js"></script>
 </body>
 </html>
