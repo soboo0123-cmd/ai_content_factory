@@ -40,15 +40,15 @@
   * [7.1 기대치란](contents/py_decision_01/sec_07/sub_07_01_v1.md)
   * [7.2 Decision Tree](contents/py_decision_01/sec_07/sub_07_02_v1.md)
   * [7.3 Decision Tree의 한계](contents/py_decision_01/sec_07/sub_07_03_v1.md)
-  * 7.3.1 Decision Tree의 한계 예
+  * [7.3.1 Decision Tree의 한계 예](contents/py_decision_01/sec_07/sub_07_04_v1.md)
 
 * **08 게임이론**
-  * 8.1 게임이론에 대하여
-  * 8.2 동시진행의 1회성 게임
-  * 8.3 동시진행의 반복게임
-  * 8.4 교호진행의 반복게임
-  * 8.5 협력게임
+  * [8.1 게임이론에 대하여](contents/py_decision_01/sec_08/sub_08_01_v1.md)
+  * [8.2 동시진행의 1회성 게임](contents/py_decision_01/sec_08/sub_08_02_v1.md)
+  * [8.3 동시진행의 반복게임](contents/py_decision_01/sec_08/sub_08_03_v1.md)
+  * [8.4 교호진행의 반복게임](contents/py_decision_01/sec_08/sub_08_04_v1.md)
+  * [8.5 협력게임](contents/py_decision_01/sec_08/sub_08_05_v1.md)
 
 * **09 의사결정에 관한 심리적 요소**
-  * 9.1 합리적인 의사결정과 Heuristics
-  * 9.2 심리적 요소에 얽힌 예제
+  * [9.1 합리적인 의사결정과 Heuristics](contents/py_decision_01/sec_09/sub_09_01_v1.md)
+  * [9.2 심리적 요소에 얽힌 예제](contents/py_decision_01/sec_09/sub_09_02_v1.md)
