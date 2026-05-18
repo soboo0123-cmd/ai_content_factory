@@ -38,8 +38,8 @@
 
 * **07 기대치와 Decision Tree**
   * [7.1 기대치란](contents/py_decision_01/sec_07/sub_07_01_v1.md)
-  * 7.2 Decision Tree
-  * 7.3 Decision Tree의 한계
+  * [7.2 Decision Tree](contents/py_decision_01/sec_07/sub_07_02_v1.md)
+  * [7.3 Decision Tree의 한계](contents/py_decision_01/sec_07/sub_07_03_v1.md)
   * 7.3.1 Decision Tree의 한계 예
 
 * **08 게임이론**
