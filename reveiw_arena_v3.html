@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Review Arena v2.1</title>
+    
+    <!-- 라이브러리 로드: Markdown 및 LaTeX(KaTeX) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --header-height: 50px;
+            --feedback-height: 60px;
+            --sidebar-width: 280px;
+            --primary-color: #007bff;
+        }
+
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f8; }
+
+        /* [1. 상단 헤더] */
+        header {
+            height: var(--header-height);
+            background: #1e293b; color: white;
+            display: flex; align-items: center; padding: 0 15px;
+            justify-content: space-between; z-index: 100; position: relative;
+        }
+
+        /* [2. 설정 패널 (톱니바퀴 내부)] */
+        #settings-panel {
+            display: none; position: absolute; top: var(--header-height); left: 0; width: 100%;
+            background: #ffffff; border-bottom: 2px solid #cbd5e1; padding: 15px; color: #333; z-index: 95;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .setting-row { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .setting-row input[type="text"] { flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-action { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-action:hover { background: #1d4ed8; }
+
+        /* [3. 좌측 목차 사이드바] */
+        #sidebar {
+            position: fixed; left: calc(var(--sidebar-width) * -1); top: var(--header-height);
+            width: var(--sidebar-width); height: calc(100% - var(--header-height) - var(--feedback-height));
+            background: #f8fafc; border-right: 1px solid #e2e8f0; transition: 0.3s; z-index: 90; overflow-y: auto;
+        }
+        #sidebar.open { left: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        #file-list { list-style: none; padding: 0; margin: 0; }
+        #file-list li { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; cursor: pointer; font-size: 14px; color: #334155; }
+        #file-list li:hover { background: #e0f2fe; }
+        #file-list li.active { background: #bfdbfe; font-weight: bold; }
+
+        /* [4. 메인 비교 영역 (50:50)] */
+        main {
+            display: flex; height: calc(100% - var(--header-height) - var(--feedback-height));
+            width: 100vw; transition: margin-left 0.3s;
+        }
+        .content-pane {
+            flex: 1; overflow-y: auto; padding: 0; border-right: 1px solid #e2e8f0;
+            background: white; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column;
+        }
+        .pane-header { background: #f1f5f9; padding: 8px 15px; font-weight: bold; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; text-align: center; color: #475569; }
+        .pane-body { padding: 15px; flex: 1; overflow-y: auto; }
+        
+        /* Markdown 내부 스타일 여백 조정 */
+        .pane-body img { max-width: 100%; }
+        .pane-body pre { background: #f1f5f9; padding: 10px; border-radius: 5px; overflow-x: auto; }
+
+        /* [5. 피드백 영역] */
+        #feedback-bar {
+            position: fixed; bottom: 0; width: 100%; height: var(--feedback-height);
+            background: #ffffff; border-top: 1px solid #cbd5e1;
+            padding: 10px 15px; display: flex; gap: 10px; align-items: center; box-sizing: border-box;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100;
+        }
+        #feedback-bar input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+        #btn-save { background: #0f172a; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #btn-save:disabled { background: #94a3b8; cursor: not-allowed; }
+        #btn-save:hover:not(:disabled) { background: #334155; }
+
+        /* 버튼 및 유틸리티 */
+        .btn-icon { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .status-text { font-size: 12px; color: #64748b; }
+        .status-connected { color: #16a34a; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<!-- 상단 헤더 -->
+<header>
+    <div style="display: flex; align-items: center;">
+        <button class="btn-icon" onclick="toggleSidebar()">☰</button>
+        <span id="current-title" style="margin-left:15px; font-weight:bold; font-size: 16px;">리뷰할 항목을 선택해주세요</span>
+    </div>
+    <button class="btn-icon" onclick="toggleSettings()">⚙️</button>
+</header>
+
+<!-- 설정 패널 -->
+<div id="settings-panel">
+    <div class="setting-row">
+        <strong>📁 로컬 폴더:</strong>
+        <button class="btn-action" onclick="openFolder()">프로젝트 폴더 선택</button>
+        <span id="status-folder" class="status-text">선택되지 않음 (index.json 필요)</span>
+    </div>
+    <div class="setting-row">
+        <strong>🔗 GitHub Base URL:</strong>
+        <input type="text" id="baseUrl" value="https://raw.githubusercontent.com/soboo0123-cmd/ai_content_factory/main/">
+    </div>
+    <div class="setting-row">
+        <strong>📜 동시 스크롤:</strong>
+        <label style="cursor: pointer;">
+            <input type="checkbox" id="sync-scroll-toggle" checked> v1과 v2 스크롤 동기화 켜기
+        </label>
+    </div>
+    <div style="text-align: right; margin-top: 5px;">
+        <small style="color: #64748b;">설정 완료 후 우측 상단 ⚙️ 버튼을 눌러 창을 닫아주세요.</small>
+    </div>
+</div>
+
+<!-- 좌측 목차 사이드바 -->
+<nav id="sidebar">
+    <div style="padding: 10px 15px; background: #e2e8f0; font-weight: bold; font-size: 13px; color: #475569;">
+        📝 Review Pending 목록
+    </div>
+    <ul id="file-list">
+        <li style="text-align: center; color: #94a3b8; margin-top: 20px;">폴더를 먼저 선택해주세요.</li>
+    </ul>
+</nav>
+
+<!-- 메인 비교 영역 -->
+<main id="main-content">
+    <div class="content-pane">
+        <div class="pane-header" style="color: #1e3a8a; background: #dbeafe;">버전 1 (v1 Draft)</div>
+        <div id="v1-area" class="pane-body">폴더 선택 후 좌측 메뉴에서 항목을 골라주세요.</div>
+    </div>
+    <div class="content-pane">
+        <div class="pane-header" style="color: #166534; background: #dcfce3;">버전 2 (v2 Zero-base)</div>
+        <div id="v2-area" class="pane-body">폴더 선택 후 좌측 메뉴에서 항목을 골라주세요.</div>
+    </div>
+</main>
+
+<!-- 피드백 & 저장 영역 -->
+<div id="feedback-bar">
+    <input type="text" id="feedback-input" placeholder="v1과 v2를 비교하고, v3 통합본 작성을 위한 의견을 남겨주세요." disabled>
+    <button id="btn-save" onclick="saveFeedback()" disabled>💾 피드백 로컬 저장</button>
+</div>
+
+<script>
+    // 전역 상태 변수
+    let directoryHandle = null;
+    let indexJsonHandle = null;
+    let indexData = null;
+    let currentTaskInfo = null; // { bIdx, sIdx, subIdx }
+    let isSyncScrollEnabled = document.getElementById('sync-scroll-toggle').checked;
+
+    const DOM = {
+        statusFolder: document.getElementById('status-folder'),
+        fileList: document.getElementById('file-list'),
+        currentTitle: document.getElementById('current-title'),
+        v1Area: document.getElementById('v1-area'),
+        v2Area: document.getElementById('v2-area'),
+        feedbackInput: document.getElementById('feedback-input'),
+        btnSave: document.getElementById('btn-save'),
+        baseUrl: document.getElementById('baseUrl')
+    };
+
+    // 1. UI 토글 함수들
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function toggleSettings() {
+        const panel = document.getElementById('settings-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 설정창에서 스크롤 동기화 토글 변경 감지
+    document.getElementById('sync-scroll-toggle').addEventListener('change', (e) => {
+        isSyncScrollEnabled = e.target.checked;
+    });
+
+    // 2. 폴더 선택 및 index.json 로드
+    async function openFolder() {
+        try {
+            directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            indexJsonHandle = await directoryHandle.getFileHandle('index.json', { create: false });
+            
+            const file = await indexJsonHandle.getFile();
+            const text = await file.text();
+            indexData = JSON.parse(text);
+            
+            DOM.statusFolder.innerHTML = `<span class="status-connected">✅ 연결됨: ${directoryHandle.name}</span>`;
+            renderSidebar();
+            
+            // 폴더 로드 성공 시 설정창 자동 닫기 및 사이드바 열기
+            document.getElementById('settings-panel').style.display = 'none';
+            document.getElementById('sidebar').classList.add('open');
+
+        } catch (err) {
+            console.error(err);
+            alert("폴더 접근 권한이 거부되었거나 index.json 파일을 찾을 수 없습니다.");
+        }
+    }
+
+    // 3. 사이드바 렌더링 (Review_Pending 항목만 추출)
+    function renderSidebar() {
+        DOM.fileList.innerHTML = '';
+        let count = 0;
+
+        indexData.books.forEach((book, bIdx) => {
+            book.sections.forEach((sec, sIdx) => {
+                sec.sub_sections.forEach((sub, subIdx) => {
+                    if (sub.status === "Review_Pending") {
+                        count++;
+                        const li = document.createElement('li');
+                        li.textContent = sub.sub_title;
+                        li.onclick = () => loadTask(bIdx, sIdx, subIdx, sub, li);
+                        DOM.fileList.appendChild(li);
+                    }
+                });
+            });
+        });
+
+        if (count === 0) {
+            DOM.fileList.innerHTML = '<li style="text-align: center; color: #16a34a; margin-top: 20px;">🎉 모든 리뷰가 완료되었습니다!</li>';
+        }
+    }
+
+    // 4. 작업 로드 및 마크다운 Fetch
+    async function loadTask(bIdx, sIdx, subIdx, sub, liElement) {
+        // 사이드바 UI 갱신
+        document.querySelectorAll('#file-list li').forEach(el => el.classList.remove('active'));
+        liElement.classList.add('active');
+        toggleSidebar(); // 모바일 환경 고려하여 선택 후 닫기
+
+        currentTaskInfo = { bIdx, sIdx, subIdx };
+        DOM.currentTitle.textContent = sub.sub_title;
+        DOM.feedbackInput.disabled = false;
+        DOM.btnSave.disabled = false;
+        
+        // 기존 피드백 로드
+        DOM.feedbackInput.value = sub.history?.v3?.user_feedback || "";
+
+        DOM.v1Area.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>GitHub에서 v1 불러오는 중...</p>";
+        DOM.v2Area.innerHTML = "<p style='text-align:center; color:#94a3b8; margin-top:20px;'>GitHub에서 v2 불러오는 중...</p>";
+
+        const baseUrl = DOM.baseUrl.value.trim();
+        const v1Path = sub.history?.v1?.file_path;
+        const v2Path = sub.history?.v2?.file_path;
+
+        // Fetch 진행
+        const p1 = v1Path ? fetchAndRender(baseUrl + v1Path.replace(/\\/g, '/'), DOM.v1Area) 
+                          : (DOM.v1Area.innerHTML = "v1 파일 경로가 없습니다.");
+        const p2 = v2Path ? fetchAndRender(baseUrl + v2Path.replace(/\\/g, '/'), DOM.v2Area) 
+                          : (DOM.v2Area.innerHTML = "v2 파일 경로가 없습니다.");
+
+        await Promise.all([p1, p2]);
+    }
+
+    // 5. 깃허브 Fetch -> Markdown 변환 -> LaTeX 렌더링
+    async function fetchAndRender(url, container) {
+        try {
+            const response = await fetch(url + "?t=" + new Date().getTime()); // 캐시 방지
+            if (!response.ok) throw new Error("404 Not Found");
+            
+            const text = await response.text();
+            container.innerHTML = marked.parse(text);
+
+            // KaTeX 렌더링 적용
+            renderMathInElement(container, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
+        } catch (err) {
+            container.innerHTML = `<p style="color:red;">❌ 파일을 불러오지 못했습니다.<br><small>${url}</small></p>`;
+        }
+    }
+
+    // 6. 피드백 저장 (로컬 index.json 덮어쓰기)
+    async function saveFeedback() {
+        if (!currentTaskInfo || !indexJsonHandle) return;
+
+        const { bIdx, sIdx, subIdx } = currentTaskInfo;
+        const feedbackText = DOM.feedbackInput.value.trim();
+        
+        if (!feedbackText) {
+            alert("피드백 내용을 입력해주세요.");
+            return;
+        }
+
+        const targetSub = indexData.books[bIdx].sections[sIdx].sub_sections[subIdx];
+        if (!targetSub.history.v3) targetSub.history.v3 = { status: "Pending" };
+        targetSub.history.v3.user_feedback = feedbackText;
+
+        try {
+            const writable = await indexJsonHandle.createWritable();
+            await writable.write(JSON.stringify(indexData, null, 2));
+            await writable.close();
+            
+            alert("✅ 피드백이 로컬 index.json에 성공적으로 저장되었습니다.");
+            
+            // 초기화
+            renderSidebar(); 
+            DOM.currentTitle.textContent = "리뷰할 항목을 선택해주세요";
+            DOM.v1Area.innerHTML = "저장 완료. 다른 항목을 선택하세요.";
+            DOM.v2Area.innerHTML = "저장 완료. 다른 항목을 선택하세요.";
+            DOM.feedbackInput.value = "";
+            DOM.feedbackInput.disabled = true;
+            DOM.btnSave.disabled = true;
+            currentTaskInfo = null;
+
+        } catch (err) {
+            console.error(err);
+            alert("저장 중 오류가 발생했습니다. 브라우저 권한을 확인해주세요.");
+        }
+    }
+
+    // 7. 동시 스크롤 (Sync Scroll) 로직
+    let isSyncingLeft = false;
+    let isSyncingRight = false;
+
+    DOM.v1Area.addEventListener('scroll', function() {
+        if (!isSyncScrollEnabled) return; // 설정에서 끄면 작동안함
+        if (!isSyncingLeft) {
+            isSyncingRight = true;
+            const percentage = this.scrollTop / (this.scrollHeight - this.clientHeight);
+            DOM.v2Area.scrollTop = percentage * (DOM.v2Area.scrollHeight - DOM.v2Area.clientHeight);
+        }
+        isSyncingLeft = false;
+    });
+
+    DOM.v2Area.addEventListener('scroll', function() {
+        if (!isSyncScrollEnabled) return; // 설정에서 끄면 작동안함
+        if (!isSyncingRight) {
+            isSyncingLeft = true;
+            const percentage = this.scrollTop / (this.scrollHeight - this.clientHeight);
+            DOM.v1Area.scrollTop = percentage * (DOM.v1Area.scrollHeight - DOM.v1Area.clientHeight);
+        }
+        isSyncingRight = false;
+    });
+
+</script>
+</body>
+</html>
