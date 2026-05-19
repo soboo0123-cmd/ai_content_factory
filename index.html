@@ -32,7 +32,7 @@
     .CodeMirror {
       font-family: Consolas, "JetBrains Mono", "Roboto Mono", Monaco, monospace;
       font-size: 1rem;
-      height: 180px;
+      height: 100%; /* 에디터가 남은 공간을 꽉 채우도록 변경 */
     }
   </style>
 </head>
@@ -97,9 +97,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 
-  <!-- 우측 하단 플로팅 버튼 (배경 제거, 크기/위치 조정, 트랜지션 추가) -->
-  <button id="floatingToggleBtn" title="파이썬 코드 실행기 열기" style="position: fixed; bottom: 15px; right: 15px; z-index: 100; background: transparent; border: none; font-size: 32px; cursor: pointer; transition: opacity 0.3s, visibility 0.3s; display: flex; align-items: center; justify-content: center;">💻</button>
-
   <!-- 로딩 오버레이 (최초 실행 시 엔진 다운로드 중 표시) -->
   <div id="loadingOverlay" style="position: fixed; inset: 0; z-index: 105; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(3px);">
     <div style="background: #1e1e1e; padding: 30px; border-radius: 12px; text-align: center; color: white; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
@@ -109,8 +106,8 @@
   </div>
 
   <!-- 플레이그라운드 UI (아래에 숨겨짐) -->
-  <section id="playgroundWrapper" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 99; transform: translateY(100%); transition: transform 0.3s ease-in-out; background: #1e1e1e; border-top: 1px solid #333; padding: 16px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5);">
-    <div style="max-width: 860px; margin: 0 auto;">
+  <section id="playgroundWrapper" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 99; transform: translateY(100%); transition: transform 0.3s ease-in-out; background: #1e1e1e; border-top: 1px solid #333; padding: 16px; padding-bottom: 24px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); height: 90vh; display: flex; flex-direction: column;">
+    <div style="max-width: 860px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; height: 100%;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: white;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <strong style="font-size: 1.1rem;">Python Playground</strong>
@@ -119,16 +116,18 @@
         <button id="closePlaygroundBtn" style="background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-weight: bold; transition: background 0.2s;">닫기 ▼</button>
       </div>
       
-      <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; background: #2b2b2b;">
+      <!-- 에디터 영역: flex: 1 적용으로 창 크기에 맞춰 자동 확장됨 -->
+      <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; background: #2b2b2b; flex: 1; display: flex; flex-direction: column;">
         <textarea id="editor">print("여기에 파이썬 코드를 작성하거나 본문에서 복사해오세요.")</textarea>
       </div>
       
-      <div style="margin-top: 12px; display: flex; gap: 10px;">
+      <div style="margin-top: 12px; display: flex; gap: 10px; flex-shrink: 0;">
         <button id="runBtn" style="background: #42b983; color: #000; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; font-size: 1rem; transition: opacity 0.2s;">▶ 코드 실행 (엔진 로드 필요)</button>
         <button id="clearBtn" style="background: #444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">지우기</button>
       </div>
       
-      <div id="outputPanel" style="margin-top: 12px; background: #0b0f19; color: #dbeafe; padding: 12px; border-radius: 8px; border: 1px solid #222; min-height: 90px; max-height: 200px; overflow-y: auto; font-family: Consolas, monospace; font-size: 0.95rem; white-space: pre-wrap;">실행 결과가 이곳에 출력됩니다.</div>
+      <!-- 출력창 영역: 90vh의 창 크기에 비례하여 높이를 25% 정도로 고정 -->
+      <div id="outputPanel" style="margin-top: 12px; background: #0b0f19; color: #dbeafe; padding: 12px; border-radius: 8px; border: 1px solid #222; height: 25%; min-height: 100px; overflow-y: auto; font-family: Consolas, monospace; font-size: 0.95rem; white-space: pre-wrap; flex-shrink: 0;">실행 결과가 이곳에 출력됩니다.</div>
     </div>
   </section>
 
@@ -147,29 +146,18 @@
       });
     });
 
-    // 2. 플레이그라운드 여닫기 로직 및 버튼 숨김/표시 처리
+    // 2. 플레이그라운드 여닫기 로직
     const wrapper = document.getElementById('playgroundWrapper');
-    const toggleBtn = document.getElementById('floatingToggleBtn');
     
     function showPlayground() {
       wrapper.style.transform = 'translateY(0)';
-      // 실행기 창이 열리면 버튼 숨기기
-      toggleBtn.style.opacity = '0';
-      toggleBtn.style.visibility = 'hidden';
       // 애니메이션이 끝난 후 에디터 크기를 재계산하여 레이아웃 깨짐 방지
       setTimeout(() => editor.refresh(), 300);
     }
     
     function hidePlayground() {
       wrapper.style.transform = 'translateY(100%)';
-      // 실행기 창이 닫히면 버튼 다시 보이기
-      toggleBtn.style.opacity = '1';
-      toggleBtn.style.visibility = 'visible';
     }
-
-    toggleBtn.addEventListener('click', () => {
-      showPlayground();
-    });
     
     document.getElementById('closePlaygroundBtn').addEventListener('click', hidePlayground);
 
