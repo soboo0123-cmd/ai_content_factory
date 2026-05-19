@@ -34,6 +34,16 @@
       font-size: 1rem;
       height: 100%; /* 에디터가 남은 공간을 꽉 채우도록 변경 */
     }
+
+    /* 출력창 내부 이미지 반응형 처리 */
+    #outputPanel img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 
@@ -97,7 +107,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 
-  <!-- 로딩 오버레이 (최초 실행 시 엔진 다운로드 중 표시) -->
+  <!-- 로딩 오버레이 -->
   <div id="loadingOverlay" style="position: fixed; inset: 0; z-index: 105; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(3px);">
     <div style="background: #1e1e1e; padding: 30px; border-radius: 12px; text-align: center; color: white; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
       <h3 style="margin-top:0; color: #42b983;">Python 엔진 다운로드 중...</h3>
@@ -105,7 +115,7 @@
     </div>
   </div>
 
-  <!-- 플레이그라운드 UI (아래에 숨겨짐) -->
+  <!-- 플레이그라운드 UI -->
   <section id="playgroundWrapper" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 99; transform: translateY(100%); transition: transform 0.3s ease-in-out; background: #1e1e1e; border-top: 1px solid #333; padding: 16px; padding-bottom: 24px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); height: 90vh; display: flex; flex-direction: column;">
     <div style="max-width: 860px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; height: 100%;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: white;">
@@ -116,7 +126,7 @@
         <button id="closePlaygroundBtn" style="background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-weight: bold; transition: background 0.2s;">닫기 ▼</button>
       </div>
       
-      <!-- 에디터 영역: flex: 1 적용으로 창 크기에 맞춰 자동 확장됨 -->
+      <!-- 에디터 영역 -->
       <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; background: #2b2b2b; flex: 1; display: flex; flex-direction: column;">
         <textarea id="editor">print("여기에 파이썬 코드를 작성하거나 본문에서 복사해오세요.")</textarea>
       </div>
@@ -126,8 +136,8 @@
         <button id="clearBtn" style="background: #444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">지우기</button>
       </div>
       
-      <!-- 출력창 영역: 90vh의 창 크기에 비례하여 높이를 25% 정도로 고정 -->
-      <div id="outputPanel" style="margin-top: 12px; background: #0b0f19; color: #dbeafe; padding: 12px; border-radius: 8px; border: 1px solid #222; height: 25%; min-height: 100px; overflow-y: auto; font-family: Consolas, monospace; font-size: 0.95rem; white-space: pre-wrap; flex-shrink: 0;">실행 결과가 이곳에 출력됩니다.</div>
+      <!-- 출력창 영역: 텍스트와 HTML 요소(이미지)를 모두 담기 위해 div 활용 -->
+      <div id="outputPanel" style="margin-top: 12px; background: #0b0f19; color: #dbeafe; padding: 12px; border-radius: 8px; border: 1px solid #222; height: 35%; min-height: 120px; overflow-y: auto; font-family: Consolas, monospace; font-size: 0.95rem; white-space: pre-wrap; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start;">실행 결과가 이곳에 출력됩니다.</div>
     </div>
   </section>
 
@@ -136,7 +146,7 @@
     let isPyodideLoading = false;
     let isPyodideReady = false;
 
-    // 1. 페이지 로드 시 CodeMirror 에디터 껍데기 미리 초기화
+    // 1. 에디터 초기화
     window.addEventListener('DOMContentLoaded', () => {
       editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
         mode: 'python',
@@ -146,59 +156,56 @@
       });
     });
 
-    // 2. 플레이그라운드 여닫기 로직
+    // 2. 창 여닫기
     const wrapper = document.getElementById('playgroundWrapper');
-    
     function showPlayground() {
       wrapper.style.transform = 'translateY(0)';
-      // 애니메이션이 끝난 후 에디터 크기를 재계산하여 레이아웃 깨짐 방지
       setTimeout(() => editor.refresh(), 300);
     }
-    
     function hidePlayground() {
       wrapper.style.transform = 'translateY(100%)';
     }
-    
     document.getElementById('closePlaygroundBtn').addEventListener('click', hidePlayground);
 
-    // 3. 복사 버튼 이벤트 가로채기 (클립보드 + 플레이그라운드 연동)
+    // 3. 복사 버튼 가로채기
     document.addEventListener('click', (e) => {
-      // docsify-copy-code 플러그인에 의해 생성된 복사 버튼인지 확인
       const copyBtn = e.target.closest('.docsify-copy-code-button');
       if (copyBtn) {
-        // 복사 버튼이 속한 코드 블록(pre > code) 찾기
         const preTag = copyBtn.closest('pre');
         if (preTag) {
           const codeBlock = preTag.querySelector('code');
           if (codeBlock) {
-            // 원본 코드 텍스트 추출 (docsify-copy-code 플러그인은 클립보드 복사를 알아서 수행함)
             const codeText = codeBlock.innerText || codeBlock.textContent;
-            
-            // 플레이그라운드 에디터에 코드 삽입
             editor.setValue(codeText);
             
-            // 출력창 초기화
-            document.getElementById('outputPanel').textContent = '코드가 붙여넣기 되었습니다. 실행 버튼을 눌러보세요.';
-            document.getElementById('outputPanel').style.color = '#bbb';
+            const out = document.getElementById('outputPanel');
+            out.innerHTML = '<span style="color:#bbb;">코드가 붙여넣기 되었습니다. 실행 버튼을 눌러보세요.</span>';
             
-            // 플레이그라운드 창 위로 올리기
             showPlayground();
           }
         }
       }
     });
 
-    // 4. 파이썬 엔진(Pyodide) 지연 로딩 및 코드 실행
+    // [핵심 1] 출력창에 텍스트를 노드 형태로 안전하게 추가하는 함수
+    // 기존의 textContent += 방식은 기존에 그려진 <img> 태그를 삭제해버리므로 이를 방지
+    function appendTextOutput(message, color = '#dbeafe') {
+      const out = document.getElementById('outputPanel');
+      const span = document.createElement('span');
+      span.textContent = message + '\n';
+      span.style.color = color;
+      out.appendChild(span);
+      out.scrollTop = out.scrollHeight; // 자동 스크롤
+    }
+
+    // 4. 엔진 로드 및 코드 실행
     document.getElementById('runBtn').addEventListener('click', async function() {
       const out = document.getElementById('outputPanel');
       const status = document.getElementById('engineStatus');
-      
-      out.style.color = '#dbeafe';
 
-      // 4-1. Pyodide가 로드되지 않았다면 (최초 클릭)
+      // 4-1. 엔진 부팅
       if (!isPyodideReady) {
-        if (isPyodideLoading) return; // 중복 클릭 방지
-        
+        if (isPyodideLoading) return; 
         isPyodideLoading = true;
         document.getElementById('loadingOverlay').style.display = 'flex';
         this.textContent = '엔진 구성 중...';
@@ -206,24 +213,22 @@
         status.style.color = '#fbbf24';
         
         try {
-          // CDN에서 pyodide.js 동적 주입
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js';
+            script.src = 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js'; // 안정적인 버전
             script.onload = resolve;
             script.onerror = reject;
             document.head.appendChild(script);
           });
 
-          // 웹어셈블리 파이썬 환경 다운로드 및 부팅
-          pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.29.3/full/' });
+          pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/' });
           isPyodideReady = true;
           this.textContent = '▶ 코드 실행';
           status.textContent = '엔진 준비됨';
           status.style.color = '#42b983';
         } catch (err) {
-          out.textContent = "파이썬 엔진 로드 실패:\n" + err.message;
-          out.style.color = '#f87171';
+          out.innerHTML = '';
+          appendTextOutput("파이썬 엔진 로드 실패:\n" + err.message, '#f87171');
           document.getElementById('loadingOverlay').style.display = 'none';
           isPyodideLoading = false;
           this.textContent = '재시도';
@@ -231,44 +236,79 @@
           status.style.color = '#f87171';
           return;
         }
-        
-        // 로딩 완료 시 오버레이 숨김
         document.getElementById('loadingOverlay').style.display = 'none';
       }
 
-      // 4-2. 파이썬 코드 실행 (이미 로드된 상태)
+      // 4-2. 코드 실행 로직
       this.disabled = true;
       this.style.opacity = '0.5';
-      out.textContent = ''; 
+      out.innerHTML = ''; // 실행 전 출력창 초기화
       
-try {
-        // 표준 출력(print) 및 에러를 웹 출력창으로 연결
-        pyodide.setStdout({ batched: (m) => { out.textContent += m + '\n'; out.scrollTop = out.scrollHeight; } });
-        pyodide.setStderr({ batched: (m) => { out.textContent += m + '\n'; out.style.color = '#f87171'; out.scrollTop = out.scrollHeight; } });
+      try {
+        // print() 출력을 appendTextOutput 함수로 연결
+        pyodide.setStdout({ batched: (m) => appendTextOutput(m) });
+        pyodide.setStderr({ batched: (m) => appendTextOutput(m, '#f87171') });
         
         const pythonCode = editor.getValue();
 
-        // [추가된 핵심 기능] 코드 내의 import 문을 분석하여 필요한 패키지(예: numpy, pandas 등)를 자동 다운로드
-        out.textContent = "필요한 라이브러리를 확인하고 다운로드하는 중입니다...\n(최초 1회만 시간이 소요됩니다)\n\n";
+        // 패키지 자동 다운로드 확인
+        appendTextOutput("필요한 라이브러리를 확인하고 다운로드하는 중입니다...\n(최초 1회만 시간이 소요됩니다)\n", '#fbbf24');
         await pyodide.loadPackagesFromImports(pythonCode);
-        out.textContent = ""; // 준비 완료 시 안내 메시지 삭제
         
-        // 에디터의 코드를 비동기로 실행
+        // 다운로드 안내문 지우기 (초기화)
+        out.innerHTML = '';
+
+        // [핵심 2] Matplotlib 처리: 그래프를 브라우저 DOM이 아닌 이미지(Base64)로 렌더링하도록 강제 설정
+        // 사용자의 코드에 matplotlib이 포함되어 있다면 아래 설정 코드를 백그라운드에서 먼저 실행
+        if (pythonCode.includes('matplotlib') || pythonCode.includes('plt.')) {
+          const matplotlibSetupCode = `
+import sys
+if 'matplotlib.pyplot' not in sys.modules:
+    import matplotlib
+    matplotlib.use('Agg') # GUI 창을 띄우지 않는 백엔드 사용
+    import matplotlib.pyplot as plt
+    import io, base64
+    from js import document
+
+    # plt.show()를 가로채는 커스텀 함수
+    def custom_show(*args, **kwargs):
+        buf = io.BytesIO()
+        # 다크테마 출력창에서도 잘 보이도록 배경색을 흰색으로 강제 지정
+        plt.savefig(buf, format='png', bbox_inches='tight', facecolor='white')
+        buf.seek(0)
+        img_data = base64.b64encode(buf.read()).decode('utf-8')
+        
+        # 자바스크립트를 호출하여 출력창에 <img> 태그 생성 및 삽입
+        out_panel = document.getElementById('outputPanel')
+        img = document.createElement('img')
+        img.src = "data:image/png;base64," + img_data
+        out_panel.appendChild(img)
+        
+        # 스크롤 맨 아래로
+        out_panel.scrollTop = out_panel.scrollHeight
+        
+        plt.clf() # 다음 그래프를 위해 캔버스 초기화
+
+    # 기존 plt.show를 우리가 만든 커스텀 함수로 덮어쓰기
+    plt.show = custom_show
+          `;
+          await pyodide.runPythonAsync(matplotlibSetupCode);
+        }
+
+        // 사용자가 작성한 실제 코드 실행
         await pyodide.runPythonAsync(pythonCode);
+
       } catch (err) {
-        // 문법 오류 등 파이썬 자체 에러 처리
-        out.textContent += "\n" + err.message;
-        out.style.color = '#f87171';
+        appendTextOutput("\n" + err.message, '#f87171');
       }
       
       this.disabled = false;
       this.style.opacity = '1';
     });
 
-    // 5. 출력 결과 지우기
+    // 5. 출력창 비우기 기능 수정 (innerHTML 활용)
     document.getElementById('clearBtn').addEventListener('click', () => {
-      document.getElementById('outputPanel').textContent = '결과가 지워졌습니다.';
-      document.getElementById('outputPanel').style.color = '#bbb';
+      document.getElementById('outputPanel').innerHTML = '<span style="color:#bbb;">결과가 지워졌습니다.</span>';
     });
   </script>
 </body>
