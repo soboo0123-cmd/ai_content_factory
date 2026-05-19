@@ -241,13 +241,20 @@
       this.style.opacity = '0.5';
       out.textContent = ''; 
       
-      try {
+try {
         // 표준 출력(print) 및 에러를 웹 출력창으로 연결
         pyodide.setStdout({ batched: (m) => { out.textContent += m + '\n'; out.scrollTop = out.scrollHeight; } });
         pyodide.setStderr({ batched: (m) => { out.textContent += m + '\n'; out.style.color = '#f87171'; out.scrollTop = out.scrollHeight; } });
         
-        // 에디터의 코드를 가져와서 비동기로 실행
-        await pyodide.runPythonAsync(editor.getValue());
+        const pythonCode = editor.getValue();
+
+        // [추가된 핵심 기능] 코드 내의 import 문을 분석하여 필요한 패키지(예: numpy, pandas 등)를 자동 다운로드
+        out.textContent = "필요한 라이브러리를 확인하고 다운로드하는 중입니다...\n(최초 1회만 시간이 소요됩니다)\n\n";
+        await pyodide.loadPackagesFromImports(pythonCode);
+        out.textContent = ""; // 준비 완료 시 안내 메시지 삭제
+        
+        // 에디터의 코드를 비동기로 실행
+        await pyodide.runPythonAsync(pythonCode);
       } catch (err) {
         // 문법 오류 등 파이썬 자체 에러 처리
         out.textContent += "\n" + err.message;
