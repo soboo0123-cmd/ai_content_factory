@@ -1,0 +1,859 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Book Index Builder & Resource Manager</title>
+    
+    <style>
+        :root {
+            --header-height: 50px;
+            --footer-height: 60px;
+            --sidebar-width: 320px;
+            --primary-color: #2563eb;
+            --bg-dark: #1e293b;
+            --bg-light: #f8fafc;
+            --border-color: #cbd5e1;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100%; overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #f4f6f8; color: #1e293b;
+        }
+
+        /* [1. 상단 헤더] */
+        header {
+            height: var(--header-height);
+            background: var(--bg-dark); color: white;
+            display: flex; align-items: center; padding: 0 15px;
+            justify-content: space-between; z-index: 100; position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* [2. 설정 패널 (톱니바퀴 내부)] */
+        #settings-panel {
+            display: none; position: absolute; top: var(--header-height); left: 0; width: 100%;
+            background: #ffffff; border-bottom: 2px solid #cbd5e1; padding: 15px; color: #333; z-index: 95;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .setting-row { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 14px; flex-wrap: wrap; }
+        .setting-row select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; background: white; }
+        .btn-action { background: var(--primary-color); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-action:hover { background: #1d4ed8; }
+
+        /* [3. 메인 분할 작업 영역 (50:50)] */
+        main {
+            display: flex; height: calc(100% - var(--header-height) - var(--footer-height));
+            width: 100vw; background: white;
+        }
+        .content-pane {
+            flex: 1; overflow-y: auto; padding: 0; border-right: 1px solid #e2e8f0;
+            background: white; font-size: 14px; display: flex; flex-direction: column;
+        }
+        .pane-header { 
+            background: #f1f5f9; padding: 10px 15px; font-weight: bold; 
+            border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .pane-body { padding: 15px; flex: 1; overflow-y: auto; }
+
+        /* [4. 좌측 빌더 전용 스타일] */
+        .tree-container { list-style: none; padding-left: 0; margin: 0; }
+        .book-section { 
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; 
+            margin-bottom: 15px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+        }
+        .section-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            font-weight: bold; font-size: 15px; color: #334155; margin-bottom: 10px; 
+            border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;
+        }
+        .sub-list { list-style: none; padding-left: 15px; margin: 0; border-left: 2px dashed #cbd5e1; }
+        .sub-item { 
+            background: white; border: 1px solid #e2e8f0; border-radius: 4px; 
+            margin-bottom: 10px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .sub-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .sub-title { font-weight: 600; color: #1e293b; }
+        
+        /* 배지 및 선택 셀렉트박스 스타일 */
+        .status-select {
+            padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            border: 1px solid #cbd5e1; cursor: pointer; outline: none;
+        }
+        .status-ready { background: #dbeafe; color: #1e40af; }
+        .status-draft { background: #ffedd5; color: #9a3412; }
+        .status-pending { background: #dcfce3; color: #166534; }
+        .status-published { background: #f3e8ff; color: #6b21a8; }
+        .status-polishing { background: #fef08a; color: #854d0e; }
+
+        .badge { 
+            display: inline-block; padding: 2px 6px; border-radius: 4px; 
+            font-size: 11px; font-weight: bold; text-transform: uppercase; 
+        }
+        .badge-success { background: #22c55e; color: white; }
+        .badge-empty { background: #94a3b8; color: white; }
+
+        /* 하이브리드 리소스 패널 */
+        .resource-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; margin-top: 8px; font-size: 12px; }
+        .resource-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+        .resource-row:last-child { margin-bottom: 0; }
+        .btn-mini { background: #475569; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-mini:hover { background: #334155; }
+        .btn-mini.btn-write { background: #0284c7; }
+        .btn-mini.btn-write:hover { background: #0369a1; }
+        
+        .textarea-box { display: none; margin-top: 6px; }
+        .textarea-box textarea { width: 100%; height: 80px; box-sizing: border-box; font-family: monospace; font-size: 11px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; }
+        .editor-actions { display: flex; justify-content: flex-end; gap: 5px; margin-top: 4px; }
+
+        /* 버튼류 */
+        .btn-icon { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .btn-tool { background: none; border: none; cursor: pointer; padding: 4px; font-size: 13px; color: #64748b; font-weight: bold; }
+        .btn-tool:hover { color: #1e293b; }
+        .btn-danger { color: #ef4444; }
+        .btn-danger:hover { color: #b91c1c; }
+        .btn-add { background: #f1f5f9; border: 1px dashed #cbd5e1; color: #475569; width: 100%; padding: 8px; text-align: center; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 8px; }
+        .btn-add:hover { background: #e2e8f0; color: #1e293b; }
+
+        /* [5. 우측 JSON 프리뷰 전용 스타일] */
+        #json-preview { 
+            margin: 0; padding: 15px; font-family: "Courier New", Courier, monospace; 
+            font-size: 12px; background: #0f172a; color: #38bdf8; overflow: auto; height: 100%; box-sizing: border-box; 
+        }
+
+        /* [6. 하단 저장 영역] */
+        #footer-bar {
+            position: fixed; bottom: 0; width: 100%; height: var(--footer-height);
+            background: #ffffff; border-top: 1px solid #cbd5e1;
+            padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100;
+        }
+        #btn-save-all { background: #0f172a; color: white; border: none; padding: 10px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 14px; }
+        #btn-save-all:disabled { background: #94a3b8; cursor: not-allowed; }
+        #btn-save-all:hover:not(:disabled) { background: #334155; }
+        .status-text { font-size: 12px; color: #64748b; }
+        .status-connected { color: #16a34a; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<!-- 상단 헤더 -->
+<header>
+    <div style="display: flex; align-items: center;">
+        <span style="font-weight:bold; font-size: 16px;">📚 index.json 작성기 & 리소스 연동 툴</span>
+    </div>
+    <button class="btn-icon" onclick="toggleSettings()">⚙️</button>
+</header>
+
+<!-- 설정 패널 (책 선택 및 폴더 연결) -->
+<div id="settings-panel">
+    <div class="setting-row">
+        <strong>📁 로컬 폴더:</strong>
+        <button class="btn-action" onclick="openFolder()">프로젝트 폴더 선택</button>
+        <span id="status-folder" class="status-text">선택되지 않음 (index.json 필요)</span>
+    </div>
+    <div class="setting-row" id="book-select-container" style="display:none;">
+        <strong>📖 도서 편집 선택:</strong>
+        <select id="book-select" onchange="switchBook()">
+            <!-- 동적으로 생성 -->
+        </select>
+        <button class="btn-action" style="background:#16a34a;" onclick="addNewBook()">➕ 새 도서 추가</button>
+    </div>
+    <div style="text-align: right; margin-top: 5px;">
+        <small style="color: #64748b;">설정 완료 후 우측 상단 ⚙️ 버튼을 눌러 창을 닫아주세요.</small>
+    </div>
+</div>
+
+<!-- 메인 분할 작업 영역 (50:50) -->
+<main>
+    <!-- 좌측: 대목차/소목차 트리 빌더 -->
+    <div class="content-pane">
+        <div class="pane-header">
+            <span id="builder-title">대목차 / 소목차 빌더 에디터</span>
+            <button class="btn-mini btn-write" id="btn-add-section" onclick="addSection()" style="display:none;">➕ 대목차 추가</button>
+        </div>
+        <div class="pane-body" id="builder-pane-body">
+            <div id="tree-root-area">
+                <p style="text-align: center; color: #94a3b8; margin-top: 40px;">우측 상단 ⚙️ 설정을 눌러 폴더를 연결해주세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 우측: 실시간 JSON 코드 프리뷰 -->
+    <div class="content-pane">
+        <div class="pane-header">index.json 실시간 프리뷰</div>
+        <div style="flex:1; overflow:hidden;">
+            <pre id="json-preview">폴더 연동 후 데이터가 실시간으로 이곳에 표현됩니다.</pre>
+        </div>
+    </div>
+</main>
+
+<!-- 하단 피드백 & 영구 디스크 저장 바 -->
+<div id="footer-bar">
+    <div class="status-text" id="status-db">대기 중...</div>
+    <button id="btn-save-all" onclick="saveIndexFile()" disabled>💾 index.json 최종 디스크 저장</button>
+</div>
+
+<script>
+    // 전역 애플리케이션 상태
+    let directoryHandle = null;
+    let indexJsonHandle = null;
+    let indexData = null;
+    let currentBookIdx = 0;
+
+    const DOM = {
+        statusFolder: document.getElementById('status-folder'),
+        bookSelectContainer: document.getElementById('book-select-container'),
+        bookSelect: document.getElementById('book-select'),
+        treeRootArea: document.getElementById('tree-root-area'),
+        jsonPreview: document.getElementById('json-preview'),
+        btnSaveAll: document.getElementById('btn-save-all'),
+        btnAddSection: document.getElementById('btn-add-section'),
+        statusDb: document.getElementById('status-db'),
+        builderPaneBody: document.getElementById('builder-pane-body')
+    };
+
+    // ⚙️ 설정 패널 토글
+    function toggleSettings() {
+        const panel = document.getElementById('settings-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 1. 프로젝트 폴더 열기 & index.json 로딩
+    async function openFolder() {
+        try {
+            directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            indexJsonHandle = await directoryHandle.getFileHandle('index.json', { create: false });
+            
+            const file = await indexJsonHandle.getFile();
+            const text = await file.text();
+            indexData = JSON.parse(text);
+            
+            DOM.statusFolder.innerHTML = `<span class="status-connected">✅ 연결됨: ${directoryHandle.name}</span>`;
+            DOM.bookSelectContainer.style.display = 'flex';
+            DOM.btnSaveAll.disabled = false;
+            DOM.btnAddSection.style.display = 'inline-block';
+            DOM.statusDb.textContent = '정상적으로 로컬 index.json을 불러왔습니다.';
+            
+            // 책 셀렉트박스 목록 채우기
+            populateBookSelector();
+            
+            // 설정 패널 닫기 및 빌드 실행
+            document.getElementById('settings-panel').style.display = 'none';
+            switchBook();
+
+        } catch (err) {
+            console.error(err);
+            alert("폴더 액세스 권한이 없거나 index.json 파일을 찾을 수 없습니다.");
+        }
+    }
+
+    // 도서 셀렉터 바인딩
+    function populateBookSelector() {
+        DOM.bookSelect.innerHTML = '';
+        indexData.books.forEach((book, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = book.book_title;
+            DOM.bookSelect.appendChild(opt);
+        });
+    }
+
+    // 책 전환 시 트리 빌드 및 프리뷰 갱신
+    function switchBook() {
+        currentBookIdx = parseInt(DOM.bookSelect.value) || 0;
+        buildTreeUI();
+        updatePreview();
+    }
+
+    // 실시간 프리뷰 갱신
+    function updatePreview() {
+        if (!indexData) return;
+        DOM.jsonPreview.textContent = JSON.stringify(indexData, null, 2);
+    }
+
+    // contents/[book_id]/source 디렉토리를 찾아 없으면 자동 생성 후 Handle 반환
+    async function getSourceDirectoryHandle(bookId) {
+        if (!directoryHandle) return null;
+        try {
+            const contentsHandle = await directoryHandle.getDirectoryFolderHandle('contents');
+            const bookHandle = await contentsHandle.getDirectoryFolderHandle(sanitizeId(bookId));
+            // source 폴더 존재 유무 확인 및 자동 생성
+            const sourceHandle = await bookHandle.getDirectoryHandle('source', { create: true });
+            return sourceHandle;
+        } catch (e) {
+            console.error("source 디렉토리 생성/감지 오류: ", e);
+            // 순차적 풀백 브릿지
+            try {
+                const contentsHandle = await directoryHandle.getDirectoryHandle('contents', { create: true });
+                const bookHandle = await contentsHandle.getDirectoryHandle(sanitizeId(bookId), { create: true });
+                const sourceHandle = await bookHandle.getDirectoryHandle('source', { create: true });
+                return sourceHandle;
+            } catch (innerErr) {
+                console.error("복합 브릿지 생성 최종 실패: ", innerErr);
+                return null;
+            }
+        }
+    }
+
+    // DirectoryPicker 헬퍼 (getDirectoryHandle의 래핑)
+    FileSystemDirectoryHandle.prototype.getDirectoryFolderHandle = async function(name) {
+        return await this.getDirectoryHandle(name, { create: false });
+    };
+
+    // 특정 접두사(Prefix)로 시작하는 실제 파일명을 폴더 내에서 동적으로 스캔 및 반환
+    async function findFileWithPrefix(sourceHandle, prefix) {
+        if (!sourceHandle) return null;
+        try {
+            for await (const entry of sourceHandle.values()) {
+                if (entry.kind === 'file' && entry.name.startsWith(prefix)) {
+                    return entry.name;
+                }
+            }
+        } catch (e) {
+            console.error("폴더 스캔 에러:", e);
+        }
+        return null;
+    }
+
+    // ID 가공 및 영문/숫자/언더바 자동 정제 헬퍼
+    function sanitizeId(text) {
+        return String(text)
+            .toLowerCase()
+            .replace(/[^a-z0-9_]/g, '_')
+            .replace(/_+/g, '_')
+            .replace(/^_+|_+$/g, '');
+    }
+
+    // 2. 트리 UI 빌더 핵심 로직
+    async function buildTreeUI() {
+        if (!indexData || indexData.books.length === 0) return;
+        
+        // 조작 위치 유지를 위해 빌드 전 스크롤 위치 기록
+        const savedScrollTop = DOM.builderPaneBody ? DOM.builderPaneBody.scrollTop : 0;
+
+        const book = indexData.books[currentBookIdx];
+        DOM.treeRootArea.innerHTML = '';
+
+        const container = document.createElement('ul');
+        container.className = 'tree-container';
+
+        // 책 제목 표시 카드
+        const bookHeader = document.createElement('div');
+        bookHeader.style.padding = '10px';
+        bookHeader.style.background = '#e2e8f0';
+        bookHeader.style.borderRadius = '5px';
+        bookHeader.style.marginBottom = '15px';
+        bookHeader.style.display = 'flex';
+        bookHeader.style.justifyContent = 'space-between';
+        bookHeader.style.alignItems = 'center';
+        bookHeader.innerHTML = `<strong>📘 책 제목: ${book.book_title}</strong>`;
+        
+        const btnEditBook = document.createElement('button');
+        btnEditBook.className = 'btn-tool';
+        btnEditBook.textContent = '✏️ 책제목 수정';
+        btnEditBook.onclick = () => {
+            const newTitle = prompt("수정할 책 제목을 입력하세요:", book.book_title);
+            if (newTitle && newTitle.trim()) {
+                book.book_title = newTitle.trim();
+                populateBookSelector();
+                DOM.bookSelect.value = currentBookIdx;
+                switchBook();
+            }
+        };
+        bookHeader.appendChild(btnEditBook);
+        DOM.treeRootArea.appendChild(bookHeader);
+
+        // source 디렉토리 핸들 확보
+        const sourceHandle = await getSourceDirectoryHandle(book.book_id);
+
+        // 각 대목차(섹션) 순회
+        book.sections.forEach((section, sIdx) => {
+            const secLi = document.createElement('li');
+            secLi.className = 'book-section';
+
+            // 섹션 헤더
+            const secHeader = document.createElement('div');
+            secHeader.className = 'section-header';
+            secHeader.innerHTML = `<span>📂 ${section.section_title}</span>`;
+
+            const secControls = document.createElement('div');
+            secControls.style.display = 'flex';
+            secControls.style.gap = '8px';
+
+            // 대목차 이름 수정
+            const btnEditSec = document.createElement('button');
+            btnEditSec.className = 'btn-tool';
+            btnEditSec.textContent = '✏️ 이름수정';
+            btnEditSec.onclick = () => {
+                const newTitle = prompt("수정할 대목차 명칭을 입력하세요:", section.section_title);
+                if (newTitle && newTitle.trim()) {
+                    section.section_title = newTitle.trim();
+                    switchBook();
+                }
+            };
+            secControls.appendChild(btnEditSec);
+
+            // 대목차 순서 이동
+            if (sIdx > 0) {
+                const btnUp = document.createElement('button');
+                btnUp.className = 'btn-tool';
+                btnUp.textContent = '▲';
+                btnUp.onclick = () => {
+                    const temp = book.sections[sIdx];
+                    book.sections[sIdx] = book.sections[sIdx - 1];
+                    book.sections[sIdx - 1] = temp;
+                    switchBook();
+                };
+                secControls.appendChild(btnUp);
+            }
+            if (sIdx < book.sections.length - 1) {
+                const btnDown = document.createElement('button');
+                btnDown.className = 'btn-tool';
+                btnDown.textContent = '▼';
+                btnDown.onclick = () => {
+                    const temp = book.sections[sIdx];
+                    book.sections[sIdx] = book.sections[sIdx + 1];
+                    book.sections[sIdx + 1] = temp;
+                    switchBook();
+                };
+                secControls.appendChild(btnDown);
+            }
+
+            // 대목차 삭제
+            const btnDelSec = document.createElement('button');
+            btnDelSec.className = 'btn-tool btn-danger';
+            btnDelSec.textContent = '❌ 삭제';
+            btnDelSec.onclick = () => {
+                if (confirm(`'${section.section_title}' 대목차와 그 하위 목차들을 모두 삭제하시겠습니까?`)) {
+                    book.sections.splice(sIdx, 1);
+                    switchBook();
+                }
+            };
+            secControls.appendChild(btnDelSec);
+
+            secHeader.appendChild(secControls);
+            secLi.appendChild(secHeader);
+
+            // 소목차(서브섹션) 리스트 구성
+            const subUl = document.createElement('ul');
+            subUl.className = 'sub-list';
+
+            section.sub_sections.forEach((sub, subIdx) => {
+                const subLi = document.createElement('li');
+                subLi.className = 'sub-item';
+
+                // 소목차 헤더
+                const subHeader = document.createElement('div');
+                subHeader.className = 'sub-header';
+                
+                // 소목차 이름 영역 생성
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'sub-title';
+                titleSpan.textContent = `📄 ${sub.sub_title}`;
+                
+                // [수정사항] 상태설정 통합 셀렉트 박스 생성
+                const statusSelect = document.createElement('select');
+                statusSelect.className = 'status-select';
+                
+                // 현재 상태에 맞게 클래스 부여
+                const currentStatus = sub.status || "Ready";
+                if (currentStatus === "Review_Pending") statusSelect.classList.add('status-pending');
+                else if (currentStatus === "Published") statusSelect.classList.add('status-published');
+                else if (currentStatus.includes("Drafting")) statusSelect.classList.add('status-draft');
+                else if (currentStatus === "Polishing") statusSelect.classList.add('status-polishing');
+                else statusSelect.classList.add('status-ready');
+
+                const states = ["Ready", "Drafting_V1", "Drafting_V2", "Review_Pending", "Polishing", "Published"];
+                states.forEach(st => {
+                    const opt = document.createElement('option');
+                    opt.value = st;
+                    opt.textContent = st;
+                    if (currentStatus === st) opt.selected = true;
+                    statusSelect.appendChild(opt);
+                });
+
+                statusSelect.onchange = () => {
+                    sub.status = statusSelect.value;
+                    switchBook();
+                };
+
+                const leftHeaderContainer = document.createElement('div');
+                leftHeaderContainer.style.display = 'flex';
+                leftHeaderContainer.style.alignItems = 'center';
+                leftHeaderContainer.appendChild(titleSpan);
+                leftHeaderContainer.appendChild(statusSelect);
+
+                subHeader.appendChild(leftHeaderContainer);
+
+                const subControls = document.createElement('div');
+                subControls.style.display = 'flex';
+                subControls.style.gap = '6px';
+
+                // 소목차 이름 수정
+                const btnEditSub = document.createElement('button');
+                btnEditSub.className = 'btn-tool';
+                btnEditSub.textContent = '✏️ 이름수정';
+                btnEditSub.onclick = () => {
+                    const newTitle = prompt("수정할 소목차 명칭을 입력하세요:", sub.sub_title);
+                    if (newTitle && newTitle.trim()) {
+                        sub.sub_title = newTitle.trim();
+                        switchBook();
+                    }
+                };
+                subControls.appendChild(btnEditSub);
+
+                // 소목차 순서 변경
+                if (subIdx > 0) {
+                    const btnSubUp = document.createElement('button');
+                    btnSubUp.className = 'btn-tool';
+                    btnSubUp.textContent = '▲';
+                    btnSubUp.onclick = () => {
+                        const temp = section.sub_sections[subIdx];
+                        section.sub_sections[subIdx] = section.sub_sections[subIdx - 1];
+                        section.sub_sections[subIdx - 1] = temp;
+                        switchBook();
+                    };
+                    subControls.appendChild(btnSubUp);
+                }
+                if (subIdx < section.sub_sections.length - 1) {
+                    const btnSubDown = document.createElement('button');
+                    btnSubDown.className = 'btn-tool';
+                    btnSubDown.textContent = '▼';
+                    btnSubDown.onclick = () => {
+                        const temp = section.sub_sections[subIdx];
+                        section.sub_sections[subIdx] = section.sub_sections[subIdx + 1];
+                        section.sub_sections[subIdx + 1] = temp;
+                        switchBook();
+                    };
+                    subControls.appendChild(btnSubDown);
+                }
+
+                // 소목차 삭제
+                const btnDelSub = document.createElement('button');
+                btnDelSub.className = 'btn-tool btn-danger';
+                btnDelSub.textContent = '❌';
+                btnDelSub.onclick = () => {
+                    if (confirm(`'${sub.sub_title}' 소목차를 삭제하시겠습니까?`)) {
+                        section.sub_sections.splice(subIdx, 1);
+                        switchBook();
+                    }
+                };
+                subControls.appendChild(btnDelSub);
+
+                subHeader.appendChild(subControls);
+                subLi.appendChild(subHeader);
+
+                // 하이브리드 리소스 입력 패널 추가
+                const resPanel = document.createElement('div');
+                resPanel.className = 'resource-panel';
+
+                const subIdSan = sanitizeId(sub.sub_id);
+
+                // 비동기로 파일 존재 확인 및 렌더링 시작
+                renderResourceControls(resPanel, sourceHandle, book.book_id, sub.sub_id, subIdSan);
+
+                subLi.appendChild(resPanel);
+                subUl.appendChild(subLi);
+            });
+
+            // 소목차 추가 버튼
+            const liAddSub = document.createElement('li');
+            liAddSub.style.listStyle = 'none';
+            const btnAddSub = document.createElement('div');
+            btnAddSub.className = 'btn-add';
+            btnAddSub.textContent = '➕ 소목차 추가';
+            btnAddSub.onclick = () => {
+                const title = prompt("새로운 소목차 제목을 입력하세요:");
+                if (title && title.trim()) {
+                    const newSubId = `sub_${String(sIdx+1).padStart(2, '0')}_${String(section.sub_sections.length + 1).padStart(2, '0')}`;
+                    section.sub_sections.push({
+                        sub_id: newSubId,
+                        sub_title: title.trim(),
+                        status: "Ready",
+                        current_version_code: "v1",
+                        final_file_path: null,
+                        history: {
+                            v1: { status: "Pending" },
+                            v2: { status: "Pending" },
+                            v3: { status: "Pending" }
+                        },
+                        metadata: { last_modified: new Date().toISOString().split('T')[0] }
+                    });
+                    switchBook();
+                }
+            };
+            liAddSub.appendChild(btnAddSub);
+            subUl.appendChild(liAddSub);
+
+            secLi.appendChild(subUl);
+            container.appendChild(secLi);
+        });
+
+        DOM.treeRootArea.appendChild(container);
+
+        // UI 갱신 직후 기존의 스크롤 위치를 복귀시킴
+        if (DOM.builderPaneBody) {
+            DOM.builderPaneBody.scrollTop = savedScrollTop;
+        }
+    }
+
+    // 하이브리드 리소스 제어기 비동기 렌더러
+    async function renderResourceControls(container, sourceHandle, bookId, subId, subIdSan) {
+        // [수정사항] 고정값 감지 대신 해당 접두사를 가진 임의 확장자 파일 스캔
+        const dirFile = await findFileWithPrefix(sourceHandle, `${subIdSan}_direction`);
+        const codeFile = await findFileWithPrefix(sourceHandle, `${subIdSan}_code`);
+
+        const isDirExist = !!dirFile;
+        const isCodeExist = !!codeFile;
+
+        container.innerHTML = `
+            <!-- 1. 지침 리소스 제어 -->
+            <div class="resource-row">
+                <span>📁 작성 지침:</span>
+                <span class="badge ${isDirExist ? 'badge-success' : 'badge-empty'}" id="status-dir-${subIdSan}">
+                    ${isDirExist ? `✅ 등록됨 (${dirFile})` : '미등록'}
+                </span>
+                <div style="display:flex; gap:4px;">
+                    <button class="btn-mini" onclick="registerFile('${bookId}', '${subId}', 'direction')">📂 파일 선택</button>
+                    <button class="btn-mini btn-write" onclick="toggleTextarea('dir-text-${subIdSan}')">✏️ 직접 쓰기</button>
+                </div>
+            </div>
+            <div class="textarea-box" id="area-dir-text-${subIdSan}">
+                <textarea id="val-dir-text-${subIdSan}" placeholder="이 목차에 적용할 AI 집필 세부 방향 및 가이드라인을 작성해주세요."></textarea>
+                <div class="editor-actions">
+                    <button class="btn-mini btn-write" onclick="saveDirectText('${bookId}', '${subId}', 'direction')">💾 지침 파일 저장</button>
+                </div>
+            </div>
+
+            <div style="height: 1px; background: #e2e8f0; margin: 6px 0;"></div>
+
+            <!-- 2. 파이썬 코드 리소스 제어 -->
+            <div class="resource-row">
+                <span>💻 실습 코드:</span>
+                <span class="badge ${isCodeExist ? 'badge-success' : 'badge-empty'}" id="status-code-${subIdSan}">
+                    ${isCodeExist ? `✅ 등록됨 (${codeFile})` : '미등록'}
+                </span>
+                <div style="display:flex; gap:4px;">
+                    <button class="btn-mini" onclick="registerFile('${bookId}', '${subId}', 'code')">📂 파일 선택</button>
+                    <button class="btn-mini btn-write" onclick="toggleTextarea('code-text-${subIdSan}')">✏️ 직접 쓰기</button>
+                </div>
+            </div>
+            <div class="textarea-box" id="area-code-text-${subIdSan}">
+                <textarea id="val-code-text-${subIdSan}" placeholder="# 여기에 실습 혹은 분석에 반영될 파이썬 소스 코드를 작성하세요."></textarea>
+                <div class="editor-actions">
+                    <button class="btn-mini btn-write" onclick="saveDirectText('${bookId}', '${subId}', 'code')">💾 코드 파일 저장</button>
+                </div>
+            </div>
+        `;
+
+        // 직접 쓰기 텍스트에어리어에 기존 파일 내용 로드
+        if (isDirExist) {
+            loadExistingFileContent(sourceHandle, dirFile, `val-dir-text-${subIdSan}`);
+        }
+        if (isCodeExist) {
+            loadExistingFileContent(sourceHandle, codeFile, `val-code-text-${subIdSan}`);
+        }
+    }
+
+    // 기존 텍스트 파일 불러오기
+    async function loadExistingFileContent(sourceHandle, filename, textareaId) {
+        try {
+            const fileHandle = await sourceHandle.getFileHandle(filename);
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const area = document.getElementById(textareaId);
+            if (area) {
+                area.value = text;
+            }
+        } catch (e) {
+            console.error("파일 로딩 오류: ", e);
+        }
+    }
+
+    // 텍스트에어리어 슬라이드 토글
+    function toggleTextarea(id) {
+        const box = document.getElementById(`area-${id}`);
+        if (box) {
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        }
+    }
+
+    // 3. 외부 파일 브라우저 복사 기능 (원본 확장자 유지)
+    async function registerFile(bookId, subId, type) {
+        if (!directoryHandle) return;
+        const subIdSan = sanitizeId(subId);
+        
+        try {
+            const [fileHandle] = await window.showOpenFilePicker({
+                multiple: false,
+                types: type === 'direction' 
+                ? [{ description: 'Markdown/Text 지침 파일', accept: { 'text/markdown': ['.md', '.markdown'], 'text/plain': ['.txt'] } }]
+                : [{ description: 'Python/Notebook 소스 코드', accept: { 'text/x-python': ['.py'], 'application/x-ipynb+json': ['.ipynb'] } }]
+            });
+
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const originExt = file.name.substring(file.name.lastIndexOf('.'));
+            
+            // [수정사항] 파일 복사 시 원본 확장자를 그대로 유지하여 타깃 파일 생성
+            const targetFilename = type === 'direction' 
+                ? `${subIdSan}_direction${originExt}` 
+                : `${subIdSan}_code${originExt}`;
+
+            const sourceHandle = await getSourceDirectoryHandle(bookId);
+            if (!sourceHandle) throw new Error("source 디렉토리를 열지 못했습니다.");
+
+            const newFileHandle = await sourceHandle.getFileHandle(targetFilename, { create: true });
+            const writable = await newFileHandle.createWritable();
+            await writable.write(text);
+            await writable.close();
+
+            alert(`✅ ${file.name} -> ${targetFilename} 파일 복사 완료!`);
+            switchBook();
+
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error(err);
+                alert("파일을 복사해 넣는 중 예외 오류가 발생했습니다.");
+            }
+        }
+    }
+
+    // 4. 직접 작성 텍스트에어리어 저장 로직 (직접 작성 코드는 .py 고정)
+    async function saveDirectText(bookId, subId, type) {
+        if (!directoryHandle) return;
+        const subIdSan = sanitizeId(subId);
+        const areaId = type === 'direction' ? `val-dir-text-${subIdSan}` : `val-code-text-${subIdSan}`;
+        const textVal = document.getElementById(areaId).value.trim();
+
+        if (!textVal) {
+            alert("내용을 채운 뒤 저장해 주세요.");
+            return;
+        }
+
+        // [수정사항] 직접 쓰기 코드는 항상 .py 확장자로 고정 저장
+        const targetFilename = type === 'direction' 
+            ? `${subIdSan}_direction.md` 
+            : `${subIdSan}_code.py`;
+
+        try {
+            const sourceHandle = await getSourceDirectoryHandle(bookId);
+            if (!sourceHandle) throw new Error("source 디렉토리를 열지 못했습니다.");
+
+            const fileHandle = await sourceHandle.getFileHandle(targetFilename, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(textVal);
+            await writable.close();
+
+            alert(`💾 직접 작성하신 내용이 ${targetFilename}에 정상 저장되었습니다.`);
+            
+            // 아코디언 닫기
+            toggleTextarea(`${type === 'direction' ? 'dir' : 'code'}-text-${subIdSan}`);
+            switchBook();
+
+        } catch (err) {
+            console.error(err);
+            alert("직접 쓰기 내용을 디스크에 저장하는 중 예외가 발생했습니다.");
+        }
+    }
+
+    // 5. 신규 대목차 추가 기능
+    function addSection() {
+        if (!indexData) return;
+        const book = indexData.books[currentBookIdx];
+        
+        const title = prompt("새로운 대목차(섹션) 제목을 입력하세요:");
+        if (title && title.trim()) {
+            const newSecId = `sec_${String(book.sections.length + 1).padStart(2, '0')}`;
+            book.sections.push({
+                section_id: newSecId,
+                section_title: title.trim(),
+                sub_sections: []
+            });
+            switchBook();
+        }
+    }
+
+    // [신규] 새 도서 추가 기능 (ID 자동 정제 및 1섹션/1서브셋 기본 데이터 탑재)
+    function addNewBook() {
+        if (!indexData) return;
+
+        const title = prompt("추가할 새로운 도서 제목을 입력하세요:");
+        if (!title || !title.trim()) return;
+
+        const rawId = prompt("도서의 영문 고유 ID(폴더명으로 사용)를 입력하세요:");
+        if (!rawId) return;
+
+        // 자동정제(Sanitizer) 로직 동작
+        const cleanId = sanitizeId(rawId);
+        if (!cleanId) {
+            alert("유효하지 않은 도서 ID입니다. 영문 또는 숫자, 언더바만 포함하여 다시 입력해주세요.");
+            return;
+        }
+
+        // ID 중복 판별
+        const isDuplicate = indexData.books.some(b => b.book_id === cleanId);
+        if (isDuplicate) {
+            alert(`이미 등록된 도서 ID입니다: ${cleanId}`);
+            return;
+        }
+
+        const newBookTemplate = {
+            book_id: cleanId,
+            book_title: title.trim(),
+            sections: [
+                {
+                    section_id: "sec_01",
+                    section_title: "제 1장. 시작하기",
+                    sub_sections: [
+                        {
+                            sub_id: "sub_01_01",
+                            sub_title: "1.1 준비 및 개요",
+                            status: "Ready",
+                            current_version_code: "v1",
+                            final_file_path: null,
+                            history: {
+                                v1: { status: "Pending" },
+                                v2: { status: "Pending" },
+                                v3: { status: "Pending" }
+                            },
+                            metadata: { last_modified: new Date().toISOString().split('T')[0] }
+                        }
+                    ]
+                }
+            ]
+        };
+
+        indexData.books.push(newBookTemplate);
+        populateBookSelector();
+        
+        // 새로 만든 도서를 드롭다운에 즉각 선택
+        DOM.bookSelect.value = indexData.books.length - 1;
+        switchBook();
+
+        alert(`📚 새 도서 '${title.trim()}' (ID: ${cleanId})가 성공적으로 목록에 추가되었습니다.`);
+    }
+
+    // 6. index.json 최종 디바이스 저장 스트림
+    async function saveIndexFile() {
+        if (!indexJsonHandle || !indexData) return;
+
+        try {
+            const writable = await indexJsonHandle.createWritable();
+            await writable.write(JSON.stringify(indexData, null, 2));
+            await writable.close();
+            
+            alert("💾 로컬 index.json 파일이 디스크에 최종 영구 덮어쓰기 저장되었습니다!");
+            DOM.statusDb.textContent = '디스크 갱신 완료: ' + new Date().toLocaleTimeString();
+            switchBook();
+        } catch (err) {
+            console.error(err);
+            alert("영구 저장 중 권한 거부 또는 물리 오류가 발생했습니다.");
+        }
+    }
+</script>
+</body>
+</html>
