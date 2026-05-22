@@ -945,6 +945,81 @@
           ]
         }
       ]
+    },
+    {
+      "book_id": "black_scholes_equation_01",
+      "book_title": "노벨상 수식의 향기",
+      "sections": [
+        {
+          "section_id": "sec_01",
+          "section_title": "고등학교 수학",
+          "sub_sections": [
+            {
+              "sub_id": "sub_01_01",
+              "sub_title": "경우의 수 나열",
+              "status": "Ready",
+              "current_version_code": "v1",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-22"
+              }
+            },
+            {
+              "sub_id": "sub_01_02",
+              "sub_title": "순열",
+              "status": "Ready",
+              "current_version_code": "v1",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-22"
+              }
+            },
+            {
+              "sub_id": "sub_01_03",
+              "sub_title": "조합",
+              "status": "Ready",
+              "current_version_code": "v1",
+              "final_file_path": null,
+              "history": {
+                "v1": {
+                  "status": "Pending"
+                },
+                "v2": {
+                  "status": "Pending"
+                },
+                "v3": {
+                  "status": "Pending"
+                }
+              },
+              "metadata": {
+                "last_modified": "2026-05-22"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
