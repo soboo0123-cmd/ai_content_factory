@@ -957,15 +957,19 @@
             {
               "sub_id": "sub_01_01",
               "sub_title": "경우의 수 나열",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_01_v1.md",
+                  "created_at": "2026-05-22T23:22:25.645187"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_01_v2.md",
+                  "created_at": "2026-05-22T23:23:07.190343"
                 },
                 "v3": {
                   "status": "Pending"
@@ -978,15 +982,19 @@
             {
               "sub_id": "sub_01_02",
               "sub_title": "순열",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_02_v1.md",
+                  "created_at": "2026-05-22T23:23:44.147070"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_02_v2.md",
+                  "created_at": "2026-05-22T23:24:27.607972"
                 },
                 "v3": {
                   "status": "Pending"
@@ -999,15 +1007,19 @@
             {
               "sub_id": "sub_01_03",
               "sub_title": "조합",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_03_v1.md",
+                  "created_at": "2026-05-22T23:25:03.747925"
                 },
                 "v2": {
-                  "status": "Pending"
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_03_v2.md",
+                  "created_at": "2026-05-22T23:25:40.058423"
                 },
                 "v3": {
                   "status": "Pending"
