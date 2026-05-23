@@ -433,7 +433,7 @@ def execute_v3_integration(client, book, section, sub, guidelines):
     return True
 
 def execute_polishing(client, book, section, sub, guidelines):
-    """5단계: 시각화(HTML/JS 인터랙티브 위젯 포함) 및 수식 보강 (Polishing) 및 에셋 추출"""
+    """5단계: 시각화(HTML/JS 인터랙티브 위젯 및 정적 SVG 자가 변환 포함) 및 수식 보강 (Polishing) 및 에셋 추출"""
     sub_id = sanitize_id(sub['sub_id'])
     file_name = f"{sub_id}_final.md"
     print(f"--- [Polishing] {sub['sub_title']} ({file_name}) ---")
@@ -459,18 +459,22 @@ def execute_polishing(client, book, section, sub, guidelines):
 위 원고를 바탕으로 최종 'Polishing' 작업을 수행하세요.
 
 1. 시각화 보강: 원고에 포함된 [시각화: ...] 등의 마크다운 주석이나 텍스트를 분석하여, 독자가 웹 화면 상에서 직접 클릭하고 조작할 수 있는 완성도 높은 반응형 인터랙티브 웹 위젯(HTML/CSS/JS 단일 파일) 코드를 작성해 주세요.
-2. 에셋 추출 규격: 작성된 HTML 위젯 파일은 반드시 다음 형식을 준수하여 별도로 출력해 주세요.
+2. 에셋 추출 규격 (HTML 위젯): 작성된 HTML 위젯 파일은 반드시 다음 형식을 준수하여 별도로 출력해 주세요.
    [ASSET:에셋파일명.html] 
    (<!DOCTYPE html>로 시작하며, 가독성 높은 모던 스타일링 CSS 및 상호작용 가능한 JavaScript가 완벽히 내장된 HTML 웹코드) 
    [/ASSET]
    * 파일명은 '{sub_id}_visual1.html', '{sub_id}_visual2.html'과 같이 유니크하게 작명해 주세요.
    * 필요에 따라 Tailwind CSS 라이브러리나 외부 모던 테마(CDN 링크)를 내부에 포함하여 사용해도 좋습니다.
-3. 본문 연결: 마크다운 본문의 시각화 주석 위치에는 이미지가 아닌, 생성한 HTML 파일을 즉시 가져와 보여줄 수 있는 iframe 태그를 다음과 같이 조화롭게 배치해 주세요.
+3. 본문 연결 (HTML 위젯): 마크다운 본문의 시각화 주석 위치에는 이미지가 아닌, 생성한 HTML 파일을 즉시 가져와 보여줄 수 있는 iframe 태그를 다음과 같이 조화롭게 배치해 주세요.
    `<iframe src="contents/{b_id}/{s_id}/assets/diagrams/에셋파일명.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>`
    * 주의: 뷰어 상의 404 에러 방지를 위해, iframe의 src 주소는 반드시 'contents/{b_id}/{s_id}/assets/diagrams/'로 시작하는 최상위 루트 기준의 물리 경로를 사용해야 합니다.
-4. 다이어그램 확장: 단순 텍스트 플로우차트나 순서도 등은 주석 코드 성격에 맞춰 기존과 동일하게 Mermaid 코드로 변환해 출력해 주세요.
-   [ASSET:다이어그램파일명.mmd] (Mermaid 코드) [/ASSET]
-   * 본문 연결 링크: `![설명](assets/diagrams/다이어그램파일명.mmd)`
+4. 다이어그램 및 도식화 (SVG 그래픽): 마크다운 주석 내용 중 단순 흐름도, 순서도, 구조도 등은 XML 형태의 정적 SVG 그래픽 코드로 직접 변환하여 별도로 추출해 주세요.
+   [ASSET:다이어그램파일명.svg]
+   (<svg ...>로 시작하여 적절한 viewBox, 깔끔한 폰트 및 컬러 스타일을 내장한 완성된 정적 SVG 드로잉 코드)
+   [/ASSET]
+   * 다이어그램 파일명은 '{sub_id}_diagram1.svg'와 같이 작명해 주세요.
+   * 본문에는 마크다운 이미지 링크 형식을 사용하여 연결해 주세요: `![설명](assets/diagrams/다이어그램파일명.svg)`
+   * SVG는 브라우저 이미지 태그를 통해 렌더링되므로, 올바른 XML 형식과 xmlns 속성이 선언되어 있어야 합니다.
 
 응답 형식:
 [CONTENT]
