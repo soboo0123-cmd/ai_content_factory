@@ -30,7 +30,7 @@ def save_index(index_data):
     generate_sidebar(index_data)
 
 def generate_sidebar(index_data):
-    """index.json 상태를 기반으로 각 도서별 contents/[book_id]/_sidebar.md 파일을 자동 생성합니다."""
+    """index.json 상태를 기반으로 각 도서별 contents/[book_id]/_sidebar.md 파일을 최상위 루트 경로 기준으로 자동 생성합니다."""
     for book in index_data.get("books", []):
         book_id = sanitize_id(book['book_id'])
         book_dir = os.path.join(CONTENTS_DIR, book_id)
@@ -52,10 +52,8 @@ def generate_sidebar(index_data):
                     target_path = sub["history"]["v1"]["file_path"]
                 
                 if target_path:
-                    # book_dir을 기준으로 한 상대 경로 산출 후 웹 경로(/) 치환
-                    full_target_path = os.path.join(BASE_DIR, target_path)
-                    rel_path_from_book = os.path.relpath(full_target_path, book_dir)
-                    web_path = rel_path_from_book.replace("\\", "/")
+                    # 404 방지를 위해 사이드바 링크는 책 폴더 기준이 아닌, 전체 루트 경로(contents/[book_id]/...) 형태로 유지합니다.
+                    web_path = target_path.replace("\\", "/")
                     lines.append(f"  * [{sub['sub_title']}]({web_path})")
                 else:
                     # 파일이 없는 경우 링크 없이 텍스트만 렌더링
@@ -445,6 +443,9 @@ def execute_polishing(client, book, section, sub, guidelines):
     
     v3_content = read_file_content(sub['history']['v3']['file_path'])
     
+    b_id = sanitize_id(book['book_id'])
+    s_id = sanitize_id(section['section_id'])
+    
     prompt = f"""[집필 지침]
 {guidelines}
 
@@ -464,8 +465,9 @@ def execute_polishing(client, book, section, sub, guidelines):
    [/ASSET]
    * 파일명은 '{sub_id}_visual1.html', '{sub_id}_visual2.html'과 같이 유니크하게 작명해 주세요.
    * 필요에 따라 Tailwind CSS 라이브러리나 외부 모던 테마(CDN 링크)를 내부에 포함하여 사용해도 좋습니다.
-3. 본문 연결: 마크다운 본문의 시각화 주석 위치에는 이미지가 아닌, 생성한 HTML 파일을 즉시 가져와 보여줄 수 있는 iframe 태그를 다음과 같이 조화롭게 달아주세요.
-   `<iframe src="assets/diagrams/에셋파일명.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>`
+3. 본문 연결: 마크다운 본문의 시각화 주석 위치에는 이미지가 아닌, 생성한 HTML 파일을 즉시 가져와 보여줄 수 있는 iframe 태그를 다음과 같이 조화롭게 배치해 주세요.
+   `<iframe src="contents/{b_id}/{s_id}/assets/diagrams/에셋파일명.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>`
+   * 주의: 뷰어 상의 404 에러 방지를 위해, iframe의 src 주소는 반드시 'contents/{b_id}/{s_id}/assets/diagrams/'로 시작하는 최상위 루트 기준의 물리 경로를 사용해야 합니다.
 4. 다이어그램 확장: 단순 텍스트 플로우차트나 순서도 등은 주석 코드 성격에 맞춰 기존과 동일하게 Mermaid 코드로 변환해 출력해 주세요.
    [ASSET:다이어그램파일명.mmd] (Mermaid 코드) [/ASSET]
    * 본문 연결 링크: `![설명](assets/diagrams/다이어그램파일명.mmd)`
@@ -484,10 +486,7 @@ def execute_polishing(client, book, section, sub, guidelines):
     final_content = content_match.group(1).strip() if content_match else full_text
     
     # 경로 설정
-    b_id = sanitize_id(book['book_id'])
-    s_id = sanitize_id(section['section_id'])
     section_dir = os.path.join(CONTENTS_DIR, b_id, s_id)
-    
     assets_dir = os.path.join(section_dir, "assets")
     diagrams_dir = os.path.join(assets_dir, "diagrams")
     
