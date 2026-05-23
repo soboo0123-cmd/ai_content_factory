@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import json
 import time
@@ -6,10 +6,9 @@ import re
 from datetime import datetime
 from google import genai
 
-# 환경 변수 로드 및 정제 (눈에 보이지 않는 탭/공백 제거)
+# 환경 변수 로드 및 정제
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL = 'gemini-3.1-flash-lite-preview'     # 'gemini-3-flash-preview'
-IMAGEN_MODEL = 'imagen-3.0-generate-002'
+GEMINI_MODEL = 'gemini-3-flash-preview'
 
 # 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -83,7 +82,6 @@ def call_gemini_with_retry(client, model_name, contents, max_retries=3):
             return response
         except Exception as e:
             error_str = str(e).lower()
-            # 1. 일시적인 제한(429, Rate Limit)을 먼저 체크하여 재시도 유도
             if "429" in error_str or "rate limit" in error_str or "resource exhausted" in error_str:
                 if attempt < max_retries:
                     wait = 60 * (attempt + 1)
@@ -93,13 +91,9 @@ def call_gemini_with_retry(client, model_name, contents, max_retries=3):
                 else:
                     print(f"\n[실패] Rate Limit 최대 재시도 횟수 초과.")
                     raise e
-            
-            # 2. 진짜 할당량 초과(Quota)인 경우에만 종료
             elif "quota" in error_str or "limit exceeded" in error_str:
                 print(f"\n[종료] 할당량 초과. 상태 저장 후 종료합니다.")
                 sys.exit(0)
-            
-            # 3. 기타 서버 오류 등
             else:
                 if attempt < max_retries:
                     print(f"\n[대기] 오류 발생. 10초 후 재시도 ({attempt+1}/{max_retries}): {e}")
@@ -121,29 +115,25 @@ def get_previous_sub_section(section, current_sub_id):
 def is_task_held(book, section, sub, prev_sub):
     """직전 목차의 집필 상태에 따라 현재 목차의 진행을 홀드(Hold)할지 여부를 판별"""
     if not prev_sub:
-        return False  # 첫 번째 목차이므로 홀드할 필요 없음
+        return False
         
     current_status = sub.get("status")
     
-    # 1. v1 초안 작성 단계 (Ready 또는 Drafting_V1)
     if current_status in ["Ready", "Drafting_V1"]:
         v1_info = prev_sub.get("history", {}).get("v1", {})
         if v1_info.get("status") != "Completed" or not v1_info.get("file_path"):
             return True
             
-    # 2. v2 재집필 단계
     elif current_status == "Drafting_V2":
         v2_info = prev_sub.get("history", {}).get("v2", {})
         if v2_info.get("status") != "Completed" or not v2_info.get("file_path"):
             return True
             
-    # 3. v3 통합 단계 (Review_Pending 상태에서 execute_v3_integration 실행 전)
     elif current_status == "Review_Pending":
         v3_info = prev_sub.get("history", {}).get("v3", {})
         if v3_info.get("status") != "Completed" or not v3_info.get("file_path"):
             return True
             
-    # 4. Polishing 단계
     elif current_status == "Polishing":
         if prev_sub.get("status") != "Published" or not prev_sub.get("final_file_path"):
             return True
@@ -151,10 +141,6 @@ def is_task_held(book, section, sub, prev_sub):
     return False
 
 def get_next_task(index_data, exclude_ids=None):
-    """우선순위: Review_Pending -> Drafting_V1 -> Drafting_V2 -> Polishing -> Ready
-    단, 피드백이 없는 Review_Pending은 건너뜀.
-    또한, 직전 목차의 상응하는 단계가 미완료 시 홀드(Hold) 처리하여 건너뜀.
-    """
     if exclude_ids is None: exclude_ids = []
     priority_order = ["Review_Pending", "Drafting_V1", "Drafting_V2", "Polishing", "Ready"]
     
@@ -167,11 +153,9 @@ def get_next_task(index_data, exclude_ids=None):
                         continue
                         
                     if sub.get("status") == status:
-                        # Review_Pending인데 피드백이 없으면 이번 실행에서는 건너뜀
                         if status == "Review_Pending" and not sub['history']['v3'].get('user_feedback'):
                             continue
                             
-                        # 직전 목차 완료 여부 체크 (홀드 정책)
                         prev_sub = get_previous_sub_section(section, sub_id)
                         if is_task_held(book, section, sub, prev_sub):
                             continue
@@ -191,7 +175,6 @@ def read_file_content(relative_path):
     return ""
 
 def read_prev_file_content(prev_sub, step_key):
-    """직전 소목차의 특정 단계 원고 내용을 읽음"""
     if not prev_sub:
         return ""
     
@@ -206,7 +189,6 @@ def read_prev_file_content(prev_sub, step_key):
     return ""
 
 def load_ipynb_code(filepath):
-    """주피터 노트북(.ipynb) 파일에서 code 셀들의 소스 코드를 추출하여 병합"""
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             notebook = json.load(f)
@@ -224,7 +206,6 @@ def load_ipynb_code(filepath):
         return ""
 
 def load_manual_inputs(book_id, sub_id):
-    """수동 지정 지침(_direction) 및 코드(_code) 리소스를 로드"""
     book_id_san = sanitize_id(book_id)
     sub_id_san = sanitize_id(sub_id)
     source_dir = os.path.join(CONTENTS_DIR, book_id_san, "source")
@@ -232,7 +213,6 @@ def load_manual_inputs(book_id, sub_id):
     direction = ""
     code = ""
     
-    # 1. 지침 파일 찾기 (txt 또는 md)
     txt_path = os.path.join(source_dir, f"{sub_id_san}_direction.txt")
     md_path = os.path.join(source_dir, f"{sub_id_san}_direction.md")
     
@@ -243,7 +223,6 @@ def load_manual_inputs(book_id, sub_id):
         with open(md_path, "r", encoding="utf-8") as f:
             direction = f.read()
             
-    # 2. 코드 파일 찾기 (py 또는 ipynb)
     py_path = os.path.join(source_dir, f"{sub_id_san}_code.py")
     ipynb_path = os.path.join(source_dir, f"{sub_id_san}_code.ipynb")
     
@@ -256,12 +235,10 @@ def load_manual_inputs(book_id, sub_id):
     return direction.strip(), code.strip()
 
 def execute_v1_draft(client, book, section, sub, guidelines):
-    """1단계: v1 초안 작성"""
     sub_id = sanitize_id(sub['sub_id'])
     file_name = f"{sub_id}_v1.md"
     print(f"--- [v1 작성] {sub['sub_title']} ({file_name}) ---")
     
-    # 수동 입력 정보 및 직전 목차 원고 로드
     direction, code = load_manual_inputs(book['book_id'], sub['sub_id'])
     prev_sub = get_previous_sub_section(section, sub['sub_id'])
     prev_v1 = read_prev_file_content(prev_sub, "v1")
@@ -301,12 +278,10 @@ def execute_v1_draft(client, book, section, sub, guidelines):
     return True
 
 def execute_v2_zerobase(client, book, section, sub, guidelines):
-    """2단계: v2 재집필 (Zero-base)"""
     sub_id = sanitize_id(sub['sub_id'])
     file_name = f"{sub_id}_v2.md"
     print(f"--- [v2 재집필] {sub['sub_title']} ({file_name}) ---")
     
-    # 수동 입력 정보 및 직전 목차 원고 로드
     direction, code = load_manual_inputs(book['book_id'], sub['sub_id'])
     prev_sub = get_previous_sub_section(section, sub['sub_id'])
     prev_v2 = read_prev_file_content(prev_sub, "v2")
@@ -346,7 +321,6 @@ def execute_v2_zerobase(client, book, section, sub, guidelines):
     return True
 
 def update_guidelines(tip):
-    """새로운 집필 노하우를 writing_guidelines.md에 추가"""
     header = "\n\n## 6. 누적된 집필 노하우 (자동 업데이트)\n"
     date_str = datetime.now().strftime("%Y-%m-%d")
     new_entry = f"- [{date_str}] {tip}\n"
@@ -365,7 +339,6 @@ def update_guidelines(tip):
         f.write(content)
 
 def execute_v3_integration(client, book, section, sub, guidelines):
-    """3단계: v3 통합본 작성 및 지침 자가 추출"""
     feedback = sub['history']['v3'].get('user_feedback')
     if not feedback:
         print(f"   [대기] {sub['sub_title']}: 사용자 피드백이 입력될 때까지 대기.")
@@ -375,7 +348,6 @@ def execute_v3_integration(client, book, section, sub, guidelines):
     file_name = f"{sub_id}_v3.md"
     print(f"--- [v3 통합] {sub['sub_title']} ({file_name}) ---")
     
-    # 수동 입력 정보 및 직전 목차 원고 로드
     direction, code = load_manual_inputs(book['book_id'], sub['sub_id'])
     prev_sub = get_previous_sub_section(section, sub['sub_id'])
     prev_v3 = read_prev_file_content(prev_sub, "v3")
@@ -439,7 +411,6 @@ def execute_v3_integration(client, book, section, sub, guidelines):
     response = call_gemini_with_retry(client, GEMINI_MODEL, prompt)
     full_text = response.text
     
-    # 본문과 팁 추출
     content_match = re.search(r'\[CONTENT\](.*?)\[/CONTENT\]', full_text, re.DOTALL)
     tip_match = re.search(r'\[TIP\](.*?)\[/TIP\]', full_text, re.DOTALL)
     
@@ -464,40 +435,44 @@ def execute_v3_integration(client, book, section, sub, guidelines):
     return True
 
 def execute_polishing(client, book, section, sub, guidelines):
-    """5단계: 시각화 및 수식 보강 (Polishing) 및 에셋 추출 (Imagen 이미지 자동 생성 연동)"""
+    """5단계: 시각화(HTML/JS 인터랙티브 위젯 포함) 및 수식 보강 (Polishing) 및 에셋 추출"""
     sub_id = sanitize_id(sub['sub_id'])
     file_name = f"{sub_id}_final.md"
     print(f"--- [Polishing] {sub['sub_title']} ({file_name}) ---")
     
-    # 직전 목차 원고 로드 (최종 완성본 연동용)
     prev_sub = get_previous_sub_section(section, sub['sub_id'])
     prev_final = read_prev_file_content(prev_sub, "final")
     
     v3_content = read_file_content(sub['history']['v3']['file_path'])
     
-    prompt = f"[집필 지침]\n{guidelines}\n\n"
-    
-    if prev_final:
-        prompt += f"[직전 목차 최종 완성본 흐름 (참고용)]\n소제목: {prev_sub['sub_title']}\n\n{prev_final}\n\n"
-        
-    prompt += f"""[대상 원고]
+    prompt = f"""[집필 지침]
+{guidelines}
+
+[직전 목차 최종 완성본 흐름 (참고용)]
+소제목: {prev_sub['sub_title'] if prev_sub else '없음'}
+{prev_final if prev_final else '없음'}
+
+[대상 원고]
 {v3_content}
 
 위 원고를 바탕으로 최종 'Polishing' 작업을 수행하세요.
 
-1. 시각화 보강: [시각화: ...] 주석 영역이나 본문 내용에 걸맞는 고품질 도식/일러스트 그림을 배치할 계획입니다.
-2. 이미지 생성 지시: 그림이 삽입되어야 하는 최적의 위치에 다음 형식의 태그를 삽입해 주세요. (Imagen 4 전용 프롬프트 생성용)
-   [IMAGE_PROMPT:이미지파일명.png] (Imagen 4에 전달하여 아주 아름다운 도식/일러스트 이미지를 그리기 위한 매우 상세한 영문 묘사 프롬프트) [/IMAGE_PROMPT]
-   * 파일명은 '{sub_id}_image1.png', '{sub_id}_image2.png' 형태로 유니크하게 작명해 주세요.
-   * 프롬프트는 배경, 구성 요소, 색상 톤, 그림 스타일(예: "Clean flat illustration style for tech manual, isometric projection, blue and white tone") 등이 매우 구체적으로 묘사된 영어여야 퀄리티가 좋습니다.
-3. 본문 연결: 본문에는 에셋 마크다운 링크인 `![설명](assets/images/이미지파일명.png)`를 텍스트 주위에 조화롭게 달아주세요.
-4. Mermaid/SVG 추출: 주석 코드를 구체적인 Mermaid나 SVG로 변환할 경우, 아래 형식을 유지하여 별도로 출력해 주세요.
-   [ASSET:파일명.mmd] (Mermaid 코드) [/ASSET] 또는 [ASSET:파일명.svg] (SVG 코드) [/ASSET]
-   * 본문에는 에셋 파일 링크를 넣으세요: `![설명](assets/diagrams/파일명.mmd)`
+1. 시각화 보강: 원고에 포함된 [시각화: ...] 등의 마크다운 주석이나 텍스트를 분석하여, 독자가 웹 화면 상에서 직접 클릭하고 조작할 수 있는 완성도 높은 반응형 인터랙티브 웹 위젯(HTML/CSS/JS 단일 파일) 코드를 작성해 주세요.
+2. 에셋 추출 규격: 작성된 HTML 위젯 파일은 반드시 다음 형식을 준수하여 별도로 출력해 주세요.
+   [ASSET:에셋파일명.html] 
+   (<!DOCTYPE html>로 시작하며, 가독성 높은 모던 스타일링 CSS 및 상호작용 가능한 JavaScript가 완벽히 내장된 HTML 웹코드) 
+   [/ASSET]
+   * 파일명은 '{sub_id}_visual1.html', '{sub_id}_visual2.html'과 같이 유니크하게 작명해 주세요.
+   * 필요에 따라 Tailwind CSS 라이브러리나 외부 모던 테마(CDN 링크)를 내부에 포함하여 사용해도 좋습니다.
+3. 본문 연결: 마크다운 본문의 시각화 주석 위치에는 이미지가 아닌, 생성한 HTML 파일을 즉시 가져와 보여줄 수 있는 iframe 태그를 다음과 같이 조화롭게 달아주세요.
+   `<iframe src="assets/diagrams/에셋파일명.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>`
+4. 다이어그램 확장: 단순 텍스트 플로우차트나 순서도 등은 주석 코드 성격에 맞춰 기존과 동일하게 Mermaid 코드로 변환해 출력해 주세요.
+   [ASSET:다이어그램파일명.mmd] (Mermaid 코드) [/ASSET]
+   * 본문 연결 링크: `![설명](assets/diagrams/다이어그램파일명.mmd)`
 
 응답 형식:
 [CONTENT]
-(최종 마크다운 본문)
+(최종 보강된 마크다운 본문)
 [/CONTENT]
 """
 
@@ -515,12 +490,10 @@ def execute_polishing(client, book, section, sub, guidelines):
     
     assets_dir = os.path.join(section_dir, "assets")
     diagrams_dir = os.path.join(assets_dir, "diagrams")
-    images_dir = os.path.join(assets_dir, "images")
     
     ensure_dir(diagrams_dir)
-    ensure_dir(images_dir)
     
-    # 1. 다이어그램 에셋 (Mermaid/SVG) 추출 및 저장
+    # 다이어그램 및 HTML 에셋(Mermaid, SVG, HTML) 추출 및 저장
     asset_matches = re.finditer(r'\[ASSET:(.*?)\](.*?)\[/ASSET\]', full_text, re.DOTALL)
     for match in asset_matches:
         a_filename = match.group(1).strip()
@@ -528,47 +501,16 @@ def execute_polishing(client, book, section, sub, guidelines):
         a_path = os.path.join(diagrams_dir, a_filename)
         with open(a_path, "w", encoding="utf-8") as af:
             af.write(a_content)
-        print(f"   [에셋 생성] 다이어그램 {a_filename} 저장 완료.", flush=True)
+        print(f"   [에셋 생성] 시각화 에셋 {a_filename} 저장 완료.", flush=True)
     
-    # 2. 이미지 생성 및 저장 (Imagen API 연동)
-    image_prompt_matches = re.finditer(r'\[IMAGE_PROMPT:(.*?)\](.*?)\[/IMAGE_PROMPT\]', full_text, re.DOTALL)
-    for match in image_prompt_matches:
-        img_filename = match.group(1).strip()
-        img_prompt_text = match.group(2).strip()
-        img_path = os.path.join(images_dir, img_filename)
-        
-        print(f"   [진행] Imagen 이미지 생성 시작: {img_filename} ({img_prompt_text[:40]}...)", flush=True)
-        try:
-            img_response = client.models.generate_images(
-                model=IMAGEN_MODEL,
-                prompt=img_prompt_text,
-                config=dict(
-                    number_of_images=1,
-                    output_mime_type="image/png"
-                )
-            )
-            if img_response.generated_images:
-                gen_img = img_response.generated_images[0]
-                # 파일 직접 저장
-                with open(img_path, "wb") as f:
-                    f.write(gen_img.image.image_bytes)
-                print(f"   [완료] Imagen 이미지 저장 완료: {img_filename}", flush=True)
-            else:
-                print(f"   [실패] Imagen 이미지 생성 결과가 없습니다.", flush=True)
-        except Exception as ie:
-            print(f"   [실패] Imagen 생성 중 에러 발생: {ie}", flush=True)
-            
-    # 3. 본문 텍스트 클리닝 (본문에 남아 있는 [IMAGE_PROMPT] 및 [/IMAGE_PROMPT] 제거)
-    final_content = re.sub(r'\[IMAGE_PROMPT:.*?\](.*?)\[/IMAGE_PROMPT\]', '', final_content, flags=re.DOTALL)
-    
-    # 4. 최종 마크다운 저장
+    # 최종 마크다운 저장
     file_path = os.path.join(section_dir, file_name)
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(final_content)
         
     sub['status'] = "Published"
     sub['final_file_path'] = os.path.relpath(file_path, BASE_DIR)
-    print(f"   [발행] {sub['sub_title']} 최종본 및 시각화 생성 완료.", flush=True)
+    print(f"   [발행] {sub['sub_title']} 최종본 및 인터랙티브 위젯 연동 완료.", flush=True)
     return True
 
 def main():
@@ -583,7 +525,6 @@ def main():
     while True:
         book, section, sub = get_next_task(index_data)
         if not sub:
-            # index.json에 미완료 태스크가 아직 남아 있는지 체크
             has_unfinished = False
             for b in index_data.get("books", []):
                 for s in b.get("sections", []):
@@ -613,7 +554,6 @@ def main():
                 break
                 
             save_index(index_data)
-            # 작업 안정성을 위해 30초 대기
             time.sleep(30)
 
         except Exception as e:
@@ -622,4 +562,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
