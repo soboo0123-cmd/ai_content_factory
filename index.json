@@ -972,7 +972,8 @@
                   "created_at": "2026-05-22T23:23:07.190343"
                 },
                 "v3": {
-                  "status": "Pending"
+                  "status": "Pending",
+                  "user_feedback": "v2를 v3로 채택해줘."
                 }
               },
               "metadata": {
