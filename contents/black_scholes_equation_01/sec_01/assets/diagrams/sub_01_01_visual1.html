@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .slot { border: 2px dashed #cbd5e1; transition: all 0.3s; }
+        .slot.filled { border-style: solid; border-color: #3b82f6; background-color: #eff6ff; }
+        .char-btn { cursor: pointer; transition: transform 0.2s; }
+        .char-btn:hover { transform: scale(1.1); }
+        .char-btn.used { opacity: 0.3; cursor: not-allowed; transform: scale(1); }
+    </style>
+</head>
+<body class="bg-gray-50 p-4 font-sans">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">나열하기 체험: 슬롯을 채워보세요</h3>
+        
+        <div class="flex justify-center space-x-4 mb-8">
+            <div id="slot-0" class="slot w-12 h-16 rounded flex items-center justify-center text-2xl font-bold text-blue-600">?</div>
+            <div id="slot-1" class="slot w-12 h-16 rounded flex items-center justify-center text-2xl font-bold text-blue-600">?</div>
+            <div id="slot-2" class="slot w-12 h-16 rounded flex items-center justify-center text-2xl font-bold text-blue-600">?</div>
+            <div id="slot-3" class="slot w-12 h-16 rounded flex items-center justify-center text-2xl font-bold text-blue-600">?</div>
+        </div>
+
+        <div class="flex justify-center space-x-2 mb-6">
+            <button onclick="pick('A')" id="btn-A" class="char-btn bg-amber-400 text-white w-10 h-10 rounded-full font-bold shadow">A</button>
+            <button onclick="pick('B')" id="btn-B" class="char-btn bg-emerald-400 text-white w-10 h-10 rounded-full font-bold shadow">B</button>
+            <button onclick="pick('C')" id="btn-C" class="char-btn bg-sky-400 text-white w-10 h-10 rounded-full font-bold shadow">C</button>
+            <button onclick="pick('D')" id="btn-D" class="char-btn bg-indigo-400 text-white w-10 h-10 rounded-full font-bold shadow">D</button>
+        </div>
+
+        <div class="border-t pt-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-semibold text-gray-500">생성된 목록:</span>
+                <button onclick="reset()" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded">초기화</button>
+            </div>
+            <div id="history" class="text-sm text-gray-600 h-24 overflow-y-auto bg-gray-50 p-2 rounded flex flex-wrap gap-2">
+                <!-- History items -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPath = [];
+        let history = [];
+
+        function pick(char) {
+            if (currentPath.includes(char)) return;
+            if (currentPath.length >= 4) return;
+
+            currentPath.push(char);
+            document.getElementById(`btn-${char}`).classList.add('used');
+            updateUI();
+
+            if (currentPath.length === 4) {
+                const result = currentPath.join('');
+                if (!history.includes(result)) {
+                    history.push(result);
+                    updateHistory();
+                }
+                setTimeout(resetPath, 1000);
+            }
+        }
+
+        function resetPath() {
+            currentPath = [];
+            ['A', 'B', 'C', 'D'].forEach(c => document.getElementById(`btn-${c}`).classList.remove('used'));
+            updateUI();
+        }
+
+        function reset() {
+            resetPath();
+            history = [];
+            updateHistory();
+        }
+
+        function updateUI() {
+            for (let i = 0; i < 4; i++) {
+                const slot = document.getElementById(`slot-${i}`);
+                if (currentPath[i]) {
+                    slot.innerText = currentPath[i];
+                    slot.classList.add('filled');
+                } else {
+                    slot.innerText = '?';
+                    slot.classList.remove('filled');
+                }
+            }
+        }
+
+        function updateHistory() {
+            const hDiv = document.getElementById('history');
+            hDiv.innerHTML = history.map(item => `<span class="bg-white border px-2 py-1 rounded shadow-sm font-mono">${item}</span>`).join('');
+        }
+    </script>
+</body>
+</html>
