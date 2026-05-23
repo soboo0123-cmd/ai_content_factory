@@ -5,87 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        input[type=range] { width: 100%; cursor: pointer; }
-        .bar { transition: height 0.5s ease-out; }
+        .node { transition: all 0.3s; cursor: pointer; }
+        .node:hover { filter: brightness(1.1); }
+        .line { stroke: #e2e8f0; stroke-width: 2; }
+        .line.active { stroke: #3b82f6; stroke-width: 3; }
     </style>
 </head>
-<body class="bg-slate-50 p-6 font-sans">
+<body class="bg-gray-50 p-4">
     <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <h2 class="text-xl font-bold text-slate-800 mb-2">팩토리얼($n!$)의 폭발적 증가</h2>
-        <p class="text-sm text-slate-600 mb-6">슬라이더를 움직여 $n$의 값에 따른 전체 경우의 수($n!$)를 확인해 보세요.</p>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">단계별 트리 탐색</h3>
+        <p class="text-sm text-gray-500 mb-4">노드를 클릭하여 다음 선택지로 이동해보세요.</p>
         
-        <div class="mb-8">
-            <div class="flex justify-between mb-2 font-bold text-blue-600">
-                <span>n = <span id="n-val">4</span></span>
-                <span>n! = <span id="factorial-val">24</span></span>
-            </div>
-            <input type="range" id="n-slider" min="1" max="10" value="4" step="1" class="h-2 bg-slate-200 rounded-lg appearance-none">
-        </div>
-
-        <div class="flex items-end justify-between h-48 bg-slate-100 rounded-lg p-4 gap-1">
-            <!-- Bars will be generated here -->
-            <div id="chart-container" class="flex items-end justify-between w-full h-full"></div>
+        <div class="relative overflow-x-auto border rounded-lg bg-white h-[350px]">
+            <svg id="tree-svg" width="800" height="350" viewBox="0 0 800 350">
+                <!-- SVG Content dynamically generated -->
+            </svg>
         </div>
         
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <p id="formula-display" class="text-center font-mono text-blue-800 font-bold"></p>
+        <div id="status" class="mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg font-medium text-center">
+            첫 번째 자리에 올 친구를 선택하세요 (4가지 선택지)
         </div>
     </div>
 
     <script>
-        const slider = document.getElementById('n-slider');
-        const nVal = document.getElementById('n-val');
-        const fVal = document.getElementById('factorial-val');
-        const formulaDisplay = document.getElementById('formula-display');
-        const chartContainer = document.getElementById('chart-container');
-
-        function factorial(n) {
-            if (n === 0 || n === 1) return 1;
-            let res = 1;
-            for (let i = 2; i <= n; i++) res *= i;
-            return res;
-        }
-
-        function update() {
-            const n = parseInt(slider.value);
-            const f = factorial(n);
+        const svg = document.getElementById('tree-svg');
+        const status = document.getElementById('status');
+        const chars = ['A', 'B', 'C', 'D'];
+        
+        function renderStep(selected = []) {
+            svg.innerHTML = '';
+            const step = selected.length;
+            const remaining = chars.filter(c => !selected.includes(c));
             
-            nVal.innerText = n;
-            fVal.innerText = f.toLocaleString();
+            // Draw Root
+            drawNode(40, 175, "Start", "#64748b", false);
             
-            // Formula display
-            let formula = `${n}! = `;
-            for(let i=n; i>=1; i--) {
-                formula += i + (i > 1 ? ' × ' : '');
-            }
-            formulaDisplay.innerText = formula;
-
-            // Chart update
-            chartContainer.innerHTML = '';
-            for(let i=1; i<=10; i++) {
-                const val = factorial(i);
-                const maxVal = factorial(10);
-                const height = (Math.log10(val) / Math.log10(maxVal)) * 100; // Use log scale for better visualization
+            if (step === 0) {
+                chars.forEach((c, i) => {
+                    const y = 50 + (i * 80);
+                    drawLine(40, 175, 150, y, false);
+                    drawNode(150, y, c, getColor(c), true, () => renderStep([c]));
+                });
+            } else {
+                // Draw path taken
+                let lastX = 40, lastY = 175;
+                selected.forEach((c, i) => {
+                    const x = 150 + (i * 150);
+                    const y = 175; // Simplified path
+                    drawLine(lastX, lastY, x, y, true);
+                    drawNode(x, y, c, getColor(c), false);
+                    lastX = x; lastY = y;
+                });
                 
-                const barWrapper = document.createElement('div');
-                barWrapper.className = 'flex flex-col items-center flex-1';
-                
-                const bar = document.createElement('div');
-                bar.className = `w-full rounded-t ${i === n ? 'bg-blue-500' : 'bg-slate-300'}`;
-                bar.style.height = `${Math.max(height, 5)}%`;
-                
-                const label = document.createElement('span');
-                label.className = 'text-[10px] mt-1 text-slate-500';
-                label.innerText = i;
-                
-                barWrapper.appendChild(bar);
-                barWrapper.appendChild(label);
-                chartContainer.appendChild(barWrapper);
+                // Draw next options
+                if (step < 4) {
+                    remaining.forEach((c, i) => {
+                        const x = 150 + (step * 150);
+                        const spacing = 180 / (remaining.length + 1);
+                        const y = (175 - 90) + (spacing * (i + 1));
+                        drawLine(lastX, lastY, x, y, false);
+                        drawNode(x, y, c, getColor(c), true, () => renderStep([...selected, c]));
+                    });
+                    status.innerText = `${step + 1}번째 자리 선택 중: ${remaining.length}가지 갈림길`;
+                } else {
+                    status.innerText = `나열 완료! 순서: ${selected.join(' → ')}`;
+                    setTimeout(() => {
+                        if(confirm("다시 시작하시겠습니까?")) renderStep([]);
+                    }, 1500);
+                }
             }
         }
 
-        slider.addEventListener('input', update);
-        update();
+        function drawNode(x, y, text, color, active, onClick) {
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.setAttribute("class", "node");
+            if(onClick) g.onclick = onClick;
+
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", active ? "22" : "18");
+            circle.setAttribute("fill", color);
+            circle.setAttribute("stroke", active ? "#333" : "none");
+            circle.setAttribute("stroke-width", "2");
+
+            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttribute("x", x);
+            txt.setAttribute("y", y + 5);
+            txt.setAttribute("text-anchor", "middle");
+            txt.setAttribute("fill", "white");
+            txt.setAttribute("font-weight", "bold");
+            txt.textContent = text;
+
+            g.appendChild(circle);
+            g.appendChild(txt);
+            svg.appendChild(g);
+        }
+
+        function drawLine(x1, y1, x2, y2, active) {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x1);
+            line.setAttribute("y1", y1);
+            line.setAttribute("x2", x2);
+            line.setAttribute("y2", y2);
+            line.setAttribute("class", active ? "line active" : "line");
+            svg.insertBefore(line, svg.firstChild);
+        }
+
+        function getColor(c) {
+            const colors = { A: '#fbbf24', B: '#34d399', C: '#38bdf8', D: '#818cf8', Start: '#64748b' };
+            return colors[c] || '#ccc';
+        }
+
+        renderStep();
     </script>
 </body>
 </html>
