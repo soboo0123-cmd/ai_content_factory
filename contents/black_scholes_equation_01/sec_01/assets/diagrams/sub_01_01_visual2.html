@@ -2,70 +2,69 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .node { cursor: pointer; transition: all 0.2s; }
-        .node:hover { filter: brightness(1.1); transform: scale(1.05); }
-        .line { stroke: #cbd5e1; stroke-width: 2; fill: none; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
-<body class="bg-slate-50 p-4">
-    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <h2 class="text-xl font-bold mb-2">단계별 선택의 트리 구조</h2>
-        <p class="text-sm text-slate-500 mb-4">버튼을 클릭하여 각 단계에서 선택지가 어떻게 줄어드는지 확인하세요.</p>
+<body class="bg-slate-50 p-6 font-sans">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <h2 class="text-xl font-bold text-slate-800 mb-4">팩토리얼 ($n!$) 계산기</h2>
         
-        <div class="flex justify-between items-center mb-8 bg-indigo-50 p-4 rounded-lg">
-            <div class="text-center">
-                <div class="text-xs text-slate-400">1단계</div>
-                <div class="text-xl font-bold text-indigo-600">4명</div>
-            </div>
-            <div class="text-slate-300">×</div>
-            <div class="text-center">
-                <div class="text-xs text-slate-400">2단계</div>
-                <div class="text-xl font-bold text-indigo-600">3명</div>
-            </div>
-            <div class="text-slate-300">×</div>
-            <div class="text-center">
-                <div class="text-xs text-slate-400">3단계</div>
-                <div class="text-xl font-bold text-indigo-600">2명</div>
-            </div>
-            <div class="text-slate-300">×</div>
-            <div class="text-center">
-                <div class="text-xs text-slate-400">4단계</div>
-                <div class="text-xl font-bold text-indigo-600">1명</div>
-            </div>
-            <div class="text-slate-400 font-bold">=</div>
-            <div class="text-2xl font-black text-rose-500">24</div>
+        <div class="mb-8">
+            <label class="block text-sm font-medium text-slate-600 mb-2">나열할 대상의 수 ($n$): <span id="n-val" class="text-indigo-600 text-lg font-bold">5</span>명</label>
+            <input type="range" id="n-slider" min="1" max="12" value="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
         </div>
 
-        <svg viewBox="0 0 600 250" class="w-full h-auto">
-            <!-- Simplified Tree Visualization -->
-            <g id="tree-art">
-                <!-- Level 1 -->
-                <circle cx="50" cy="125" r="20" fill="#6366f1" />
-                <text x="50" y="130" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Start</text>
-                
-                <path d="M70 125 L150 50" class="line" />
-                <path d="M70 125 L150 100" class="line" />
-                <path d="M70 125 L150 150" class="line" />
-                <path d="M70 125 L150 200" class="line" />
-                
-                <!-- Level 2 points -->
-                <circle cx="150" cy="50" r="15" fill="#818cf8" />
-                <circle cx="150" cy="100" r="15" fill="#818cf8" />
-                <circle cx="150" cy="150" r="15" fill="#818cf8" />
-                <circle cx="150" cy="200" r="15" fill="#818cf8" />
-                
-                <text x="175" y="55" class="text-xs text-slate-400" font-size="10">각 노드에서 3개씩 파생...</text>
-                
-                <!-- Level 3 indicators -->
-                <path d="M165 50 L230 30" class="line" stroke-dasharray="4" />
-                <path d="M165 50 L230 50" class="line" stroke-dasharray="4" />
-                <path d="M165 50 L230 70" class="line" stroke-dasharray="4" />
-                
-                <text x="350" y="130" text-anchor="middle" class="fill-slate-400 italic text-sm">...이런 방식으로 총 24개의 경로가 생깁니다.</text>
-            </g>
-        </svg>
+        <div class="space-y-4">
+            <div class="p-4 bg-indigo-50 rounded-lg">
+                <div class="text-xs text-indigo-400 uppercase font-bold mb-1">계산 과정</div>
+                <div id="factorial-process" class="text-slate-700 font-mono break-all">5 × 4 × 3 × 2 × 1</div>
+            </div>
+
+            <div class="p-4 bg-slate-800 rounded-lg text-center">
+                <div class="text-xs text-slate-400 uppercase font-bold mb-1">총 경우의 수</div>
+                <div id="factorial-result" class="text-white text-3xl font-black">120</div>
+            </div>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-6 leading-relaxed italic">
+            * 숫자가 1씩 커질 때마다 경우의 수가 얼마나 급격히 증가하는지 확인해 보세요. 12명만 되어도 무려 4억 가지가 넘습니다!
+        </p>
     </div>
+
+    <script>
+        const slider = document.getElementById('n-slider');
+        const nVal = document.getElementById('n-val');
+        const process = document.getElementById('factorial-process');
+        const result = document.getElementById('factorial-result');
+
+        function update() {
+            const n = parseInt(slider.value);
+            nVal.innerText = n;
+            
+            let res = 1;
+            let processStr = "";
+            for (let i = n; i >= 1; i--) {
+                res *= i;
+                processStr += i + (i === 1 ? "" : " × ");
+            }
+            
+            process.innerText = processStr;
+            result.innerText = res.toLocaleString();
+        }
+
+        slider.addEventListener('input', update);
+        update();
+    </script>
 </body>
 </html>

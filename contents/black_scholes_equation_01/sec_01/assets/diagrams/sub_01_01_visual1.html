@@ -5,60 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .card { transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .active-btn { background-color: #4F46E5 !important; color: white; }
+        .slot { border: 2px dashed #cbd5e1; transition: all 0.3s; }
+        .character { cursor: pointer; transition: transform 0.2s; }
+        .character:hover { transform: scale(1.1); }
+        .character.selected { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
     </style>
 </head>
 <body class="bg-slate-50 p-6 font-sans">
-    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-xl font-bold mb-4 text-slate-800">1단계: 첫 번째 친구 선택하기</h2>
-        <p class="text-slate-600 mb-6 text-sm">첫 번째 자리에 앉을 친구를 클릭해 보세요. 뒤에 따라오는 '6가지의 묶음'을 확인할 수 있습니다.</p>
+    <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">캐릭터 줄 세우기 체험</h2>
+        <p class="text-slate-600 mb-6 text-sm">캐릭터를 클릭하여 빈 슬롯에 채워보세요. 각 단계에서 선택지가 어떻게 줄어드는지 확인할 수 있습니다.</p>
         
-        <div class="flex gap-4 mb-8 justify-center">
-            <button onclick="showPerms('A')" id="btn-A" class="card px-6 py-3 bg-white border-2 border-indigo-500 text-indigo-500 rounded-lg font-bold">A 가 맨 앞</button>
-            <button onclick="showPerms('B')" id="btn-B" class="card px-6 py-3 bg-white border-2 border-indigo-500 text-indigo-500 rounded-lg font-bold">B 가 맨 앞</button>
-            <button onclick="showPerms('C')" id="btn-C" class="card px-6 py-3 bg-white border-2 border-indigo-500 text-indigo-500 rounded-lg font-bold">C 가 맨 앞</button>
-            <button onclick="showPerms('D')" id="btn-D" class="card px-6 py-3 bg-white border-2 border-indigo-500 text-indigo-500 rounded-lg font-bold">D 가 맨 앞</button>
+        <div class="flex justify-around mb-8" id="characters">
+            <button onclick="pick('A')" id="btn-A" class="character bg-red-100 text-red-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-red-200">A</button>
+            <button onclick="pick('B')" id="btn-B" class="character bg-blue-100 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-blue-200">B</button>
+            <button onclick="pick('C')" id="btn-C" class="character bg-green-100 text-green-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-green-200">C</button>
+            <button onclick="pick('D')" id="btn-D" class="character bg-yellow-100 text-yellow-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-yellow-200">D</button>
         </div>
 
-        <div id="result-area" class="hidden">
-            <h3 id="result-title" class="text-lg font-semibold mb-3 text-indigo-600"></h3>
-            <div id="perms-grid" class="grid grid-cols-3 gap-3">
-                <!-- 결과가 여기에 동적으로 생성됨 -->
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="flex flex-col items-center">
+                <div id="slot-0" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">1</div>
+                <span class="text-xs mt-2 text-slate-400">1st 자리</span>
             </div>
-            <p class="mt-4 text-center text-sm text-slate-500 font-medium italic">"어떤 친구를 골라도 항상 6가지의 똑같은 묶음이 만들어집니다!"</p>
+            <div class="flex flex-col items-center">
+                <div id="slot-1" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">2</div>
+                <span class="text-xs mt-2 text-slate-400">2nd 자리</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <div id="slot-2" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">3</div>
+                <span class="text-xs mt-2 text-slate-400">3rd 자리</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <div id="slot-3" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">4</div>
+                <span class="text-xs mt-2 text-slate-400">4th 자리</span>
+            </div>
         </div>
+
+        <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+            <div class="text-sm font-semibold text-indigo-800 mb-1">수학적 상태:</div>
+            <div id="status-msg" class="text-indigo-600 font-mono">자리를 선택해 주세요.</div>
+        </div>
+
+        <button onclick="reset()" class="mt-6 w-full py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 transition">다시 하기</button>
     </div>
 
     <script>
-        const data = {
-            'A': ['ABCD', 'ABDC', 'ACBD', 'ACDB', 'ADBC', 'ADCB'],
-            'B': ['BACD', 'BADC', 'BCAD', 'BCDA', 'BDAC', 'BDCA'],
-            'C': ['CABD', 'CADB', 'CBAD', 'CBDA', 'CDAB', 'CDBA'],
-            'D': ['DABC', 'DACB', 'DBAC', 'DBCA', 'DCAB', 'DCBA']
-        };
-
-        function showPerms(char) {
-            const area = document.getElementById('result-area');
-            const title = document.getElementById('result-title');
-            const grid = document.getElementById('perms-grid');
+        let selection = [];
+        const chars = ['A', 'B', 'C', 'D'];
+        
+        function pick(char) {
+            if (selection.includes(char) || selection.length >= 4) return;
             
-            // 버튼 스타일 초기화
-            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active-btn'));
-            document.getElementById('btn-' + char).classList.add('active-btn');
-
-            area.classList.remove('hidden');
-            title.innerText = `${char}가 맨 앞일 때 발견되는 6가지 패턴`;
+            const currentSlot = selection.length;
+            selection.push(char);
             
-            grid.innerHTML = '';
-            data[char].forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'bg-indigo-50 p-3 rounded text-center font-mono font-bold text-indigo-700 border border-indigo-100';
-                div.innerText = item;
-                grid.appendChild(div);
-            });
+            const slotEl = document.getElementById(`slot-${currentSlot}`);
+            slotEl.innerText = char;
+            slotEl.classList.remove('text-slate-400', 'bg-slate-50');
+            slotEl.classList.add('bg-white', 'border-solid', 'border-indigo-500', 'text-indigo-600', 'shadow-inner');
+            
+            document.getElementById(`btn-${char}`).classList.add('selected');
+            updateStatus();
         }
+
+        function updateStatus() {
+            const remaining = 4 - selection.length;
+            const msgEl = document.getElementById('status-msg');
+            if (selection.length === 0) {
+                msgEl.innerText = "첫 번째 자리에 앉을 수 있는 사람: 4명";
+            } else if (selection.length < 4) {
+                msgEl.innerText = `${selection.length}명을 세웠습니다. 다음 자리에 앉을 수 있는 사람: ${remaining}명`;
+            } else {
+                msgEl.innerText = "배치가 끝났습니다! 계산: 4 × 3 × 2 × 1 = 24가지 중 하나";
+            }
+        }
+
+        function reset() {
+            selection = [];
+            chars.forEach(c => {
+                document.getElementById(`btn-${c}`).classList.remove('selected');
+            });
+            for(let i=0; i<4; i++) {
+                const s = document.getElementById(`slot-${i}`);
+                s.innerText = i + 1;
+                s.className = "slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50";
+            }
+            updateStatus();
+        }
+        updateStatus();
     </script>
 </body>
 </html>

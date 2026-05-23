@@ -1,0 +1,21 @@
+graph LR
+    Start((시작)) --> A[1번: A 선택]
+    Start --> B[1번: B 선택]
+    Start --> C[1번: C 선택]
+    Start --> D[1번: D 선택]
+
+    A --> A1[2번: B]
+    A --> A2[2번: C]
+    A --> A3[2번: D]
+
+    A1 --> A1_1[3번: C]
+    A1 --> A1_2[3번: D]
+
+    A1_1 --> A1_1_1[4번: D]
+    A1_2 --> A1_2_1[4번: C]
+
+    style Start fill:#f9f,stroke:#333,stroke-width:2px
+    style A fill:#fff1f1,stroke:#f87171
+    style B fill:#fff1f1,stroke:#f87171
+    style C fill:#fff1f1,stroke:#f87171
+    style D fill:#fff1f1,stroke:#f87171
