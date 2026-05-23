@@ -2,122 +2,70 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .node { transition: all 0.3s; cursor: pointer; }
-        .node:hover { filter: brightness(1.1); }
-        .line { stroke: #e2e8f0; stroke-width: 2; }
-        .line.active { stroke: #3b82f6; stroke-width: 3; }
+        .node { cursor: pointer; transition: all 0.2s; }
+        .node:hover { filter: brightness(1.1); transform: scale(1.05); }
+        .line { stroke: #cbd5e1; stroke-width: 2; fill: none; }
     </style>
 </head>
-<body class="bg-gray-50 p-4">
-    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-2">단계별 트리 탐색</h3>
-        <p class="text-sm text-gray-500 mb-4">노드를 클릭하여 다음 선택지로 이동해보세요.</p>
+<body class="bg-slate-50 p-4">
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold mb-2">단계별 선택의 트리 구조</h2>
+        <p class="text-sm text-slate-500 mb-4">버튼을 클릭하여 각 단계에서 선택지가 어떻게 줄어드는지 확인하세요.</p>
         
-        <div class="relative overflow-x-auto border rounded-lg bg-white h-[350px]">
-            <svg id="tree-svg" width="800" height="350" viewBox="0 0 800 350">
-                <!-- SVG Content dynamically generated -->
-            </svg>
+        <div class="flex justify-between items-center mb-8 bg-indigo-50 p-4 rounded-lg">
+            <div class="text-center">
+                <div class="text-xs text-slate-400">1단계</div>
+                <div class="text-xl font-bold text-indigo-600">4명</div>
+            </div>
+            <div class="text-slate-300">×</div>
+            <div class="text-center">
+                <div class="text-xs text-slate-400">2단계</div>
+                <div class="text-xl font-bold text-indigo-600">3명</div>
+            </div>
+            <div class="text-slate-300">×</div>
+            <div class="text-center">
+                <div class="text-xs text-slate-400">3단계</div>
+                <div class="text-xl font-bold text-indigo-600">2명</div>
+            </div>
+            <div class="text-slate-300">×</div>
+            <div class="text-center">
+                <div class="text-xs text-slate-400">4단계</div>
+                <div class="text-xl font-bold text-indigo-600">1명</div>
+            </div>
+            <div class="text-slate-400 font-bold">=</div>
+            <div class="text-2xl font-black text-rose-500">24</div>
         </div>
-        
-        <div id="status" class="mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg font-medium text-center">
-            첫 번째 자리에 올 친구를 선택하세요 (4가지 선택지)
-        </div>
-    </div>
 
-    <script>
-        const svg = document.getElementById('tree-svg');
-        const status = document.getElementById('status');
-        const chars = ['A', 'B', 'C', 'D'];
-        
-        function renderStep(selected = []) {
-            svg.innerHTML = '';
-            const step = selected.length;
-            const remaining = chars.filter(c => !selected.includes(c));
-            
-            // Draw Root
-            drawNode(40, 175, "Start", "#64748b", false);
-            
-            if (step === 0) {
-                chars.forEach((c, i) => {
-                    const y = 50 + (i * 80);
-                    drawLine(40, 175, 150, y, false);
-                    drawNode(150, y, c, getColor(c), true, () => renderStep([c]));
-                });
-            } else {
-                // Draw path taken
-                let lastX = 40, lastY = 175;
-                selected.forEach((c, i) => {
-                    const x = 150 + (i * 150);
-                    const y = 175; // Simplified path
-                    drawLine(lastX, lastY, x, y, true);
-                    drawNode(x, y, c, getColor(c), false);
-                    lastX = x; lastY = y;
-                });
+        <svg viewBox="0 0 600 250" class="w-full h-auto">
+            <!-- Simplified Tree Visualization -->
+            <g id="tree-art">
+                <!-- Level 1 -->
+                <circle cx="50" cy="125" r="20" fill="#6366f1" />
+                <text x="50" y="130" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Start</text>
                 
-                // Draw next options
-                if (step < 4) {
-                    remaining.forEach((c, i) => {
-                        const x = 150 + (step * 150);
-                        const spacing = 180 / (remaining.length + 1);
-                        const y = (175 - 90) + (spacing * (i + 1));
-                        drawLine(lastX, lastY, x, y, false);
-                        drawNode(x, y, c, getColor(c), true, () => renderStep([...selected, c]));
-                    });
-                    status.innerText = `${step + 1}번째 자리 선택 중: ${remaining.length}가지 갈림길`;
-                } else {
-                    status.innerText = `나열 완료! 순서: ${selected.join(' → ')}`;
-                    setTimeout(() => {
-                        if(confirm("다시 시작하시겠습니까?")) renderStep([]);
-                    }, 1500);
-                }
-            }
-        }
-
-        function drawNode(x, y, text, color, active, onClick) {
-            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            g.setAttribute("class", "node");
-            if(onClick) g.onclick = onClick;
-
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", x);
-            circle.setAttribute("cy", y);
-            circle.setAttribute("r", active ? "22" : "18");
-            circle.setAttribute("fill", color);
-            circle.setAttribute("stroke", active ? "#333" : "none");
-            circle.setAttribute("stroke-width", "2");
-
-            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            txt.setAttribute("x", x);
-            txt.setAttribute("y", y + 5);
-            txt.setAttribute("text-anchor", "middle");
-            txt.setAttribute("fill", "white");
-            txt.setAttribute("font-weight", "bold");
-            txt.textContent = text;
-
-            g.appendChild(circle);
-            g.appendChild(txt);
-            svg.appendChild(g);
-        }
-
-        function drawLine(x1, y1, x2, y2, active) {
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", x1);
-            line.setAttribute("y1", y1);
-            line.setAttribute("x2", x2);
-            line.setAttribute("y2", y2);
-            line.setAttribute("class", active ? "line active" : "line");
-            svg.insertBefore(line, svg.firstChild);
-        }
-
-        function getColor(c) {
-            const colors = { A: '#fbbf24', B: '#34d399', C: '#38bdf8', D: '#818cf8', Start: '#64748b' };
-            return colors[c] || '#ccc';
-        }
-
-        renderStep();
-    </script>
+                <path d="M70 125 L150 50" class="line" />
+                <path d="M70 125 L150 100" class="line" />
+                <path d="M70 125 L150 150" class="line" />
+                <path d="M70 125 L150 200" class="line" />
+                
+                <!-- Level 2 points -->
+                <circle cx="150" cy="50" r="15" fill="#818cf8" />
+                <circle cx="150" cy="100" r="15" fill="#818cf8" />
+                <circle cx="150" cy="150" r="15" fill="#818cf8" />
+                <circle cx="150" cy="200" r="15" fill="#818cf8" />
+                
+                <text x="175" y="55" class="text-xs text-slate-400" font-size="10">각 노드에서 3개씩 파생...</text>
+                
+                <!-- Level 3 indicators -->
+                <path d="M165 50 L230 30" class="line" stroke-dasharray="4" />
+                <path d="M165 50 L230 50" class="line" stroke-dasharray="4" />
+                <path d="M165 50 L230 70" class="line" stroke-dasharray="4" />
+                
+                <text x="350" y="130" text-anchor="middle" class="fill-slate-400 italic text-sm">...이런 방식으로 총 24개의 경로가 생깁니다.</text>
+            </g>
+        </svg>
+    </div>
 </body>
 </html>
