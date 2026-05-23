@@ -957,9 +957,9 @@
             {
               "sub_id": "sub_01_01",
               "sub_title": "경우의 수 나열",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -972,8 +972,10 @@
                   "created_at": "2026-05-22T23:23:07.190343"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "user_feedback": "v2를 v3로 채택해줘."
+                  "status": "Completed",
+                  "user_feedback": "v2를 v3로 채택해줘.",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_01_v3.md",
+                  "created_at": "2026-05-23T02:49:20.352834"
                 }
               },
               "metadata": {

@@ -5,95 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .slot { border: 2px dashed #cbd5e1; transition: all 0.3s; }
-        .character { cursor: pointer; transition: transform 0.2s; }
-        .character:hover { transform: scale(1.1); }
-        .character.selected { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+        .permutation-item { transition: all 0.2s ease; }
+        .permutation-item:hover { transform: translateY(-2px); background-color: #eff6ff; }
     </style>
 </head>
 <body class="bg-slate-50 p-6 font-sans">
-    <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <h2 class="text-2xl font-bold text-slate-800 mb-2">캐릭터 줄 세우기 체험</h2>
-        <p class="text-slate-600 mb-6 text-sm">캐릭터를 클릭하여 빈 슬롯에 채워보세요. 각 단계에서 선택지가 어떻게 줄어드는지 확인할 수 있습니다.</p>
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-4 text-center">동일한 크기의 '묶음' 발견하기</h2>
+        <p class="text-sm text-slate-600 mb-6 text-center">첫 번째 자리에 세울 친구를 클릭해보세요. <br>어떤 친구를 선택하든 뒤따르는 경우의 수가 <strong>6개</strong>로 동일함을 확인할 수 있습니다.</p>
         
-        <div class="flex justify-around mb-8" id="characters">
-            <button onclick="pick('A')" id="btn-A" class="character bg-red-100 text-red-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-red-200">A</button>
-            <button onclick="pick('B')" id="btn-B" class="character bg-blue-100 text-blue-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-blue-200">B</button>
-            <button onclick="pick('C')" id="btn-C" class="character bg-green-100 text-green-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-green-200">C</button>
-            <button onclick="pick('D')" id="btn-D" class="character bg-yellow-100 text-yellow-600 w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl shadow-sm border-2 border-yellow-200">D</button>
+        <div class="flex justify-center gap-4 mb-8">
+            <button onclick="showPerms('A')" class="w-12 h-12 rounded-full bg-blue-500 text-white font-bold hover:bg-blue-600 focus:ring-4 ring-blue-200 transition-all">A</button>
+            <button onclick="showPerms('B')" class="w-12 h-12 rounded-full bg-green-500 text-white font-bold hover:bg-green-600 focus:ring-4 ring-green-200 transition-all">B</button>
+            <button onclick="showPerms('C')" class="w-12 h-12 rounded-full bg-orange-500 text-white font-bold hover:bg-orange-600 focus:ring-4 ring-orange-200 transition-all">C</button>
+            <button onclick="showPerms('D')" class="w-12 h-12 rounded-full bg-purple-500 text-white font-bold hover:bg-purple-600 focus:ring-4 ring-purple-200 transition-all">D</button>
         </div>
 
-        <div class="grid grid-cols-4 gap-4 mb-8">
-            <div class="flex flex-col items-center">
-                <div id="slot-0" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">1</div>
-                <span class="text-xs mt-2 text-slate-400">1st 자리</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div id="slot-1" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">2</div>
-                <span class="text-xs mt-2 text-slate-400">2nd 자리</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div id="slot-2" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">3</div>
-                <span class="text-xs mt-2 text-slate-400">3rd 자리</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <div id="slot-3" class="slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50">4</div>
-                <span class="text-xs mt-2 text-slate-400">4th 자리</span>
+        <div id="display-area" class="grid grid-cols-3 gap-3 min-h-[120px]">
+            <div class="col-span-3 text-center text-slate-400 py-10 border-2 border-dashed border-slate-200 rounded-lg">
+                위의 알파벳 버튼을 클릭하여 나열을 시작하세요
             </div>
         </div>
 
-        <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-            <div class="text-sm font-semibold text-indigo-800 mb-1">수학적 상태:</div>
-            <div id="status-msg" class="text-indigo-600 font-mono">자리를 선택해 주세요.</div>
-        </div>
-
-        <button onclick="reset()" class="mt-6 w-full py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 transition">다시 하기</button>
+        <div id="result-text" class="mt-6 text-center font-semibold text-blue-600 h-6"></div>
     </div>
 
     <script>
-        let selection = [];
-        const chars = ['A', 'B', 'C', 'D'];
-        
-        function pick(char) {
-            if (selection.includes(char) || selection.length >= 4) return;
-            
-            const currentSlot = selection.length;
-            selection.push(char);
-            
-            const slotEl = document.getElementById(`slot-${currentSlot}`);
-            slotEl.innerText = char;
-            slotEl.classList.remove('text-slate-400', 'bg-slate-50');
-            slotEl.classList.add('bg-white', 'border-solid', 'border-indigo-500', 'text-indigo-600', 'shadow-inner');
-            
-            document.getElementById(`btn-${char}`).classList.add('selected');
-            updateStatus();
-        }
+        const data = {
+            'A': ['ABCD', 'ABDC', 'ACBD', 'ACDB', 'ADBC', 'ADCB'],
+            'B': ['BACD', 'BADC', 'BCAD', 'BCDA', 'BDAC', 'BDCA'],
+            'C': ['CABD', 'CADB', 'CBAD', 'CBDA', 'CDAB', 'CDBA'],
+            'D': ['DABC', 'DACB', 'DBAC', 'DBCA', 'DCAB', 'DCBA']
+        };
 
-        function updateStatus() {
-            const remaining = 4 - selection.length;
-            const msgEl = document.getElementById('status-msg');
-            if (selection.length === 0) {
-                msgEl.innerText = "첫 번째 자리에 앉을 수 있는 사람: 4명";
-            } else if (selection.length < 4) {
-                msgEl.innerText = `${selection.length}명을 세웠습니다. 다음 자리에 앉을 수 있는 사람: ${remaining}명`;
-            } else {
-                msgEl.innerText = "배치가 끝났습니다! 계산: 4 × 3 × 2 × 1 = 24가지 중 하나";
-            }
-        }
-
-        function reset() {
-            selection = [];
-            chars.forEach(c => {
-                document.getElementById(`btn-${c}`).classList.remove('selected');
+        function showPerms(char) {
+            const container = document.getElementById('display-area');
+            const resultText = document.getElementById('result-text');
+            container.innerHTML = '';
+            
+            data[char].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'permutation-item border border-slate-200 p-3 rounded text-center font-mono font-bold text-slate-700 shadow-sm';
+                div.innerText = item;
+                container.appendChild(div);
             });
-            for(let i=0; i<4; i++) {
-                const s = document.getElementById(`slot-${i}`);
-                s.innerText = i + 1;
-                s.className = "slot w-16 h-16 rounded-xl flex items-center justify-center text-2xl font-bold text-slate-400 bg-slate-50";
-            }
-            updateStatus();
+
+            resultText.innerText = `${char}가 맨 앞에 설 때: 총 ${data[char].length}가지의 묶음이 생성됨`;
         }
-        updateStatus();
     </script>
 </body>
 </html>

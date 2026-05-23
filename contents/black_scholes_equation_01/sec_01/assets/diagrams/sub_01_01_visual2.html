@@ -5,62 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: #4f46e5;
-            cursor: pointer;
-            box-shadow: 0 0 2px rgba(0,0,0,0.5);
-        }
+        input[type=range] { width: 100%; cursor: pointer; }
+        .bar { transition: height 0.5s ease-out; }
     </style>
 </head>
 <body class="bg-slate-50 p-6 font-sans">
-    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
-        <h2 class="text-xl font-bold text-slate-800 mb-4">팩토리얼 ($n!$) 계산기</h2>
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-2">팩토리얼($n!$)의 폭발적 증가</h2>
+        <p class="text-sm text-slate-600 mb-6">슬라이더를 움직여 $n$의 값에 따른 전체 경우의 수($n!$)를 확인해 보세요.</p>
         
         <div class="mb-8">
-            <label class="block text-sm font-medium text-slate-600 mb-2">나열할 대상의 수 ($n$): <span id="n-val" class="text-indigo-600 text-lg font-bold">5</span>명</label>
-            <input type="range" id="n-slider" min="1" max="12" value="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+            <div class="flex justify-between mb-2 font-bold text-blue-600">
+                <span>n = <span id="n-val">4</span></span>
+                <span>n! = <span id="factorial-val">24</span></span>
+            </div>
+            <input type="range" id="n-slider" min="1" max="10" value="4" step="1" class="h-2 bg-slate-200 rounded-lg appearance-none">
         </div>
 
-        <div class="space-y-4">
-            <div class="p-4 bg-indigo-50 rounded-lg">
-                <div class="text-xs text-indigo-400 uppercase font-bold mb-1">계산 과정</div>
-                <div id="factorial-process" class="text-slate-700 font-mono break-all">5 × 4 × 3 × 2 × 1</div>
-            </div>
-
-            <div class="p-4 bg-slate-800 rounded-lg text-center">
-                <div class="text-xs text-slate-400 uppercase font-bold mb-1">총 경우의 수</div>
-                <div id="factorial-result" class="text-white text-3xl font-black">120</div>
-            </div>
+        <div class="flex items-end justify-between h-48 bg-slate-100 rounded-lg p-4 gap-1">
+            <!-- Bars will be generated here -->
+            <div id="chart-container" class="flex items-end justify-between w-full h-full"></div>
         </div>
-
-        <p class="text-xs text-slate-400 mt-6 leading-relaxed italic">
-            * 숫자가 1씩 커질 때마다 경우의 수가 얼마나 급격히 증가하는지 확인해 보세요. 12명만 되어도 무려 4억 가지가 넘습니다!
-        </p>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <p id="formula-display" class="text-center font-mono text-blue-800 font-bold"></p>
+        </div>
     </div>
 
     <script>
         const slider = document.getElementById('n-slider');
         const nVal = document.getElementById('n-val');
-        const process = document.getElementById('factorial-process');
-        const result = document.getElementById('factorial-result');
+        const fVal = document.getElementById('factorial-val');
+        const formulaDisplay = document.getElementById('formula-display');
+        const chartContainer = document.getElementById('chart-container');
+
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            let res = 1;
+            for (let i = 2; i <= n; i++) res *= i;
+            return res;
+        }
 
         function update() {
             const n = parseInt(slider.value);
+            const f = factorial(n);
+            
             nVal.innerText = n;
+            fVal.innerText = f.toLocaleString();
             
-            let res = 1;
-            let processStr = "";
-            for (let i = n; i >= 1; i--) {
-                res *= i;
-                processStr += i + (i === 1 ? "" : " × ");
+            // Formula display
+            let formula = `${n}! = `;
+            for(let i=n; i>=1; i--) {
+                formula += i + (i > 1 ? ' × ' : '');
             }
-            
-            process.innerText = processStr;
-            result.innerText = res.toLocaleString();
+            formulaDisplay.innerText = formula;
+
+            // Chart update
+            chartContainer.innerHTML = '';
+            for(let i=1; i<=10; i++) {
+                const val = factorial(i);
+                const maxVal = factorial(10);
+                const height = (Math.log10(val) / Math.log10(maxVal)) * 100; // Use log scale for better visualization
+                
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'flex flex-col items-center flex-1';
+                
+                const bar = document.createElement('div');
+                bar.className = `w-full rounded-t ${i === n ? 'bg-blue-500' : 'bg-slate-300'}`;
+                bar.style.height = `${Math.max(height, 5)}%`;
+                
+                const label = document.createElement('span');
+                label.className = 'text-[10px] mt-1 text-slate-500';
+                label.innerText = i;
+                
+                barWrapper.appendChild(bar);
+                barWrapper.appendChild(label);
+                chartContainer.appendChild(barWrapper);
+            }
         }
 
         slider.addEventListener('input', update);
