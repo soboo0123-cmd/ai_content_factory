@@ -6,6 +6,11 @@ import re
 from datetime import datetime
 from google import genai
 
+# 중가부터 처리하도록 아래를 주석처리한 상태
+# prev_sub = get_previous_sub_section(section, sub_id)
+# if is_task_held(book, section, sub, prev_sub):
+#     continue
+
 # 환경 변수 로드 및 정제
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = 'gemini-3.5-flash'
@@ -154,9 +159,9 @@ def get_next_task(index_data, exclude_ids=None):
                         if status == "Review_Pending" and not sub['history']['v3'].get('user_feedback'):
                             continue
                             
-                        prev_sub = get_previous_sub_section(section, sub_id)
-                        if is_task_held(book, section, sub, prev_sub):
-                            continue
+                        # prev_sub = get_previous_sub_section(section, sub_id)
+                        # if is_task_held(book, section, sub, prev_sub):
+                        #     continue
                             
                         return book, section, sub
     return None, None, None
