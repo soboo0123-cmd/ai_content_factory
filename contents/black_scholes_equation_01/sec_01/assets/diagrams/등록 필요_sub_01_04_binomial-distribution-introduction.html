@@ -1,0 +1,885 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Interactive Math Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700&family=JetBrains+Mono:wght=300;400&family=Noto+Sans+KR:wght=300;400;500;700&display=swap');
+        
+        html, body {
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #0C0C0E;
+            color: #E2E8F0;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #141418; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D3748; border-radius: 2px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4A5568; }
+    </style>
+</head>
+<body class="flex flex-col justify-between select-none">
+
+    <!-- 1. Narrative Header -->
+    <header class="flex-shrink-0 bg-[#101014] border-b border-[#22222A] px-4 py-2.5 flex flex-col gap-1.5 overflow-hidden">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span id="dimension-badge" class="px-1.5 py-0.5 text-[9px] font-bold bg-[#1E1E24] border border-[#3A3A4A] rounded text-[#58D68D] tracking-wider uppercase">Math Engine</span>
+                <h1 id="step-title" class="text-xs md:text-base font-bold tracking-tight text-white truncate max-w-[70vw]">Loading...</h1>
+            </div>
+            <div class="text-[10px] text-gray-500 font-mono whitespace-nowrap">
+                Step <span id="current-step-idx" class="text-[#58D68D]">1</span> / <span id="total-step-idx">-</span>
+            </div>
+        </div>
+        <div id="step-narrative" class="text-[11px] md:text-sm text-gray-300 overflow-y-auto custom-scrollbar pr-1 leading-relaxed max-h-[75px] md:max-h-[100px]"></div>
+        <div id="step-formula" class="text-center text-[11px] md:text-xs py-1 text-[#58D68D] font-mono border-t border-[#1A1A22] bg-[#0C0C0E]/50 rounded truncate"></div>
+    </header>
+
+    <!-- 2. Visual Main -->
+    <main class="flex-grow relative bg-[#0C0C0E] flex items-center justify-center overflow-hidden">
+        <canvas id="visual-canvas" class="absolute inset-0 w-full h-full block"></canvas>
+        
+        <!-- HUD Overlay -->
+        <div class="absolute top-3 left-3 pointer-events-none flex flex-col space-y-1.5">
+            <div id="hud-1" class="bg-[#141418]/90 border border-[#2A2A35] px-2 py-0.5 rounded text-[10px] font-mono flex items-center space-x-1.5 backdrop-blur">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#58D68D] animate-pulse"></span>
+                <span id="hud-text-1" class="text-gray-300">System Ready</span>
+            </div>
+            <div id="hud-2" class="bg-[#141418]/90 border border-[#2A2A35] px-2 py-0.5 rounded text-[10px] font-mono text-gray-400 backdrop-blur hidden"></div>
+        </div>
+
+        <!-- Safety Error Guard HUD Banner (Hidden by default) -->
+        <div id="error-banner" class="absolute top-3 right-3 bg-red-950/90 border border-red-500/50 px-3 py-1.5 rounded text-[10px] font-mono text-red-200 backdrop-blur hidden z-50">
+            ⚠️ 시각화 일시 오류 복구 중...
+        </div>
+    </main>
+
+    <!-- 3. Dual-Layer Footer -->
+    <footer class="flex-shrink-0 bg-[#101014] border-t border-[#22222A] px-4 pb-safe-bottom pt-2 flex flex-col gap-2 z-10 overflow-hidden">
+        <div id="sliders-container" class="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-1.5 items-center"></div>
+
+        <div class="flex flex-row items-center border-t border-[#1E1E24] pt-2 pb-2 w-full justify-between gap-2">
+            <div class="text-[10px] text-gray-500 font-mono truncate min-w-[70px]">
+                Type: <span id="archetype-badge" class="text-white font-semibold">Standard</span>
+            </div>
+
+            <div class="flex items-center space-x-1 flex-nowrap shrink-0">
+                <button id="btn-prev" class="px-2.5 py-1.5 bg-[#1E1E24] hover:bg-[#2A2A35] border border-[#3A3A4A] rounded text-[11px] font-semibold transition-all text-gray-300 active:scale-95 whitespace-nowrap">이전</button>
+                <button id="btn-play" class="px-3 py-1.5 bg-[#1E1E24] hover:bg-[#2D3748] border border-[#58D68D]/40 text-[#58D68D] rounded text-[11px] font-semibold transition-all flex items-center space-x-1 active:scale-95 whitespace-nowrap">
+                    <span id="play-icon">▶</span> <span id="play-text">Play</span>
+                </button>
+                <button id="btn-next" class="px-2.5 py-1.5 bg-[#58D68D] hover:bg-[#48C67D] text-[#0C0C0E] rounded text-[11px] font-bold transition-all active:scale-95 shadow-md whitespace-nowrap">다음</button>
+            </div>
+
+            <div id="aux-control-container" class="flex items-center justify-end min-w-[50px]"></div>
+        </div>
+    </footer>
+
+    <script>
+        // Global Simulation State
+        const state = {
+            currentStep: 1,
+            isPlaying: true,
+            lastFrameTime: 0,
+            animationTime: 0,
+            hasError: false,
+            params: {
+                "step1_progress": 1.0,
+                "step2_merge": 0.0,
+                "step3_flip_0": 0.0,
+                "step3_flip_1": 0.0,
+                "step3_flip_2": 0.0,
+                "highlight_path": 0.0,
+                "node_hover": -1.0,
+                "pulse_timer": 0.0
+            }
+        };
+
+        // Scenario Meta Data Loaded from Python Injection
+        const scenarios = {
+            "1": {
+                "title": "모든 가능한 경로 펼치기 (해체)",
+                "dimension": "2D Math Canvas",
+                "narrative": "동전을 던지거나 위/아래 화살표를 연속으로 2번 선택하는 시행을 상상해 봅시다.<br><br>각 단계마다 위($\\uparrow$) 혹은 아래($\\downarrow$)를 고를 수 있으며, 총 2번의 선택 과정은 수형도(Tree)를 통해 $2 \\times 2 = 4$가지의 모든 경로로 해체되어 시각화됩니다.",
+                "formula": "2^2 = 4 \\text{ Paths}",
+                "sliders": [
+                    { "id": "step1_progress", "label": "수형도 전개도", "min": 0.0, "max": 1.0, "step": 0.05, "valKey": "step1_progress" },
+                    { "id": "highlight_path", "label": "특정 경로 추적", "min": 0.0, "max": 4.0, "step": 1.0, "valKey": "highlight_path" }
+                ]
+            },
+            "2": {
+                "title": "도착 지점별 수렴 (분류)",
+                "dimension": "2D Math Canvas",
+                "narrative": "이제 각 경로의 끝에서 <b>'위($\\uparrow$)를 선택한 횟수'</b>에 따라 도달하는 지점을 분류해 봅시다.<br><br>중앙의 두 경로(위-아래, 아래-위)는 결국 같은 결과인 '위 1회 선택'으로 수렴하게 됩니다. 슬라이더를 올려 경로들이 어떻게 분류되고 합쳐지는지 확인하세요.",
+                "formula": "\\text{Ups: } \\{2, 1, 0\\}",
+                "sliders": [
+                    { "id": "step2_merge", "label": "도착지 병합 진행도", "min": 0.0, "max": 1.0, "step": 0.05, "valKey": "step2_merge" },
+                    { "id": "node_hover", "label": "도착 노드 하이라이트", "min": -1.0, "max": 2.0, "step": 1.0, "valKey": "node_hover" }
+                ]
+            },
+            "3": {
+                "title": "조합(Combination) 공식과의 연결",
+                "dimension": "2D Math Canvas",
+                "narrative": "직접 세어본 경우의 수 <b>(1가지, 2가지, 1가지)</b>는 조합 공식 $2C_r$의 값과 완벽히 일치합니다.<br><br>각 카드를 클릭하여 뒤집어보고, 전체 2번의 자리에 화살표를 배치하는 수학적 모델($2C_r$)을 직관적으로 이해해 보십시오.",
+                "formula": "_nC_r = \\frac{n!}{r!(n-r)!}",
+                "sliders": [
+                    { "id": "step3_flip_0", "label": "위 2회 카드 뒤집기", "min": 0.0, "max": 1.0, "step": 1.0, "valKey": "step3_flip_0" },
+                    { "id": "step3_flip_1", "label": "위 1회 카드 뒤집기", "min": 0.0, "max": 1.0, "step": 1.0, "valKey": "step3_flip_1" },
+                    { "id": "step3_flip_2", "label": "위 0회 카드 뒤집기", "min": 0.0, "max": 1.0, "step": 1.0, "valKey": "step3_flip_2" }
+                ]
+            }
+        };
+
+        const canvas = document.getElementById('visual-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = 0, height = 0, scale = 0;
+
+        // --- 1. Common Mathematical Utility Functions ---
+        
+        function project3D(x, y, z, yaw, pitch) {
+            let x1 = x * Math.cos(yaw) - y * Math.sin(yaw);
+            let y1 = x * Math.sin(yaw) + y * Math.cos(yaw);
+            let y2 = y1 * Math.cos(pitch) - z * Math.sin(pitch);
+            let z2 = y1 * Math.sin(pitch) + z * Math.cos(pitch);
+            const projScale = scale * 0.45;
+            const screenX = (width / 2) + x1 * projScale; // Fixed x2 -> x1
+            const screenY = (height / 2 + scale * 0.05) - y2 * projScale; 
+            return { x: screenX, y: screenY, depth: z2 };
+        }
+
+        function drawVector(fromX, fromY, toX, toY, color, widthSize = 2.5, arrowHeadSize = 8) {
+            ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = widthSize;
+            ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            ctx.beginPath(); ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - arrowHeadSize * Math.cos(angle - Math.PI/6), toY - arrowHeadSize * Math.sin(angle - Math.PI/6));
+            ctx.lineTo(toX - arrowHeadSize * Math.cos(angle + Math.PI/6), toY - arrowHeadSize * Math.sin(angle + Math.PI/6));
+            ctx.closePath(); ctx.fill();
+        }
+
+        function drawNode(x, y, label, color = '#58D68D', radius = 18) {
+            ctx.fillStyle = '#141418'; ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#E2E8F0'; ctx.font = 'bold 10px JetBrains Mono';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+        }
+
+        function drawEdge(fromX, fromY, toX, toY, weight = '', color = '#2A2A35') {
+            ctx.strokeStyle = color; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
+            if (weight !== '') {
+                const midX = (fromX + toX) / 2;
+                const midY = (fromY + toY) / 2;
+                ctx.fillStyle = '#101014';
+                const rectW = 20, rectH = 14;
+                ctx.fillRect(midX - rectW/2, midY - rectH/2, rectW, rectH);
+                ctx.fillStyle = '#A0AEC0'; ctx.font = '9px JetBrains Mono';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(weight, midX, midY);
+            }
+        }
+
+        function drawBarChart(dataPoints, colors = '#58D68D', chartW = width * 0.5, chartH = height * 0.3) {
+            const bottom = height * 0.8;
+            const left = (width - chartW) / 2;
+            const barW = (chartW / dataPoints.length) * 0.7;
+            const spacing = (chartW / dataPoints.length) * 0.3;
+            
+            ctx.strokeStyle = '#2A2A35'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(left, bottom); ctx.lineTo(left + chartW, bottom); ctx.stroke();
+
+            dataPoints.forEach((val, i) => {
+                const h = val * chartH;
+                const x = left + i * (barW + spacing) + spacing/2;
+                const y = bottom - h;
+                ctx.fillStyle = Array.isArray(colors) ? colors[i % colors.length] : colors;
+                ctx.fillRect(x, y, barW, h);
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.strokeRect(x, y, barW, h);
+            });
+        }
+
+        function triggerMathJax() {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(err => console.log('MathJax processing error: ' + err.message));
+            }
+        }
+
+        // --- 2. Dynamic UI Engine ---
+        function initUI() {
+            const stepData = scenarios[state.currentStep];
+            if (!stepData) return;
+
+            document.getElementById('step-title').innerHTML = stepData.title;
+            document.getElementById('step-narrative').innerHTML = stepData.narrative;
+            document.getElementById('step-formula').innerHTML = `\\(${stepData.formula}\\)`;
+            document.getElementById('current-step-idx').innerText = state.currentStep;
+            document.getElementById('total-step-idx').innerText = Object.keys(scenarios).length;
+            document.getElementById('dimension-badge').innerText = stepData.dimension || 'Simulation';
+
+            triggerMathJax();
+
+            const slidersContainer = document.getElementById('sliders-container');
+            slidersContainer.innerHTML = ''; 
+            
+            stepData.sliders.forEach(slide => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex flex-col space-y-0.5 w-full';
+                wrapper.innerHTML = `
+                    <div class="flex justify-between text-[10px] text-gray-400 font-mono">
+                        <span class="truncate pr-1">${slide.label}</span>
+                        <span id="val-${slide.id}" class="text-[#58D68D] font-bold"></span>
+                    </div>
+                    <input type="range" id="${slide.id}" 
+                           min="${slide.min}" max="${slide.max}" step="${slide.step}" 
+                           class="w-full h-1 bg-[#1A1A22] rounded-lg appearance-none cursor-pointer accent-[#58D68D] outline-none border-0 py-1"
+                    />
+                `;
+                slidersContainer.appendChild(wrapper);
+
+                const el = document.getElementById(slide.id);
+                el.value = state.params[slide.valKey];
+                document.getElementById(`val-${slide.id}`).innerText = Number(el.value).toFixed(2);
+
+                const instantPause = () => {
+                    if (state.isPlaying) {
+                        state.isPlaying = false;
+                        updatePlayButtonState();
+                    }
+                };
+                el.addEventListener('pointerdown', instantPause, { passive: true });
+                el.addEventListener('touchstart', instantPause, { passive: true });
+
+                el.oninput = (e) => {
+                    const val = parseFloat(e.target.value);
+                    state.params[slide.valKey] = val;
+                    document.getElementById(`val-${slide.id}`).innerText = val.toFixed(2);
+                };
+            });
+
+            document.getElementById('btn-prev').disabled = (state.currentStep === 1);
+            document.getElementById('btn-prev').className = `px-2.5 py-1.5 rounded text-[11px] font-semibold transition-all shrink-0 ${state.currentStep === 1 ? 'opacity-30 cursor-not-allowed bg-[#141418] text-gray-600' : 'bg-[#1E1E24] hover:bg-[#2A2A35] text-gray-300'}`;
+            document.getElementById('btn-next').disabled = (state.currentStep === Object.keys(scenarios).length);
+            document.getElementById('btn-next').className = `px-2.5 py-1.5 rounded text-[11px] font-bold transition-all shrink-0 ${state.currentStep === Object.keys(scenarios).length ? 'opacity-30 cursor-not-allowed bg-[#141418] text-gray-600' : 'bg-[#58D68D] hover:bg-[#48C67D] text-[#0C0C0E]'}`;
+            
+            updatePlayButtonState();
+        }
+
+        function updateUI() {
+            const stepData = scenarios[state.currentStep];
+            if (!stepData) return;
+            stepData.sliders.forEach(slide => {
+                const el = document.getElementById(slide.id);
+                if (el) {
+                    el.value = state.params[slide.valKey];
+                    const outEl = document.getElementById(`val-${slide.id}`);
+                    if (outEl) outEl.innerText = Number(state.params[slide.valKey]).toFixed(2);
+                }
+            });
+        }
+
+        function updatePlayButtonState() {
+            const btn = document.getElementById('btn-play');
+            const icon = document.getElementById('play-icon');
+            const txt = document.getElementById('play-text');
+            if (state.isPlaying) {
+                btn.classList.add('bg-[#58D68D]', 'text-black', 'border-transparent');
+                btn.classList.remove('bg-[#1E1E24]', 'text-[#58D68D]');
+                icon.innerText = "⏸";
+                txt.innerText = "Pause";
+            } else {
+                btn.classList.remove('bg-[#58D68D]', 'text-black', 'border-transparent');
+                btn.classList.add('bg-[#1E1E24]', 'text-[#58D68D]');
+                icon.innerText = "▶";
+                txt.innerText = "Play";
+            }
+        }
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            width = rect.width;
+            height = rect.height;
+            scale = Math.min(width, height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- 3. Dynamic Drawing Core (Injected by Python) ---
+        function updateAnimation(delta) {
+            state.params.pulse_timer = (state.params.pulse_timer + delta * 3.0) % (Math.PI * 2);
+            
+            if (state.isPlaying) {
+                if (state.currentStep === 1) {
+                    // 수형도가 0에서 1로 부드럽게 무한 왕복하는 연출
+                    state.params.step1_progress = (Math.sin(state.animationTime * 0.8) + 1.0) / 2.0;
+                } else if (state.currentStep === 2) {
+                    // 도착지 병합이 부드럽게 무한 왕복하는 연출
+                    state.params.step2_merge = (Math.sin(state.animationTime * 0.8) + 1.0) / 2.0;
+                } else if (state.currentStep === 3) {
+                    // 카드 뒤집기 연출이 시간차(Phase)를 두고 전개
+                    state.params.step3_flip_0 = (Math.sin(state.animationTime * 1.2) + 1.0) / 2.0;
+                    state.params.step3_flip_1 = (Math.sin(state.animationTime * 1.2 + Math.PI / 3) + 1.0) / 2.0;
+                    state.params.step3_flip_2 = (Math.sin(state.animationTime * 1.2 + 2 * Math.PI / 3) + 1.0) / 2.0;
+                }
+            }
+        }
+
+        // 공통 그리기 유틸리티 함수
+        function drawArrowGlyph(ctx, x, y, direction, size, color) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = size * 0.2;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            ctx.beginPath();
+            if (direction === "up") {
+                ctx.moveTo(x, y + size * 0.6);
+                ctx.lineTo(x, y - size * 0.6);
+                ctx.lineTo(x - size * 0.3, y - size * 0.2);
+                ctx.moveTo(x, y - size * 0.6);
+                ctx.lineTo(x + size * 0.3, y - size * 0.2);
+            } else {
+                ctx.moveTo(x, y - size * 0.6);
+                ctx.lineTo(x, y + size * 0.6);
+                ctx.lineTo(x - size * 0.3, y + size * 0.2);
+                ctx.moveTo(x, y + size * 0.6);
+                ctx.lineTo(x + size * 0.3, y + size * 0.2);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawElegantNode(ctx, x, y, radius, label, bgColor, strokeColor, textColor, pulse = false) {
+            ctx.save();
+            if (pulse) {
+                const scaleFactor = 1 + 0.08 * Math.sin(state.params.pulse_timer * 2);
+                ctx.translate(x, y);
+                ctx.scale(scaleFactor, scaleFactor);
+                ctx.translate(-x, -y);
+            }
+
+            // Shadow
+            ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 4;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = bgColor;
+            ctx.fill();
+
+            ctx.shadowColor = "transparent";
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = strokeColor;
+            ctx.stroke();
+
+            ctx.fillStyle = textColor;
+            ctx.font = "bold 14px 'Segoe UI', Roboto, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(label, x, y);
+            ctx.restore();
+        }
+
+        function renderStep1() {
+            ctx.clearRect(0, 0, width, height);
+
+            const t1 = state.params.step1_progress;
+            const highlightIdx = Math.round(state.params.highlight_path);
+
+            // 트리 좌표 설정
+            const x0 = width * 0.15;
+            const y0 = height * 0.5;
+
+            const x1 = width * 0.45;
+            const y1_up = height * 0.3;
+            const y1_down = height * 0.7;
+
+            const x2 = width * 0.75;
+            const y2_uu = height * 0.18;
+            const y2_ud = height * 0.38;
+            const y2_du = height * 0.62;
+            const y2_dd = height * 0.82;
+
+            // 배경 안내 그리드/텍스트
+            ctx.save();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+            ctx.font = "bold 12px sans-serif";
+            ctx.fillText("시작 지점", x0 - 20, y0 - 35);
+            if (t1 > 0.1) ctx.fillText("1차 선택 (위/아래)", x1 - 50, y1_up - 50);
+            if (t1 > 0.6) ctx.fillText("2차 선택 (위/아래)", x2 - 50, y2_uu - 40);
+            ctx.restore();
+
+            // 1단계 라인 그리기
+            if (t1 > 0) {
+                const currentX1 = x0 + (x1 - x0) * Math.min(t1 * 2, 1);
+                const currentY1_up = y0 + (y1_up - y0) * Math.min(t1 * 2, 1);
+                const currentY1_down = y0 + (y1_down - y0) * Math.min(t1 * 2, 1);
+
+                // Up path 1
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(currentX1, currentY1_up);
+                ctx.strokeStyle = (highlightIdx === 1 || highlightIdx === 2) ? "#FFD700" : "#4A90E2";
+                ctx.lineWidth = (highlightIdx === 1 || highlightIdx === 2) ? 5 : 3;
+                ctx.stroke();
+
+                // Down path 1
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(currentX1, currentY1_down);
+                ctx.strokeStyle = (highlightIdx === 3 || highlightIdx === 4) ? "#FFD700" : "#E24A4A";
+                ctx.lineWidth = (highlightIdx === 3 || highlightIdx === 4) ? 5 : 3;
+                ctx.stroke();
+            }
+
+            // 2단계 라인 그리기
+            if (t1 > 0.5) {
+                const t2 = Math.min((t1 - 0.5) * 2, 1);
+                const currentX2 = x1 + (x2 - x1) * t2;
+                const currentY2_uu = y1_up + (y2_uu - y1_up) * t2;
+                const currentY2_ud = y1_up + (y2_ud - y1_up) * t2;
+                const currentY2_du = y1_down + (y2_du - y1_down) * t2;
+                const currentY2_dd = y1_down + (y2_dd - y1_down) * t2;
+
+                // UU
+                ctx.beginPath();
+                ctx.moveTo(x1, y1_up);
+                ctx.lineTo(currentX2, currentY2_uu);
+                ctx.strokeStyle = highlightIdx === 1 ? "#FFD700" : "#4A90E2";
+                ctx.lineWidth = highlightIdx === 1 ? 5 : 2.5;
+                ctx.stroke();
+
+                // UD
+                ctx.beginPath();
+                ctx.moveTo(x1, y1_up);
+                ctx.lineTo(currentX2, currentY2_ud);
+                ctx.strokeStyle = highlightIdx === 2 ? "#FFD700" : "#8B9BB4";
+                ctx.lineWidth = highlightIdx === 2 ? 5 : 2.5;
+                ctx.stroke();
+
+                // DU
+                ctx.beginPath();
+                ctx.moveTo(x1, y1_down);
+                ctx.lineTo(currentX2, currentY2_du);
+                ctx.strokeStyle = highlightIdx === 3 ? "#FFD700" : "#8B9BB4";
+                ctx.lineWidth = highlightIdx === 3 ? 5 : 2.5;
+                ctx.stroke();
+
+                // DD
+                ctx.beginPath();
+                ctx.moveTo(x1, y1_down);
+                ctx.lineTo(currentX2, currentY2_dd);
+                ctx.strokeStyle = highlightIdx === 4 ? "#FFD700" : "#E24A4A";
+                ctx.lineWidth = highlightIdx === 4 ? 5 : 2.5;
+                ctx.stroke();
+            }
+
+            // 노드 그리기
+            drawElegantNode(ctx, x0, y0, 24, "Start", "#1F2937", "#6B7280", "#F3F4F6");
+
+            if (t1 > 0.3) {
+                drawElegantNode(ctx, x1, y1_up, 20, "↑", "#1E3A8A", "#3B82F6", "#FFFFFF");
+                drawElegantNode(ctx, x1, y1_down, 20, "↓", "#7A1C1C", "#EF4444", "#FFFFFF");
+            }
+
+            if (t1 > 0.8) {
+                drawElegantNode(ctx, x2, y2_uu, 20, "↑↑", highlightIdx === 1 ? "#F59E0B" : "#111827", "#10B981", "#FFFFFF", highlightIdx === 1);
+                drawElegantNode(ctx, x2, y2_ud, 20, "↑↓", highlightIdx === 2 ? "#F59E0B" : "#111827", "#9CA3AF", "#FFFFFF", highlightIdx === 2);
+                drawElegantNode(ctx, x2, y2_du, 20, "↓↑", highlightIdx === 3 ? "#F59E0B" : "#111827", "#9CA3AF", "#FFFFFF", highlightIdx === 3);
+                drawElegantNode(ctx, x2, y2_dd, 20, "↓↓", highlightIdx === 4 ? "#F59E0B" : "#111827", "#EF4444", "#FFFFFF", highlightIdx === 4);
+
+                // 경로 설명 텍스트 피드백
+                if (highlightIdx > 0) {
+                    const descriptions = [
+                        "경로 1: [위 - 위] → 위를 2번 선택했습니다.",
+                        "경로 2: [위 - 아래] → 위를 1번 선택했습니다.",
+                        "경로 3: [아래 - 위] → 위를 1번 선택했습니다.",
+                        "경로 4: [아래 - 아래] → 위를 0번 선택했습니다."
+                    ];
+                    ctx.save();
+                    ctx.fillStyle = "#FFD700";
+                    ctx.font = "bold 15px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText(descriptions[highlightIdx - 1], width / 2, height - 30);
+                    ctx.restore();
+                }
+            }
+        }
+
+        function renderStep2() {
+            ctx.clearRect(0, 0, width, height);
+
+            const m = state.params.step2_merge; 
+            const hoverIdx = Math.round(state.params.node_hover); 
+
+            const x0 = width * 0.15;
+            const y0 = height * 0.5;
+
+            const x1 = width * 0.45;
+            const y1_up = height * 0.3;
+            const y1_down = height * 0.7;
+
+            const x2 = width * 0.75;
+
+            // 원래 위치
+            const y2_uu_orig = height * 0.18;
+            const y2_ud_orig = height * 0.38;
+            const y2_du_orig = height * 0.62;
+            const y2_dd_orig = height * 0.82;
+
+            // 병합 목표 위치
+            const y2_target_2 = height * 0.25; 
+            const y2_target_1 = height * 0.5;  
+            const y2_target_0 = height * 0.75; 
+
+            const y2_uu = y2_uu_orig + (y2_target_2 - y2_uu_orig) * m;
+            const y2_ud = y2_ud_orig + (y2_target_1 - y2_ud_orig) * m;
+            const y2_du = y2_du_orig + (y2_target_1 - y2_du_orig) * m;
+            const y2_dd = y2_dd_orig + (y2_target_0 - y2_dd_orig) * m;
+
+            // 가이드라인 (병합 목적지 점선)
+            if (m > 0.2) {
+                ctx.save();
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 1.5;
+                [y2_target_2, y2_target_1, y2_target_0].forEach(yTarget => {
+                    ctx.beginPath();
+                    ctx.moveTo(x1, yTarget);
+                    ctx.lineTo(x2 + 50, yTarget);
+                    ctx.stroke();
+                });
+                ctx.restore();
+            }
+
+            // 선 그리기 (하이라이트 반영)
+            const isHoverNode = (nodeIdx) => hoverIdx === -1 || hoverIdx === nodeIdx;
+
+            // UU Line
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1_up); ctx.lineTo(x2, y2_uu);
+            ctx.strokeStyle = isHoverNode(0) ? "#10B981" : "rgba(74, 144, 226, 0.15)";
+            ctx.lineWidth = isHoverNode(0) ? 4.5 : 1.5;
+            ctx.stroke();
+
+            // UD Line
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1_up); ctx.lineTo(x2, y2_ud);
+            ctx.strokeStyle = isHoverNode(1) ? "#F59E0B" : "rgba(139, 155, 180, 0.15)";
+            ctx.lineWidth = isHoverNode(1) ? 4.5 : 1.5;
+            ctx.stroke();
+
+            // DU Line
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1_down); ctx.lineTo(x2, y2_du);
+            ctx.strokeStyle = isHoverNode(1) ? "#F59E0B" : "rgba(139, 155, 180, 0.15)";
+            ctx.lineWidth = isHoverNode(1) ? 4.5 : 1.5;
+            ctx.stroke();
+
+            // DD Line
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1_down); ctx.lineTo(x2, y2_dd);
+            ctx.strokeStyle = isHoverNode(2) ? "#EF4444" : "rgba(226, 74, 74, 0.15)";
+            ctx.lineWidth = isHoverNode(2) ? 4.5 : 1.5;
+            ctx.stroke();
+
+            // 노드 그리기
+            drawElegantNode(ctx, x0, y0, 24, "Start", "#1F2937", "#6B7280", "#F3F4F6");
+            drawElegantNode(ctx, x1, y1_up, 20, "↑", "#1E3A8A", "#3B82F6", "#FFFFFF");
+            drawElegantNode(ctx, x1, y1_down, 20, "↓", "#7A1C1C", "#EF4444", "#FFFFFF");
+
+            // 이동/병합되는 최종 결과 노드들
+            if (m < 0.8) {
+                drawElegantNode(ctx, x2, y2_uu, 18, "↑↑", "#111827", "#10B981", "#FFFFFF", hoverIdx === 0);
+                drawElegantNode(ctx, x2, y2_ud, 18, "↑↓", "#111827", "#9CA3AF", "#FFFFFF", hoverIdx === 1);
+                drawElegantNode(ctx, x2, y2_du, 18, "↓↑", "#111827", "#9CA3AF", "#FFFFFF", hoverIdx === 1);
+                drawElegantNode(ctx, x2, y2_dd, 18, "↓↓", "#111827", "#EF4444", "#FFFFFF", hoverIdx === 2);
+            } else {
+                const scalePulse = 1 + 0.05 * Math.sin(state.params.pulse_timer * 2.5);
+
+                // 위 2회 노드
+                ctx.save();
+                if (hoverIdx === 0) ctx.scale(scalePulse, scalePulse);
+                drawElegantNode(ctx, x2, y2_target_2, 22, "2", "#064E3B", "#10B981", "#FFFFFF");
+                ctx.fillStyle = "#A7F3D0";
+                ctx.font = "bold 13px sans-serif";
+                ctx.fillText("위 2회 (↑↑)", x2 + 55, y2_target_2 - 8);
+                ctx.fillStyle = "#E0E7FF";
+                ctx.font = "14px sans-serif";
+                ctx.fillText("→ 1 가지", x2 + 55, y2_target_2 + 10);
+                ctx.restore();
+
+                // 위 1회 노드 (병합 핵심)
+                ctx.save();
+                if (hoverIdx === 1) ctx.scale(scalePulse, scalePulse);
+                drawElegantNode(ctx, x2, y2_target_1, 25, "1", "#78350F", "#F59E0B", "#FFFFFF");
+                ctx.fillStyle = "#FDE68A";
+                ctx.font = "bold 13px sans-serif";
+                ctx.fillText("위 1회 (↑↓, ↓↑)", x2 + 65, y2_target_1 - 8);
+                ctx.fillStyle = "#E0E7FF";
+                ctx.font = "bold 14px sans-serif";
+                ctx.fillText("→ 2 가지", x2 + 65, y2_target_1 + 10);
+                ctx.restore();
+
+                // 위 0회 노드
+                ctx.save();
+                if (hoverIdx === 2) ctx.scale(scalePulse, scalePulse);
+                drawElegantNode(ctx, x2, y2_target_0, 22, "0", "#7F1D1D", "#EF4444", "#FFFFFF");
+                ctx.fillStyle = "#FECACA";
+                ctx.font = "bold 13px sans-serif";
+                ctx.fillText("위 0회 (↓↓)", x2 + 55, y2_target_0 - 8);
+                ctx.fillStyle = "#E0E7FF";
+                ctx.font = "14px sans-serif";
+                ctx.fillText("→ 1 가지", x2 + 55, y2_target_0 + 10);
+                ctx.restore();
+            }
+        }
+
+        function renderStep3() {
+            ctx.clearRect(0, 0, width, height);
+
+            const flip0 = state.params.step3_flip_0; 
+            const flip1 = state.params.step3_flip_1;
+            const flip2 = state.params.step3_flip_2;
+
+            const x0 = width * 0.15;
+            const y0 = height * 0.5;
+
+            const x1 = width * 0.45;
+            const y2_target_2 = height * 0.25; 
+            const y2_target_1 = height * 0.5;  
+            const y2_target_0 = height * 0.75; 
+
+            // 뒷배경으로 수형도 병합선 옅게 렌더링
+            ctx.save();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, height*0.3); ctx.lineTo(width*0.65, y2_target_2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, height*0.3); ctx.lineTo(width*0.65, y2_target_1); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, height*0.7); ctx.lineTo(width*0.65, y2_target_1); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, height*0.7); ctx.lineTo(width*0.65, y2_target_0); ctx.stroke();
+            ctx.restore();
+
+            // 인터랙티브 카드 드로잉 헬퍼
+            function drawFlipCard(x, y, label, value, combinationStr, formulaStr, flipVal, colorTheme) {
+                const cardW = 280;
+                const cardH = 90;
+                const rx = x - cardW / 2;
+                const ry = y - cardH / 2;
+
+                ctx.save();
+                ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetY = 6;
+                
+                // 3D Flip 연출 (Y축 스케일링)
+                const scaleY = Math.abs(Math.cos(flipVal * Math.PI));
+                ctx.translate(x, y);
+                ctx.scale(1, scaleY);
+                ctx.translate(-x, -y);
+
+                const isBack = flipVal > 0.5;
+
+                ctx.beginPath();
+                ctx.roundRect(rx, ry, cardW, cardH, 12);
+                ctx.fillStyle = isBack ? "#1E293B" : "#0F172A";
+                ctx.fill();
+                ctx.shadowColor = "transparent";
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = isBack ? colorTheme : "#475569";
+                ctx.stroke();
+
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                if (!isBack) {
+                    // 앞면
+                    ctx.fillStyle = "#94A3B8";
+                    ctx.font = "bold 13px sans-serif";
+                    ctx.fillText(label, x, y - 22);
+
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.font = "bold 26px sans-serif";
+                    ctx.fillText(value + " 가지 경우", x, y + 10);
+
+                    ctx.fillStyle = colorTheme;
+                    ctx.font = "11px sans-serif";
+                    ctx.fillText("클릭(슬라이더)하여 조합 공식 매핑", x, y + 33);
+                } else {
+                    // 뒷면
+                    ctx.fillStyle = colorTheme;
+                    ctx.font = "bold 24px sans-serif";
+                    ctx.fillText(combinationStr, x - 50, y);
+
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.font = "14px sans-serif";
+                    ctx.textAlign = "left";
+                    ctx.fillText(`= ${formulaStr}`, x + 10, y - 10);
+                    
+                    ctx.fillStyle = "#94A3B8";
+                    ctx.font = "bold 13px sans-serif";
+                    ctx.fillText(`= ${value}가지 일치!`, x + 10, y + 15);
+                }
+                ctx.restore();
+            }
+
+            const xCard = width * 0.55;
+            drawFlipCard(xCard, y2_target_2, "위를 2번 선택한 경우 (↑↑)", "1", "₂C₂", "2! / (2!0!) = 1", flip0, "#10B981");
+            drawFlipCard(xCard + 40, y2_target_1, "위를 1번 선택한 경우 (↑↓, ↓↑)", "2", "₂C₁", "2! / (1!1!) = 2", flip1, "#F59E0B");
+            drawFlipCard(xCard, y2_target_0, "위를 0번 선택한 경우 (↓↓)", "1", "₂C₀", "2! / (0!2!) = 1", flip2, "#EF4444");
+
+            // 시각적 조합 슬롯 해체 연출 (₂C₁ 카드 상세 안내)
+            if (flip1 > 0.5) {
+                ctx.save();
+                const sx = width * 0.18;
+                const sy = height * 0.88;
+
+                ctx.fillStyle = "rgba(245, 158, 11, 0.08)";
+                ctx.beginPath();
+                ctx.roundRect(sx - 20, sy - 25, width * 0.68, 50, 8);
+                ctx.fill();
+                ctx.strokeStyle = "#F59E0B";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.fillStyle = "#FDE68A";
+                ctx.font = "bold 13px sans-serif";
+                ctx.textAlign = "left";
+                ctx.fillText("조합 해체 : ₂C₁ 의미", sx, sy + 3);
+
+                ctx.fillStyle = "#FFFFFF";
+                ctx.font = "12px sans-serif";
+                ctx.fillText("전체 2개의 선택 빈칸 [   ] [   ] 중, 위(↑)가 들어갈 '1군데'의 자리를 고르는 경우의 수", sx + 130, sy + 3);
+                ctx.restore();
+            }
+        }
+
+        function render() {
+            ctx.fillStyle = '#0C0C0E';
+            ctx.fillRect(0, 0, width, height);
+
+            const renderFuncName = `renderStep${state.currentStep}`;
+            if (typeof window[renderFuncName] === 'function') {
+                window[renderFuncName]();
+            } else {
+                try {
+                    const fn = new Function(`return typeof ${renderFuncName} === 'function' ? ${renderFuncName} : null`)();
+                    if (fn) {
+                        fn();
+                    } else {
+                        throw new Error(`${renderFuncName} is not defined`);
+                    }
+                } catch (err) {
+                    if (!state.hasError) {
+                        console.error("Dynamic render route execution failed:", err);
+                        document.getElementById('error-banner').classList.remove('hidden');
+                        state.hasError = true;
+                    }
+                }
+            }
+        }
+
+        // --- 4. Main Event Loop with Safety Guardrails ---
+        function loop(timestamp) {
+            if (!state.lastFrameTime) state.lastFrameTime = timestamp;
+            const delta = (timestamp - state.lastFrameTime) / 1000.0;
+            state.lastFrameTime = timestamp;
+
+            try {
+                if (state.isPlaying) {
+                    state.animationTime += delta;
+                    updateAnimation(delta);
+
+                    // --- 안전장치 (Guardrails) ---
+                    const stepData = scenarios[state.currentStep];
+                    if (stepData && stepData.sliders) {
+                        stepData.sliders.forEach(slide => {
+                            let val = state.params[slide.valKey];
+                            if (val !== undefined) {
+                                const min = parseFloat(slide.min);
+                                const max = parseFloat(slide.max);
+                                const step = parseFloat(slide.step);
+
+                                // 1. Boundary Clamping (범위 이탈 방지)
+                                if (val < min) val = min;
+                                if (val > max) val = max;
+
+                                // 2. Step Resolution (해상도 및 소수점 오류 방지)
+                                if (step > 0) {
+                                    const inv = 1.0 / step;
+                                    val = Math.round(val * inv) / inv;
+                                }
+
+                                state.params[slide.valKey] = val;
+                            }
+                        });
+                    }
+                    updateUI();
+                }
+
+                render();
+
+                if (state.hasError) {
+                    document.getElementById('error-banner').classList.add('hidden');
+                    state.hasError = false;
+                }
+            } catch (err) {
+                if (!state.hasError) {
+                    console.error("Rendering Loop Exception caught:", err);
+                    document.getElementById('error-banner').classList.remove('hidden');
+                    state.hasError = true;
+                }
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        // Controls
+        document.getElementById('btn-prev').onclick = () => { 
+            if (state.currentStep > 1) { 
+                state.currentStep--; 
+                state.isPlaying = true; // 스텝 이동 시 오토플레이 자동 활성화
+                initUI(); 
+            } 
+        };
+        document.getElementById('btn-next').onclick = () => { 
+            if (state.currentStep < Object.keys(scenarios).length) { 
+                state.currentStep++; 
+                state.isPlaying = true; // 스텝 이동 시 오토플레이 자동 활성화
+                initUI(); 
+            } 
+        };
+        document.getElementById('btn-play').onclick = () => { 
+            state.isPlaying = !state.isPlaying; 
+            updatePlayButtonState(); 
+        };
+
+        // Start initialization
+        initUI();
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
