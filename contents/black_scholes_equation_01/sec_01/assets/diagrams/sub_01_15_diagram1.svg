@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    
+    <!-- Profit/Loss Line Gradients -->
+    <linearGradient id="linearGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="50%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#22c55e" />
+    </linearGradient>
+    
+    <linearGradient id="optionGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="40%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+
+    <!-- Grid Pattern -->
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#334155" stroke-width="0.5" opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <!-- Base Card Background -->
+  <rect width="700" height="300" rx="12" fill="url(#bgGrad)" stroke="#334155" stroke-width="1.5" />
+  
+  <!-- Overlay grid -->
+  <rect width="700" height="300" rx="12" fill="url(#grid)" />
+
+  <!-- TITLE -->
+  <text x="350" y="30" text-anchor="middle" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="0.5">선형 자산 vs 비선형 옵션 손익 구조 비교</text>
+
+  <!-- LEFT PANEL: Linear Asset -->
+  <g transform="translate(40, 50)">
+    <!-- Backdrop Box -->
+    <rect width="280" height="220" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1" />
+    <text x="140" y="22" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600">주식/선물 (선형적 대칭 구조)</text>
+    
+    <!-- Axes -->
+    <!-- X-axis (Price) -->
+    <line x1="20" y1="130" x2="260" y2="130" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2,2" />
+    <text x="250" y="145" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" text-anchor="end">만기주가(S_T)</text>
+    
+    <!-- Y-axis (P&L) -->
+    <line x1="140" y1="40" x2="140" y2="200" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2,2" />
+    <text x="148" y="52" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10">손익</text>
+    
+    <!-- P&L Linear Line -->
+    <line x1="40" y1="190" x2="240" y2="70" stroke="url(#linearGrad)" stroke-width="3" stroke-linecap="round" />
+    
+    <!-- Text Labels for Linear -->
+    <text x="210" y="65" fill="#22c55e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="bold">수익 무제한</text>
+    <text x="70" y="195" fill="#ef4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="bold">손실 무제한</text>
+    
+    <!-- Origin marker -->
+    <circle cx="140" cy="130" r="4" fill="#cbd5e1" />
+    <text x="130" y="142" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9">구입가</text>
+  </g>
+
+  <!-- RIGHT PANEL: Non-linear Option -->
+  <g transform="translate(380, 50)">
+    <!-- Backdrop Box -->
+    <rect width="280" height="220" rx="8" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1" />
+    <text x="140" y="22" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600">콜옵션 매수 (비선형적 비대칭 구조)</text>
+    
+    <!-- Axes -->
+    <!-- X-axis -->
+    <line x1="20" y1="150" x2="260" y2="150" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2,2" />
+    <text x="250" y="165" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" text-anchor="end">만기주가(S_T)</text>
+    
+    <!-- Y-axis -->
+    <line x1="100" y1="40" x2="100" y2="200" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2,2" />
+    <text x="108" y="52" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10">손익</text>
+    
+    <!-- Non-linear Payoff Line (Hockey Stick) -->
+    <!-- Strike Price K is at x=120. Options Premium is say, 20px down. -->
+    <!-- From x=30 to x=120: Flat line at y=170 (indicating premium loss) -->
+    <!-- From x=120 to x=240: Rising diagonally from (120, 170) to (240, 60) -->
+    <path d="M 30 170 L 120 170 L 230 70" fill="none" stroke="url(#optionGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Key Points & Labels -->
+    <!-- K (Strike Point) marker -->
+    <line x1="120" y1="150" x2="120" y2="170" stroke="#94a3b8" stroke-width="1" stroke-dasharray="1,1" />
+    <circle cx="120" cy="170" r="3" fill="#f59e0b" />
+    <text x="120" y="142" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" text-anchor="middle" font-weight="bold">행사가 K</text>
+
+    <!-- Flat Premium Loss Region -->
+    <line x1="30" y1="170" x2="100" y2="170" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2" />
+    <text x="65" y="190" fill="#ef4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" text-anchor="middle" font-weight="bold">최대 손실 제한</text>
+    <text x="65" y="202" fill="#ef4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8" text-anchor="middle">(프리미엄 한정)</text>
+
+    <!-- Unlimited Profit Region -->
+    <text x="210" y="55" fill="#10b981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="bold">수익 무제한</text>
+  </g>
+</svg>

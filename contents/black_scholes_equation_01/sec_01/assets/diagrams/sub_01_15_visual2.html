@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>풋옵션 만기 페이오프 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #f43f5e;
+            cursor: pointer;
+            transition: background .15s ease-in-out;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #fb7185;
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-[480px]">
+    <div class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
+        <!-- HEADER -->
+        <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+            <div>
+                <h1 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
+                    풋옵션(Put Option) 만기 페이오프 시뮬레이터
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">행사가격(K)과 만기주가(S_T)를 변경하며 비대칭 손익의 변동 패턴을 실시간 확인하세요.</p>
+            </div>
+            <span class="bg-rose-500/10 text-rose-400 text-xs px-2.5 py-1 rounded-full font-semibold border border-rose-500/20">
+                팔 수 있는 권리
+            </span>
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- CANVAS AREA -->
+            <div class="md:col-span-7 flex flex-col items-center justify-center bg-slate-950 rounded-lg border border-slate-800 p-2 relative">
+                <svg id="payoffCanvas" viewBox="0 0 320 220" class="w-full h-auto max-h-[220px]">
+                    <!-- Background grids dynamically rendered by JS -->
+                </svg>
+            </div>
+
+            <!-- CONTROLS & INFO AREA -->
+            <div class="md:col-span-5 flex flex-col justify-between space-y-4">
+                <!-- Sliders -->
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-400 mb-1">
+                            <span>행사가격 (<span class="text-amber-400 font-mono">K</span>)</span>
+                            <span class="text-amber-400 font-mono text-sm" id="strikeVal">1,000원</span>
+                        </div>
+                        <input id="strikeSlider" type="range" min="500" max="1500" step="50" value="1000" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-400 mb-1">
+                            <span>만기 주가 (<span class="text-emerald-400 font-mono">S_T</span>)</span>
+                            <span class="text-emerald-400 font-mono text-sm" id="stockVal">800원</span>
+                        </div>
+                        <input id="stockSlider" type="range" min="0" max="2000" step="50" value="800" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Live Dashboard -->
+                <div class="bg-slate-950 border border-slate-800/80 rounded-lg p-3.5 space-y-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">옵션 상태</span>
+                        <span id="statusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold">내가격 (ITM)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">행사 여부</span>
+                        <span id="exerciseText" class="font-bold text-slate-200">-</span>
+                    </div>
+                    <div class="border-t border-slate-800/60 my-2 pt-2 flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-300">최종 페이오프</span>
+                        <span id="payoffText" class="text-base font-extrabold text-rose-400">200원</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const strikeSlider = document.getElementById('strikeSlider');
+        const stockSlider = document.getElementById('stockSlider');
+        const strikeValText = document.getElementById('strikeVal');
+        const stockValText = document.getElementById('stockVal');
+        const statusBadge = document.getElementById('statusBadge');
+        const exerciseText = document.getElementById('exerciseText');
+        const payoffText = document.getElementById('payoffText');
+        const canvas = document.getElementById('payoffCanvas');
+
+        function formatCurrency(val) {
+            return Number(val).toLocaleString() + '원';
+        }
+
+        function updateSimulation() {
+            const K = parseFloat(strikeSlider.value);
+            const S_T = parseFloat(stockSlider.value);
+
+            // Text values
+            strikeValText.innerText = formatCurrency(K);
+            stockValText.innerText = formatCurrency(S_T);
+
+            // Put Option Logic: Max(K - S_T, 0)
+            const payoff = Math.max(K - S_T, 0);
+            payoffText.innerText = formatCurrency(payoff);
+
+            // State & Badge styling
+            if (S_T < K) {
+                statusBadge.innerText = '내가격 (ITM)';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                exerciseText.innerText = '행사 (Exercise)';
+                exerciseText.className = 'font-bold text-emerald-400';
+            } else if (S_T > K) {
+                statusBadge.innerText = '외가격 (OTM)';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20';
+                exerciseText.innerText = '포기 (Abandon)';
+                exerciseText.className = 'font-bold text-rose-400';
+            } else {
+                statusBadge.innerText = '등가격 (ATM)';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-500/20 text-slate-300';
+                exerciseText.innerText = '포기/유보';
+                exerciseText.className = 'font-bold text-slate-300';
+            }
+
+            renderChart(K, S_T);
+        }
+
+        function renderChart(K, S_T) {
+            // Coordinate System:
+            // S_T: 0 to 2000 => mapped to X: 30 to 290
+            // Payoff: 0 to 1200 => mapped to Y: 180 to 30
+            const mapX = (s) => 30 + (s / 2000) * 260;
+            const mapY = (p) => 180 - (p / 1200) * 150;
+
+            let svgContent = `
+                <!-- Grid Lines -->
+                <line x1="30" y1="180" x2="290" y2="180" stroke="#334155" stroke-width="1.5" />
+                <line x1="30" y1="30" x2="30" y2="180" stroke="#334155" stroke-width="1.5" />
+                
+                <!-- Axis labels -->
+                <text x="290" y="195" fill="#64748b" font-size="8" text-anchor="end">만기주가(S_T)</text>
+                <text x="25" y="25" fill="#64748b" font-size="8" text-anchor="start">가치(Payoff)</text>
+                
+                <!-- Ticket Ticks -->
+                <line x1="${mapX(K)}" y1="180" x2="${mapX(K)}" y2="185" stroke="#94a3b8" stroke-width="1"/>
+                <text x="${mapX(K)}" y="195" fill="#cbd5e1" font-size="8" text-anchor="middle" font-weight="bold">K</text>
+            `;
+
+            // Draw Payoff Curve: Max(K - S_T, 0)
+            const x0 = mapX(0);
+            const y0 = mapY(K);
+            const xK = mapX(K);
+            const yK = mapY(0);
+            const xMax = mapX(2000);
+            const yMax = mapY(0);
+
+            svgContent += `
+                <!-- Slanted Down Part -->
+                <line x1="${x0}" y1="${y0}" x2="${xK}" y2="${yK}" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
+                <!-- Flat zero Part -->
+                <line x1="${xK}" y1="${yK}" x2="${xMax}" y2="${yMax}" stroke="#64748b" stroke-width="3" stroke-linecap="round" />
+            `;
+
+            // Draw current S_T position indicator
+            const curX = mapX(S_T);
+            const curY = mapY(Math.max(K - S_T, 0));
+
+            svgContent += `
+                <!-- Guideline from X-axis -->
+                <line x1="${curX}" y1="180" x2="${curX}" y2="${curY}" stroke="#475569" stroke-width="1" stroke-dasharray="2,2" />
+                <!-- Horizontal Guideline to Y-axis if payoff > 0 -->
+                ${S_T < K ? `<line x1="30" y1="${curY}" x2="${curX}" y2="${curY}" stroke="#475569" stroke-width="1" stroke-dasharray="2,2" />` : ''}
+                <!-- Point Marker -->
+                <circle cx="${curX}" cy="${curY}" r="5" fill="${S_T <= K ? '#10b981' : '#f43f5e'}" stroke="#0f172a" stroke-width="1.5" />
+            `;
+
+            canvas.innerHTML = svgContent;
+        }
+
+        strikeSlider.addEventListener('input', updateSimulation);
+        stockSlider.addEventListener('input', updateSimulation);
+
+        // Initial trigger
+        updateSimulation();
+    </script>
+</body>
+</html>

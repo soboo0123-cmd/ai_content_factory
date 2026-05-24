@@ -1,9 +1,9 @@
 * [🏠 노벨상 수식의 향기](home.md)
 
-* **01 고등학교 수학**
-  * [1.1 경우의 수 나열](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
-  * [1.2 순열](contents/black_scholes_equation_01/sec_01/sub_01_02_v1.md)
-  * [1.2 조합](contents/black_scholes_equation_01/sec_01/sub_01_03_v1.md)
+* **고등학교 수학**
+  * [경우의 수 나열](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
+  * [순열](contents/black_scholes_equation_01/sec_01/sub_01_02_v1.md)
+  * [조합](contents/black_scholes_equation_01/sec_01/sub_01_03_v1.md)
   * [1.4 이항분포의 개념과 확률 트리 모델링](contents/black_scholes_equation_01/sec_01/sub_01_04_v1.md)
   * [1.5 이항분포의 대수적 일반화 및 확률 계산 공식](contents/black_scholes_equation_01/sec_01/sub_01_05_v1.md)
   * [1.6 베르누이 시행과 평균/분산 정의](contents/black_scholes_equation_01/sec_01/sub_01_06_v1.md)
@@ -12,10 +12,10 @@
   * [1.9 지수와 로그의 기본 성질](contents/black_scholes_equation_01/sec_01/sub_01_09_v1.md)
   * [1.10 로그 곱 연산 법칙의 증명](contents/black_scholes_equation_01/sec_01/sub_01_10_v1.md)
   * [1.11 이산 수익률과 복리 계산 및 실효 이자율](contents/black_scholes_equation_01/sec_01/sub_01_11_v1.md)
-  * [1.12 로그수익률(연속복리수익률)의 도출과 개념](contents/black_scholes_equation_01/sec_01/sub_01_12_v1.md)
-  * [1.13 위험중립확률의 개념과 기초 수식 유도](contents/black_scholes_equation_01/sec_01/sub_01_13_v1.md)
-  * [1.14 위험중립평가법(Risk-Neutral Valuation)의 유용성](contents/black_scholes_equation_01/sec_01/sub_01_14_v1.md)
-  * [1.15 콜/풋옵션의 정의 및 만기 페이오프 구조](contents/black_scholes_equation_01/sec_01/sub_01_15_v1.md)
+  * [1.12 로그수익률(연속복리수익률)의 도출과 개념](contents/black_scholes_equation_01/sec_01/sub_01_12_final.md)
+  * [1.13 위험중립확률의 개념과 기초 수식 유도](contents/black_scholes_equation_01/sec_01/sub_01_13_final.md)
+  * [1.14 위험중립평가법(Risk-Neutral Valuation)의 유용성](contents/black_scholes_equation_01/sec_01/sub_01_14_final.md)
+  * [1.15 콜/풋옵션의 정의 및 만기 페이오프 구조](contents/black_scholes_equation_01/sec_01/sub_01_15_final.md)
   * [1.16 옵션 가격 책정(Pricing)의 본질과 문제 제기](contents/black_scholes_equation_01/sec_01/sub_01_16_v1.md)
 
 * **02 기본 아이디어**

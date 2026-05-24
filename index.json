@@ -1259,9 +1259,9 @@
             {
               "sub_id": "sub_01_12",
               "sub_title": "1.12 로그수익률(연속복리수익률)의 도출과 개념",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_12_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1274,9 +1274,9 @@
                   "created_at": "2026-05-24T10:01:34.362799"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_12_v3.md",
+                  "created_at": "2026-05-24T15:45:18.554358",
                   "user_feedback": "v1을 채택하되,   'r / n = 1 / k r/n=1/k로 치환하여 정리하면' 을 수식을 포함한 설명을 추가해줘.(이런 걸 생략하지마) ' 로그수익률  R _log ​  는 위 식  S_t = S_0 e^rt의 양변에 자연로그( ln )를 취하여'라는 설명에 S_0를 나눠준다는 설명을 추가해줘. 그리고 로그 수익률은 주식의 일반 수익률을 연속복리 수익률과 같은 수익률 이라는 내용도 추가해줘. 식으로는 주식 수익률과 실효 이자율(연속복리)을 같다고 두면 주식의 연속복리수익률을 구할 수 있음   (S*-S)/S = e^r - 1 ....... r = In(S*/S)   이 되겠지. 즉, v1원고처럼 성장률 e^rt에서도 도출되지만 일반 수익률과 연속복리 수익률이 같다고 했을 때의 수익률이 로그 수익률 R_log라는 점을 수식으로 설명해줘. 그리고 v2의 3. 통찰을 v1의 2.4로 옮겨줘(절대적인 개념이라는 설명이 좋네)"
                 }
               },
@@ -1287,9 +1287,9 @@
             {
               "sub_id": "sub_01_13",
               "sub_title": "1.13 위험중립확률의 개념과 기초 수식 유도",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_13_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1302,9 +1302,9 @@
                   "created_at": "2026-05-24T10:02:48.307809"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_13_v3.md",
+                  "created_at": "2026-05-24T15:46:13.704949",
                   "user_feedback": "v2를 채택하되 '이  p p값이 바로 우리가 찾는 위험중립확률입니다.' 다음에 v1의 '이 식은 매우 직관적입니다. d<1+r<u라는 부등식이 성립해야 한다고 했으므로 분모  (u−d)는 주가가 움직일 수 있는 총 폭을 의미하며, 분자  ( 1 + r ) − d 는 무위험 이자율과 하락폭의 차이(부등식의 왼쪽 2개항)를 의미합니다. 즉, 주가가 오를 확률p는 이자율과 주가의 변동성( u , d)에 의해서만 결정되며, 실제 시장에서 주가가 오를 물리적 확률과는 전혀 무관하다는 놀라운 결론에 도달합니다.'을 추가해줘. 1-p는 부등식의 오른쪽 2개항을 이용해 u-r/u-d가 되므로 p+(1-p) = (대입 생략) = 1로 확률적인 성질도 있다는 내용을 추가해줘.이"
                 }
               },
@@ -1315,9 +1315,9 @@
             {
               "sub_id": "sub_01_14",
               "sub_title": "1.14 위험중립평가법(Risk-Neutral Valuation)의 유용성",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_14_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1330,9 +1330,9 @@
                   "created_at": "2026-05-24T10:04:12.518097"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_14_v3.md",
+                  "created_at": "2026-05-24T15:47:04.211823",
                   "user_feedback": "v2를 채택하되, 'V_0 ​  =  1/ 1+r  ​  [p⋅V  u ​  +(1−p)⋅V  d ​  ] ' 아래에 C=  1/1+r E^Q  [미래의 옵션 페이오프]같이 q매저로 표현하는 수식도 같이 병기해줘."
                 }
               },
@@ -1343,9 +1343,9 @@
             {
               "sub_id": "sub_01_15",
               "sub_title": "1.15 콜/풋옵션의 정의 및 만기 페이오프 구조",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_15_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1358,9 +1358,9 @@
                   "created_at": "2026-05-24T10:05:27.446466"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_15_v3.md",
+                  "created_at": "2026-05-24T15:48:00.299157",
                   "user_feedback": "v1을 채택해줘"
                 }
               },
