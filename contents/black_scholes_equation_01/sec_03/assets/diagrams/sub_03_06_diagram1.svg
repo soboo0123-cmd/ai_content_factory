@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="mathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="assetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6" />
+      <stop offset="100%" stop-color="#0f766e" />
+    </linearGradient>
+    <linearGradient id="cashGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    
+    <!-- Filters for drop shadows -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Background Grid & Theme -->
+  <rect width="100%" height="100%" fill="#f8fafc" />
+  <g opacity="0.05">
+    <path d="M0,50 H800 M0,100 H800 M0,150 H800 M0,200 H800 M0,250 H800 M0,300 H800 M0,350 H800 M0,400 H800" stroke="#000" stroke-width="1" />
+    <path d="M100,0 V450 M200,0 V450 M300,0 V450 M400,0 V450 M500,0 V450 M600,0 V450 M700,0 V450" stroke="#000" stroke-width="1" />
+  </g>
+
+  <!-- Title/Header Box -->
+  <rect x="30" y="20" width="740" height="70" rx="12" fill="url(#headerGrad)" filter="url(#shadow)" />
+  <text x="50" y="48" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="18" font-weight="800" fill="#f8fafc">
+    CRR 옵션 가격 공식의 대수적 분해 (Algebraic Decomposition)
+  </text>
+  <text x="50" y="70" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" fill="#94a3b8">
+    복잡한 n기간 기댓값 수식을 주식 수취 가치와 현금 지불 비용이라는 경제학적 두 축으로 분리
+  </text>
+
+  <!-- Step 1: Base Formula Box -->
+  <rect x="150" y="110" width="500" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="400" y="145" font-family="'Consolas', 'Courier New', monospace" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">
+    C = (1+r)⁻ⁿ Σ [ ⁿCⱼ pʲ (1-p)ⁿ⁻ʲ · (S₀ uʲ dⁿ⁻ʲ - K) ]
+  </text>
+
+  <!-- Split Arrow Lines (Decorative & Conceptual) -->
+  <!-- Left path (Asset) -->
+  <path d="M300,170 C300,210 180,210 180,240" fill="none" stroke="#14b8a6" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="180,245 175,235 185,235" fill="#14b8a6" />
+
+  <!-- Right path (Cash) -->
+  <path d="M500,170 C500,210 620,210 620,240" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="620,245 615,235 625,235" fill="#f59e0b" />
+
+  <!-- Minus Operator in the Middle -->
+  <circle cx="400" cy="285" r="20" fill="#3b82f6" />
+  <text x="400" y="291" font-family="'Inter', system-ui, sans-serif" font-size="24" font-weight="800" fill="#ffffff" text-anchor="middle">−</text>
+
+  <!-- Left Component: Stock Component Box -->
+  <rect x="40" y="250" width="280" height="110" rx="10" fill="url(#assetGrad)" filter="url(#shadow)" />
+  <text x="180" y="278" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">
+    1. 주식 수취 부문 (Asset Part)
+  </text>
+  <text x="180" y="305" font-family="'Consolas', 'Courier New', monospace" font-size="16" font-weight="700" fill="#ccfbf1" text-anchor="middle">
+    S₀ · Φ(a; n, p')
+  </text>
+  <line x1="60" y1="315" x2="300" y2="315" stroke="#0d9488" stroke-width="1" />
+  <text x="180" y="330" font-family="'Inter', system-ui, sans-serif" font-size="10.5" fill="#f0fdfa" text-anchor="middle">
+    권리 행사 시 기대 주가의 현재가치
+  </text>
+  <text x="180" y="345" font-family="'Inter', system-ui, sans-serif" font-size="10" fill="#99f6e4" text-anchor="middle">
+    (가상 확률 p' = p · u / (1+r) 적용)
+  </text>
+
+  <!-- Right Component: Cash Component Box -->
+  <rect x="480" y="250" width="280" height="110" rx="10" fill="url(#cashGrad)" filter="url(#shadow)" />
+  <text x="620" y="278" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="800" fill="#ffffff" text-anchor="middle">
+    2. 현금 지불 부문 (Cash Part)
+  </text>
+  <text x="620" y="305" font-family="'Consolas', 'Courier New', monospace" font-size="16" font-weight="700" fill="#fef3c7" text-anchor="middle">
+    K(1+r)⁻ⁿ · Φ(a; n, p)
+  </text>
+  <line x1="500" y1="315" x2="740" y2="315" stroke="#d97706" stroke-width="1" />
+  <text x="620" y="330" font-family="'Inter', system-ui, sans-serif" font-size="10.5" fill="#fffbef" text-anchor="middle">
+    만기 권리 행사 시 기대 지급 비용 현재가치
+  </text>
+  <text x="620" y="345" font-family="'Inter', system-ui, sans-serif" font-size="10" fill="#fde68a" text-anchor="middle">
+    (Φ = 실제 만기 내가격(ITM) 진입 확률)
+  </text>
+
+  <!-- Connection to Continuous Limit (Black-Scholes) Info Box -->
+  <rect x="30" y="385" width="740" height="45" rx="8" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
+  <text x="400" y="412" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569" text-anchor="middle">
+    시간 세분화 극한 (n → ∞) 적용 시: S₀·N(d₁) − Ke⁻ʳᵗ·N(d₂) 인 블랙-숄즈 공식으로 완벽히 수렴
+  </text>
+</svg>

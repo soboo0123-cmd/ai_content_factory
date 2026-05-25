@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n기간 주가 경로 압축 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .node:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 8px #38bdf8);
+        }
+        .link {
+            transition: stroke 0.3s, stroke-width 0.3s;
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-between h-[500px]">
+    <div class="w-full max-w-2xl bg-slate-900 rounded-xl p-4 shadow-xl border border-slate-800">
+        <!-- Header Controls -->
+        <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+            <div>
+                <h3 class="text-md font-bold text-sky-400">n기간 주가 경로 압축 시뮬레이터</h3>
+                <p class="text-xs text-slate-400">상승/하락의 순서와 관계없이 횟수가 같으면 최종 주가는 같습니다.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-300 font-semibold">단계 수 (n):</span>
+                <input type="range" id="step-slider" min="1" max="4" value="3" class="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-400">
+                <span id="step-val" class="bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded text-xs font-bold">3</span>
+            </div>
+        </div>
+
+        <!-- Interactive SVG Visual Area -->
+        <div class="relative w-full bg-slate-950 rounded-lg overflow-hidden border border-slate-850 p-2 flex items-center justify-center h-[260px]">
+            <svg id="tree-svg" class="w-full h-full" viewBox="0 0 600 240"></svg>
+        </div>
+
+        <!-- Dynamic Information Panel -->
+        <div id="info-panel" class="mt-4 bg-slate-950 rounded-lg p-3 border border-slate-800 min-h-[90px] flex flex-col justify-center">
+            <p class="text-xs text-center text-slate-400">노드 위에 마우스를 올리면 해당 상태에 도달하는 모든 독립 경로가 하이라이트됩니다.</p>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('step-slider');
+        const stepValSpan = document.getElementById('step-val');
+        const svg = document.getElementById('tree-svg');
+        const infoPanel = document.getElementById('info-panel');
+
+        slider.addEventListener('input', (e) => {
+            const n = parseInt(e.target.value);
+            stepValSpan.innerText = n;
+            renderTree(n);
+            resetInfo();
+        });
+
+        function factorial(num) {
+            if (num < 0) return 1;
+            if (num === 0 || num === 1) return 1;
+            for (let i = num - 1; i >= 1; i--) {
+                num *= i;
+            }
+            return num;
+        }
+
+        function combinations(n, j) {
+            return factorial(n) / (factorial(j) * factorial(n - j));
+        }
+
+        // Generate all binary paths of length n
+        function generatePaths(n) {
+            let paths = [];
+            function recurse(currentPath) {
+                if (currentPath.length === n) {
+                    paths.push(currentPath);
+                    return;
+                }
+                recurse(currentPath + 'U');
+                recurse(currentPath + 'D');
+            }
+            recurse('');
+            return paths;
+        }
+
+        function renderTree(n) {
+            svg.innerHTML = '';
+            const width = 600;
+            const height = 240;
+            const paddingX = 60;
+            const paddingY = 25;
+            
+            const colWidth = (width - paddingX * 2) / n;
+            
+            // Build nodes coordinates
+            let nodes = [];
+            for (let t = 0; t <= n; t++) {
+                nodes[t] = [];
+                const x = paddingX + t * colWidth;
+                for (let j = 0; j <= t; j++) {
+                    const y = height / 2 + (j - t / 2) * ( (height - paddingY * 2) / (t || 1) );
+                    nodes[t].push({ x, y, t, j });
+                }
+            }
+
+            // Draw link connections
+            for (let t = 0; t < n; t++) {
+                for (let j = 0; j <= t; j++) {
+                    const startNode = nodes[t][j];
+                    const upNode = nodes[t + 1][j];     // Up path in index j (j is up count)
+                    const downNode = nodes[t + 1][j + 1]; // Down path in index j + 1
+
+                    // Create Line elements
+                    createLink(startNode, upNode, 'U');
+                    createLink(startNode, downNode, 'D');
+                }
+            }
+
+            // Draw Nodes
+            for (let t = 0; t <= n; t++) {
+                for (let j = 0; j <= t; j++) {
+                    const node = nodes[t][j];
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', node.x);
+                    circle.setAttribute('cy', node.y);
+                    circle.setAttribute('r', t === n ? '14' : '11');
+                    circle.setAttribute('class', 'node cursor-pointer');
+                    
+                    // Style nodes
+                    if (t === n) {
+                        circle.setAttribute('fill', '#0284c7');
+                        circle.setAttribute('stroke', '#38bdf8');
+                        circle.setAttribute('stroke-width', '2');
+                    } else {
+                        circle.setAttribute('fill', '#1e293b');
+                        circle.setAttribute('stroke', '#64748b');
+                        circle.setAttribute('stroke-width', '1.5');
+                    }
+
+                    // Hover interactions
+                    circle.addEventListener('mouseenter', () => highlightPaths(node, n));
+                    circle.addEventListener('mouseleave', () => resetHighlights());
+
+                    svg.appendChild(circle);
+
+                    // Optional short text label inside last node
+                    if (t === n) {
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', node.x);
+                        text.setAttribute('y', node.y + 4);
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('fill', '#ffffff');
+                        text.setAttribute('font-size', '9px');
+                        text.setAttribute('font-weight', 'bold');
+                        text.setAttribute('style', 'pointer-events: none;');
+                        
+                        // state label: u^(n-j)*d^j
+                        const upCount = n - j;
+                        const downCount = j;
+                        text.textContent = `u${upCount}d${downCount}`;
+                        svg.appendChild(text);
+                    }
+                }
+            }
+        }
+
+        function createLink(start, end, dir) {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            path.setAttribute('x1', start.x);
+            path.setAttribute('y1', start.y);
+            path.setAttribute('x2', end.x);
+            path.setAttribute('y2', end.y);
+            path.setAttribute('stroke', '#334155');
+            path.setAttribute('stroke-width', '1.5');
+            path.setAttribute('class', `link link-from-${start.t}-${start.j} link-to-${end.t}-${end.j} dir-${dir}`);
+            svg.appendChild(path);
+        }
+
+        function highlightPaths(targetNode, n) {
+            // Reset previous highlights
+            resetHighlights();
+
+            const targetT = targetNode.t;
+            const targetJ = targetNode.j; // down moves count (index starting from top=0 to bottom=t)
+            const targetUp = targetT - targetJ;
+            const targetDown = targetJ;
+
+            // Generate paths to target T
+            const allPaths = generatePaths(targetT);
+            const validPaths = allPaths.filter(p => {
+                const ups = (p.match(/U/g) || []).length;
+                const downs = (p.match(/D/g) || []).length;
+                return downs === targetJ;
+            });
+
+            // Color the paths inside SVG
+            validPaths.forEach((pathString) => {
+                let currJ = 0;
+                for (let t = 0; t < targetT; t++) {
+                    const step = pathString[t];
+                    const nextJ = step === 'D' ? currJ + 1 : currJ;
+                    
+                    // Query line
+                    const line = svg.querySelector(`.link-from-${t}-${currJ}.link-to-${t+1}-${nextJ}`);
+                    if (line) {
+                        line.setAttribute('stroke', '#38bdf8');
+                        line.setAttribute('stroke-width', '3.5');
+                    }
+                    currJ = nextJ;
+                }
+            });
+
+            // Update Info Panel
+            const comb = combinations(targetT, targetJ);
+            infoPanel.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div>
+                        <span class="text-xs bg-sky-500/10 text-sky-400 font-bold px-2.5 py-1 rounded-full border border-sky-500/20">
+                            상태 노드: S(${targetT}) = S₀ × u<sup>${targetUp}</sup> × d<sup>${targetDown}</sup>
+                        </span>
+                        <div class="text-xs text-slate-300 mt-2 font-medium">
+                            도달 경로 조합의 수: <span class="text-sky-400 font-bold"><sub>${targetT}</sub>C<sub>${targetJ}</sub> = ${comb}개</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded p-1.5 max-w-xs overflow-x-auto whitespace-nowrap">
+                        <span class="text-[10px] text-slate-400 block font-semibold mb-0.5">실제 도달하는 고유 패스:</span>
+                        <code class="text-xs text-emerald-400 font-mono">${validPaths.join(', ') || '시작점'}</code>
+                    </div>
+                </div>
+            `;
+        }
+
+        function resetHighlights() {
+            const lines = svg.querySelectorAll('.link');
+            lines.forEach(line => {
+                line.setAttribute('stroke', '#334155');
+                line.setAttribute('stroke-width', '1.5');
+            });
+        }
+
+        function resetInfo() {
+            infoPanel.innerHTML = `
+                <p class="text-xs text-center text-slate-400">노드 위에 마우스를 올리면 해당 상태에 도달하는 모든 독립 경로가 하이라이트됩니다.</p>
+            `;
+        }
+
+        // Initial paint
+        renderTree(3);
+    </script>
+</body>
+</html>

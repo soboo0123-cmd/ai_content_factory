@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>2기간 이항옵션 모델 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 p-6 flex flex-col items-center justify-center min-h-[450px]">
+  <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+    
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></span>
+          2기간 이항옵션 가격 결정 및 역방향 귀납 시뮬레이터
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">실시간 변수 변경에 따른 노드 값 변화와 가치 역산을 탐색해 보세요.</p>
+      </div>
+      <!-- Risk neutral prob indicator -->
+      <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-lg mt-4 md:mt-0 text-center">
+        <span class="text-xs text-slate-400 block">위험중립확률 (p)</span>
+        <span id="p-val" class="text-lg font-bold text-blue-400">0.5000</span>
+      </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Left: Sliders -->
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-4">
+        <h3 class="text-sm font-semibold text-slate-300 border-b border-slate-800 pb-2 mb-2">시장 변수 설정</h3>
+        
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-400">현재 주가 (S₀)</span>
+            <span id="s-label" class="text-blue-400 font-bold">100</span>
+          </div>
+          <input id="s-input" type="range" min="50" max="150" value="100" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-400">행사 가격 (K)</span>
+            <span id="k-label" class="text-blue-400 font-bold">100</span>
+          </div>
+          <input id="k-input" type="range" min="50" max="150" value="100" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-400">상승 계수 (u)</span>
+            <span id="u-label" class="text-emerald-400 font-bold">1.20</span>
+          </div>
+          <input id="u-input" type="range" min="1.05" max="1.50" step="0.01" value="1.20" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-400">하락 계수 (d)</span>
+            <span id="d-label" class="text-rose-400 font-bold">0.80</span>
+          </div>
+          <input id="d-input" type="range" min="0.50" max="0.95" step="0.01" value="0.80" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-400">무위험 이자율 (r)</span>
+            <span id="r-label" class="text-purple-400 font-bold">5%</span>
+          </div>
+          <input id="r-input" type="range" min="0" max="15" step="1" value="5" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500">
+        </div>
+      </div>
+
+      <!-- Right: Tree Visualization & Outputs (Spans 2 columns on desktop) -->
+      <div class="md:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex flex-col justify-between relative overflow-hidden min-h-[300px]">
+        <div class="absolute inset-0 bg-radial-gradient from-blue-500/5 via-transparent to-transparent pointer-events-none"></div>
+        
+        <!-- Nodes Grid Container -->
+        <div class="relative w-full h-full flex items-center justify-between px-4">
+          
+          <!-- Column t=0 -->
+          <div class="flex flex-col items-center justify-center h-full z-10">
+            <div class="text-center text-[10px] text-slate-500 font-semibold mb-2">t = 0</div>
+            <div class="w-24 bg-slate-900 border-2 border-blue-500 rounded-xl p-2.5 shadow-lg shadow-blue-500/10 text-center hover:scale-105 transition-all duration-200">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Stock</div>
+              <div id="node-s0" class="text-sm font-bold text-slate-100">100.0</div>
+              <div class="border-t border-slate-800 my-1"></div>
+              <div class="text-blue-400 text-[10px] uppercase tracking-wider font-semibold">Option</div>
+              <div id="node-c0" class="text-sm font-bold text-blue-400">-</div>
+            </div>
+          </div>
+
+          <!-- Column t=1 -->
+          <div class="flex flex-col justify-between h-full py-6 z-10 space-y-16">
+            <!-- Node u -->
+            <div class="w-24 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-center hover:scale-105 transition-all duration-200">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Stock (u)</div>
+              <div id="node-su" class="text-sm font-bold text-slate-100">-</div>
+              <div class="border-t border-slate-800 my-1"></div>
+              <div class="text-blue-400 text-[10px] uppercase tracking-wider font-semibold">Option (Cu)</div>
+              <div id="node-cu" class="text-sm font-bold text-blue-400">-</div>
+            </div>
+            <!-- Node d -->
+            <div class="w-24 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-center hover:scale-105 transition-all duration-200">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Stock (d)</div>
+              <div id="node-sd" class="text-sm font-bold text-slate-100">-</div>
+              <div class="border-t border-slate-800 my-1"></div>
+              <div class="text-blue-400 text-[10px] uppercase tracking-wider font-semibold">Option (Cd)</div>
+              <div id="node-cd" class="text-sm font-bold text-blue-400">-</div>
+            </div>
+          </div>
+
+          <!-- Column t=2 -->
+          <div class="flex flex-col justify-between h-full py-2 z-10 space-y-4">
+            <!-- Node uu -->
+            <div class="w-24 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-center hover:scale-105 transition-all duration-200">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Stock (uu)</div>
+              <div id="node-suu" class="text-sm font-bold text-slate-100">-</div>
+              <div class="border-t border-slate-800 my-1"></div>
+              <div class="text-purple-400 text-[10px] uppercase tracking-wider font-semibold">Option (Cuu)</div>
+              <div id="node-cuu" class="text-sm font-bold text-purple-400">-</div>
+            </div>
+            <!-- Node ud -->
+            <div class="w-24 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-center hover:scale-105 transition-all duration-200">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Stock (ud)</div>
+              <div id="node-sud" class="text-sm font-bold text-slate-100">-</div>
+              <div class="border-t border-slate-800 my-1"></div>
+              <div class="text-purple-400 text-[10px] uppercase tracking-wider font-semibold">Option (Cud)</div>
+              <div id="node-cud" class="text-sm font-bold text-purple-400">-</div>
+            </div>
+            <!-- Node dd -->
+            <div class="w-24 bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-center hover:scale-105 transition-all duration-200">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Stock (dd)</div>
+              <div id="node-sdd" class="text-sm font-bold text-slate-100">-</div>
+              <div class="border-t border-slate-800 my-1"></div>
+              <div class="text-purple-400 text-[10px] uppercase tracking-wider font-semibold">Option (Cdd)</div>
+              <div id="node-cdd" class="text-sm font-bold text-purple-400">-</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="warning-msg" class="hidden mt-4 text-xs bg-rose-950/50 border border-rose-800 text-rose-300 p-2.5 rounded-lg text-center font-medium">
+          ⚠️ 경고: 차익거래 조건(d &lt; 1+r &lt; u)을 충족하지 못해 위험중립확률이 비정상적으로 계산되었습니다!
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const sInput = document.getElementById('s-input');
+    const kInput = document.getElementById('k-input');
+    const uInput = document.getElementById('u-input');
+    const dInput = document.getElementById('d-input');
+    const rInput = document.getElementById('r-input');
+
+    const sLabel = document.getElementById('s-label');
+    const kLabel = document.getElementById('k-label');
+    const uLabel = document.getElementById('u-label');
+    const dLabel = document.getElementById('d-label');
+    const rLabel = document.getElementById('r-label');
+
+    const pValDisplay = document.getElementById('p-val');
+    const warningMsg = document.getElementById('warning-msg');
+
+    function calculate() {
+      const S0 = parseFloat(sInput.value);
+      const K = parseFloat(kInput.value);
+      const u = parseFloat(uInput.value);
+      const d = parseFloat(dInput.value);
+      const r = parseFloat(rInput.value) / 100;
+
+      // Update Labels
+      sLabel.textContent = S0;
+      kLabel.textContent = K;
+      uLabel.textContent = u.toFixed(2);
+      dLabel.textContent = d.toFixed(2);
+      rLabel.textContent = `${(r * 100).toFixed(0)}%`;
+
+      // Validate Arbitrage Bound
+      const val_1_r = 1 + r;
+      const isValid = (d < val_1_r) && (val_1_r < u);
+      
+      if (!isValid) {
+        warningMsg.classList.remove('hidden');
+      } else {
+        warningMsg.classList.add('hidden');
+      }
+
+      // Risk Neutral Prob
+      const p = (val_1_r - d) / (u - d);
+      pValDisplay.textContent = p.toFixed(4);
+
+      // Node stock prices
+      const Su = S0 * u;
+      const Sd = S0 * d;
+      const Suu = S0 * u * u;
+      const Sud = S0 * u * d;
+      const Sdd = S0 * d * d;
+
+      // Node option prices (Call Option)
+      const Cuu = Math.max(Suu - K, 0);
+      const Cud = Math.max(Sud - K, 0);
+      const Cdd = Math.max(Sdd - K, 0);
+
+      // Backward Induction Step 1
+      const Cu = (p * Cuu + (1 - p) * Cud) / val_1_r;
+      const Cd = (p * Cud + (1 - p) * Cdd) / val_1_r;
+
+      // Backward Induction Step 2
+      const C0 = (p * Cu + (1 - p) * Cd) / val_1_r;
+
+      // Render Values
+      document.getElementById('node-s0').textContent = S0.toFixed(1);
+      document.getElementById('node-c0').textContent = C0.toFixed(2);
+
+      document.getElementById('node-su').textContent = Su.toFixed(1);
+      document.getElementById('node-cu').textContent = Cu.toFixed(2);
+      document.getElementById('node-sd').textContent = Sd.toFixed(1);
+      document.getElementById('node-cd').textContent = Cd.toFixed(2);
+
+      document.getElementById('node-suu').textContent = Suu.toFixed(1);
+      document.getElementById('node-cuu').textContent = Cuu.toFixed(2);
+      document.getElementById('node-sud').textContent = Sud.toFixed(1);
+      document.getElementById('node-cud').textContent = Cud.toFixed(2);
+      document.getElementById('node-sdd').textContent = Sdd.toFixed(1);
+      document.getElementById('node-cdd').textContent = Cdd.toFixed(2);
+    }
+
+    [sInput, kInput, uInput, dInput, rInput].forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+
+    calculate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRR n기간 수식 탐색기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .formula-part {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .formula-part:hover {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8 !important;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-between h-[500px]">
+    <div class="w-full max-w-2xl bg-slate-900 rounded-xl p-4 shadow-xl border border-slate-800">
+        
+        <!-- Grid layout: left sliders, right content -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            
+            <!-- Parameters control (4 cols) -->
+            <div class="md:col-span-4 bg-slate-950 p-3 rounded-lg border border-slate-850 flex flex-col justify-between gap-1.5">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-1.5 mb-1.5">변수 실시간 조절</h4>
+                
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-[11px] text-slate-400">
+                        <span>현재 주가 (S₀)</span>
+                        <span id="s0-val" class="font-bold text-sky-400">$100</span>
+                    </div>
+                    <input type="range" id="s0" min="50" max="150" value="100" class="h-1 bg-slate-800 rounded accent-sky-400">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-[11px] text-slate-400">
+                        <span>행사가격 (K)</span>
+                        <span id="k-val" class="font-bold text-sky-400">$100</span>
+                    </div>
+                    <input type="range" id="k" min="50" max="150" value="100" class="h-1 bg-slate-800 rounded accent-sky-400">
+                </div>
+
+                <div class="flex justify-between gap-2">
+                    <div class="flex flex-col w-1/2 gap-1">
+                        <span class="text-[10px] text-slate-400">상승 배수 (u)</span>
+                        <input type="number" id="u" min="1.01" max="2.0" step="0.01" value="1.10" class="bg-slate-900 text-xs text-sky-400 font-bold border border-slate-750 p-1 rounded">
+                    </div>
+                    <div class="flex flex-col w-1/2 gap-1">
+                        <span class="text-[10px] text-slate-400">하락 배수 (d)</span>
+                        <input type="number" id="d" min="0.5" max="0.99" step="0.01" value="0.90" class="bg-slate-900 text-xs text-sky-400 font-bold border border-slate-750 p-1 rounded">
+                    </div>
+                </div>
+
+                <div class="flex justify-between gap-2">
+                    <div class="flex flex-col w-1/2 gap-1">
+                        <span class="text-[10px] text-slate-400">무위험 이자율 (r)</span>
+                        <input type="number" id="r" min="0" max="0.3" step="0.01" value="0.02" class="bg-slate-900 text-xs text-sky-400 font-bold border border-slate-750 p-1 rounded">
+                    </div>
+                    <div class="flex flex-col w-1/2 gap-1">
+                        <span class="text-[10px] text-slate-400">기간 수 (n)</span>
+                        <input type="number" id="n" min="1" max="4" step="1" value="3" class="bg-slate-900 text-xs text-sky-400 font-bold border border-slate-750 p-1 rounded">
+                    </div>
+                </div>
+
+                <div id="arbitrage-warn" class="text-[9px] text-rose-400 bg-rose-500/10 p-1 border border-rose-500/20 rounded hidden">
+                    경고: d &lt; 1+r &lt; u 조건을 만족하지 않습니다.
+                </div>
+            </div>
+
+            <!-- Interactive Formula Explorer (8 cols) -->
+            <div class="md:col-span-8 flex flex-col justify-between">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">CRR 일반화 공식 구조분석</h4>
+                    
+                    <!-- LaTeX-styled Interactive Boxes -->
+                    <div class="flex flex-wrap items-center gap-1.5 bg-slate-950 p-3 rounded-lg border border-slate-850 font-serif text-sm md:text-md justify-center py-4">
+                        
+                        <!-- C = -->
+                        <span class="text-slate-200 font-bold mr-1">C =</span>
+
+                        <!-- 1 / (1+r)^n -->
+                        <div id="part-discount" class="formula-part border border-dashed border-slate-700 px-2 py-1 rounded text-center" data-title="시간가치 할인" data-desc="미래 시점의 모든 페이오프 기대값을 오늘의 현재가치로 환산해주는 역할을 합니다. n기간 복리할인(1/(1+r)ⁿ)을 일시에 수행합니다.">
+                            <div class="text-[10px] text-slate-500 font-sans uppercase">할인</div>
+                            <div class="text-sky-300 font-bold">1 / (1+r)ⁿ</div>
+                        </div>
+
+                        <!-- Sum -->
+                        <div id="part-sum" class="formula-part border border-dashed border-slate-700 px-2 py-1 rounded text-center" data-title="시나리오 총합" data-desc="상승 횟수 j가 0부터 n까지 도달할 수 있는 모든 주가 상태의 확률가중 페이오프를 하나도 빠짐없이 모두 더해 나갑니다.">
+                            <div class="text-[10px] text-slate-500 font-sans uppercase">합산</div>
+                            <div class="text-violet-300 font-bold">Σ<sub>j=0</sub><sup>n</sup></div>
+                        </div>
+
+                        <!-- Comb(n, j) -->
+                        <div id="part-comb" class="formula-part border border-dashed border-slate-700 px-2 py-1 rounded text-center" data-title="경로 개수 (이항계수)" data-desc="총 n번의 이항 운동 중에서 상승이 정확히 j번 발생할 수 있는 무작위 고유 경로의 갯수를 조합(Combination)을 활용해 계산합니다.">
+                            <div class="text-[10px] text-slate-500 font-sans uppercase">경로</div>
+                            <div class="text-amber-300 font-bold">⟮ <sup>n</sup><sub>j</sub> ⟯</div>
+                        </div>
+
+                        <!-- p^j (1-p)^n-j -->
+                        <div id="part-prob" class="formula-part border border-dashed border-slate-700 px-2 py-1 rounded text-center" data-title="위험중립 확률 분포" data-desc="상승할 위험중립 확률 p가 j번 발생하고, 하락할 확률 (1-p)가 n-j번 일어나는 단일 독립 경로의 발생 확률(독립시행 확률)입니다.">
+                            <div class="text-[10px] text-slate-500 font-sans uppercase">확률</div>
+                            <div class="text-emerald-300 font-bold">p<sup>j</sup>(1-p)<sup>n-j</sup></div>
+                        </div>
+
+                        <!-- max(S - K, 0) -->
+                        <div id="part-payoff" class="formula-part border border-dashed border-slate-700 px-2 py-1 rounded text-center" data-title="만기 권리행사 가치" data-desc="해당 노드에 성공적으로 안착했을 때의 실제 옵션 페이오프 가치입니다. 만기주가 S_T가 K보다 크면 차액을 얻고, 작으면 권리를 포기하여 0이 됩니다.">
+                            <div class="text-[10px] text-slate-500 font-sans uppercase">페이오프</div>
+                            <div class="text-rose-300 font-bold">max(S_T - K, 0)</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Hover detail card -->
+                <div id="detail-card" class="mt-3 bg-slate-950 p-2.5 rounded-lg border border-sky-500/20 min-h-[90px] flex flex-col justify-center">
+                    <h5 id="detail-title" class="text-xs font-bold text-sky-400">수식 요소별 탐색</h5>
+                    <p id="detail-desc" class="text-[11px] text-slate-300 mt-1">공식 내에 하이라이트된 파트(할인, 합산, 경로, 확률, 페이오프) 위에 마우스를 올리면 상세한 개념 정의와 경제적 의의를 확인할 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculated Live Value display -->
+        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center bg-slate-900/50">
+            <div class="text-xs text-slate-400">
+                중립확률 (p): <span id="calc-p" class="font-bold text-emerald-400">-</span> | 
+                1+r: <span id="calc-df" class="font-bold text-slate-300">-</span>
+            </div>
+            <div class="text-sm font-bold">
+                최종 콜옵션 가치 (C): <span id="final-c" class="text-sky-400 font-extrabold text-md">-</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const s0In = document.getElementById('s0');
+        const kIn = document.getElementById('k');
+        const uIn = document.getElementById('u');
+        const dIn = document.getElementById('d');
+        const rIn = document.getElementById('r');
+        const nIn = document.getElementById('n');
+
+        const s0Val = document.getElementById('s0-val');
+        const kVal = document.getElementById('k-val');
+        const warn = document.getElementById('arbitrage-warn');
+
+        const calcP = document.getElementById('calc-p');
+        const calcDf = document.getElementById('calc-df');
+        const finalC = document.getElementById('final-c');
+
+        const formulaParts = document.querySelectorAll('.formula-part');
+        const dTitle = document.getElementById('detail-title');
+        const dDesc = document.getElementById('detail-desc');
+
+        // Parameter input events
+        [s0In, kIn, uIn, dIn, rIn, nIn].forEach(el => {
+            el.addEventListener('input', recalculate);
+        });
+
+        // Hover events for parts
+        formulaParts.forEach(part => {
+            part.addEventListener('mouseenter', () => {
+                dTitle.innerText = part.getAttribute('data-title');
+                dDesc.innerText = part.getAttribute('data-desc');
+            });
+            part.addEventListener('mouseleave', () => {
+                dTitle.innerText = "수식 요소별 탐색";
+                dDesc.innerText = "공식 내에 하이라이트된 파트(할인, 합산, 경로, 확률, 페이오프) 위에 마우스를 올리면 상세한 개념 정의와 경제적 의의를 확인할 수 있습니다.";
+            });
+        });
+
+        function factorial(num) {
+            if (num < 0) return 1;
+            if (num === 0 || num === 1) return 1;
+            for (let i = num - 1; i >= 1; i--) {
+                num *= i;
+            }
+            return num;
+        }
+
+        function combinations(n, j) {
+            return factorial(n) / (factorial(j) * factorial(n - j));
+        }
+
+        function recalculate() {
+            const S0 = parseFloat(s0In.value);
+            const K = parseFloat(kIn.value);
+            const u = parseFloat(uIn.value);
+            const d = parseFloat(dIn.value);
+            const r = parseFloat(rIn.value);
+            const n = parseInt(nIn.value);
+
+            s0Val.innerText = `$${S0}`;
+            kVal.innerText = `$${K}`;
+
+            // Check arbitrage bounds
+            const discountFactorStep = 1 + r;
+            if (d < discountFactorStep && discountFactorStep < u) {
+                warn.classList.add('hidden');
+            } else {
+                warn.classList.remove('hidden');
+            }
+
+            // Calc p
+            const p = (discountFactorStep - d) / (u - d);
+            calcP.innerText = p.toFixed(4) + ` (${(p*100).toFixed(1)}%)`;
+            calcDf.innerText = discountFactorStep.toFixed(2);
+
+            // Calc options payoff using binomial
+            let sumExpectedPayoff = 0;
+            for (let j = 0; j <= n; j++) {
+                // j = down count? No, let's treat j as up count in this formulation to match general CRR:
+                // S_T = S0 * u^j * d^(n-j)
+                const upMoves = j;
+                const downMoves = n - j;
+                
+                const finalST = S0 * Math.pow(u, upMoves) * Math.pow(d, downMoves);
+                const payoff = Math.max(finalST - K, 0);
+                
+                const comb = combinations(n, j);
+                const prob = comb * Math.pow(p, upMoves) * Math.pow(1 - p, downMoves);
+                
+                sumExpectedPayoff += prob * payoff;
+            }
+
+            const presentValue = sumExpectedPayoff / Math.pow(discountFactorStep, n);
+            
+            if (isNaN(presentValue) || !isFinite(presentValue)) {
+                finalC.innerText = "연산 불가 (조건 오류)";
+            } else {
+                finalC.innerText = `$${presentValue.toFixed(2)}`;
+            }
+        }
+
+        // Run initial
+        recalculate();
+    </script>
+</body>
+</html>

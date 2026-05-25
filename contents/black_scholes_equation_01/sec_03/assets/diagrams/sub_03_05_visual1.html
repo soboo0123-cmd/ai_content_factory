@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>최소 상승 횟수(a) 인터랙티브 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+    <!-- 헤더 -->
+    <div class="bg-slate-800 p-4 text-white">
+      <h1 class="text-lg font-bold">🎯 최소 상승 횟수 (a) 및 ITM 조건 분석기</h1>
+      <p class="text-xs text-slate-300 mt-1">CRR 모델의 변수들을 조절하며 최소 상승 허들인 a와 만기 주가 상태의 변화를 관찰하세요.</p>
+    </div>
+
+    <!-- 메인 레이아웃 -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 p-6">
+      
+      <!-- 좌측 컨트롤러 (4/12) -->
+      <div class="md:col-span-5 space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+        <h2 class="text-sm font-bold text-slate-700 border-b pb-2">📊 변수 설정</h2>
+        
+        <!-- S0 -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>현재 주가 (S₀)</span>
+            <span id="val-s0" class="text-blue-600">$100</span>
+          </div>
+          <input id="slider-s0" type="range" min="50" max="150" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <!-- K -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>행사가격 (K)</span>
+            <span id="val-k" class="text-blue-600">$100</span>
+          </div>
+          <input id="slider-k" type="range" min="50" max="150" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <!-- n -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>총 기간 (n)</span>
+            <span id="val-n" class="text-blue-600">5 단계</span>
+          </div>
+          <input id="slider-n" type="range" min="2" max="10" value="5" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <!-- u -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>상승 배수 (u)</span>
+            <span id="val-u" class="text-blue-600">1.10</span>
+          </div>
+          <input id="slider-u" type="range" min="1.01" max="1.50" step="0.01" value="1.10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <!-- d -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>하락 배수 (d)</span>
+            <span id="val-d" class="text-blue-600">0.90</span>
+          </div>
+          <input id="slider-d" type="range" min="0.50" max="0.99" step="0.01" value="0.90" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+      </div>
+
+      <!-- 우측 리포트 및 시각화 (7/12) -->
+      <div class="md:col-span-7 space-y-6">
+        <!-- 결과 대시보드 -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-center">
+            <span class="block text-xs text-slate-500 font-semibold">계산된 임계값 (실수)</span>
+            <span id="calc-raw" class="text-lg font-bold text-blue-700">1.575</span>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-center">
+            <span class="block text-xs text-slate-500 font-semibold">최소 상승 횟수 (a)</span>
+            <span id="calc-a" class="text-xl font-black text-emerald-700">2</span>
+          </div>
+        </div>
+
+        <!-- 수직선 분포도 시각화 -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-600 mb-3 uppercase tracking-wider">만기 시점 상승 횟수(j)별 주가 분포</h3>
+          
+          <!-- 스크롤 가능한 정수 축 컨테이너 -->
+          <div class="overflow-x-auto pb-4">
+            <div id="visual-axis" class="flex items-center space-x-2 min-w-max px-2">
+              <!-- JS에서 동적으로 노드 생성 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 요약 설명 문구 -->
+        <div class="text-xs text-slate-500 bg-slate-50 p-3 rounded border border-slate-100 leading-relaxed">
+          💡 <span class="font-bold text-slate-700">범례:</span> 
+          <span class="inline-block w-3 h-3 bg-emerald-500 rounded-full mx-1 align-middle"></span> 
+          내가격 (ITM, 가치 양수) / 
+          <span class="inline-block w-3 h-3 bg-slate-300 rounded-full mx-1 align-middle"></span> 
+          외가격 (OTM, 휴지조각)
+          <br>
+          <span class="block mt-1">상승 횟수가 <strong class="text-emerald-700" id="desc-a">a</strong>번 이상일 때만 실제 가치를 가져 연산이 유효해집니다.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM 요소 취득
+    const elements = {
+      s0: document.getElementById('slider-s0'),
+      k: document.getElementById('slider-k'),
+      n: document.getElementById('slider-n'),
+      u: document.getElementById('slider-u'),
+      d: document.getElementById('slider-d'),
+
+      valS0: document.getElementById('val-s0'),
+      valK: document.getElementById('val-k'),
+      valN: document.getElementById('val-n'),
+      valU: document.getElementById('val-u'),
+      valD: document.getElementById('val-d'),
+
+      calcRaw: document.getElementById('calc-raw'),
+      calcA: document.getElementById('calc-a'),
+      descA: document.getElementById('desc-a'),
+      visualAxis: document.getElementById('visual-axis')
+    };
+
+    // 주가 트리 검증 및 업데이트 연산 함수
+    function update() {
+      const s0 = parseFloat(elements.s0.value);
+      const k = parseFloat(elements.k.value);
+      const n = parseInt(elements.n.value);
+      let u = parseFloat(elements.u.value);
+      let d = parseFloat(elements.d.value);
+
+      // u > d 제약조건 유지 관리
+      if (u <= d) {
+        u = d + 0.01;
+        elements.u.value = u.toFixed(2);
+      }
+
+      // 텍스트 업데이트
+      elements.valS0.textContent = `$${s0}`;
+      elements.valK.textContent = `$${k}`;
+      elements.valN.textContent = `${n} 단계`;
+      elements.valU.textContent = u.toFixed(2);
+      elements.valD.textContent = d.toFixed(2);
+
+      // 최소 상승 횟수 (a) 공식 계산
+      // a = ceil( ln( K / (S0 * d^n) ) / ln(u/d) )
+      const numerator = Math.log(k / (s0 * Math.pow(d, n)));
+      const denominator = Math.log(u / d);
+      const rawValue = numerator / denominator;
+      let a = Math.ceil(rawValue);
+
+      // 물리적 한계점 클램핑 및 표시 처리
+      let displayRaw = rawValue.toFixed(4);
+      if (isNaN(rawValue) || !isFinite(rawValue)) {
+        displayRaw = "N/A";
+      }
+      elements.calcRaw.textContent = displayRaw;
+
+      // a의 한계 범위 적용 (0 <= a <= n+1)
+      let effectiveA = a;
+      if (a < 0) effectiveA = 0;
+      if (a > n) effectiveA = n + 1; // 단 하나도 생존하지 못함
+
+      elements.calcA.textContent = effectiveA > n ? "N/A (외가격)" : `${effectiveA}`;
+      elements.descA.textContent = effectiveA > n ? "N/A" : `${effectiveA}`;
+
+      // 축 시각화 리렌더링
+      elements.visualAxis.innerHTML = '';
+
+      for (let j = n; j >= 0; j--) {
+        const finalPrice = s0 * Math.pow(u, j) * Math.pow(d, n - j);
+        const payoff = Math.max(finalPrice - k, 0);
+        const isItm = j >= effectiveA;
+
+        // 노드 박스 엘리먼트 생성
+        const card = document.createElement('div');
+        card.className = `flex flex-col items-center p-3 rounded-lg border-2 w-24 transition-all duration-200 ${
+          isItm 
+            ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-sm' 
+            : 'bg-slate-50 border-slate-200 text-slate-400'
+        }`;
+
+        card.innerHTML = `
+          <span class="text-xs font-bold uppercase tracking-wide text-slate-400">j = ${j}</span>
+          <span class="text-lg font-black my-1">${isItm ? '🟢' : '⚪'}</span>
+          <span class="text-xs font-bold">$${finalPrice.toFixed(1)}</span>
+          <span class="text-[10px] mt-1 text-slate-500">Payoff: $${payoff.toFixed(1)}</span>
+        `;
+
+        elements.visualAxis.appendChild(card);
+      }
+    }
+
+    // 슬라이더 입력 리스너 일괄 등록
+    ['s0', 'k', 'n', 'u', 'd'].forEach(key => {
+      elements[key].addEventListener('input', update);
+    });
+
+    // 최초 1회 실행
+    update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="100%" height="100%">
+  <!-- 배경 정의 -->
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12" />
+  
+  <!-- 정의 보조 스타일 -->
+  <style>
+    .title { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1e293b; }
+    .node-text { font-family: 'Cambria', 'Georgia', serif; font-size: 15px; fill: #0f172a; }
+    .desc-text { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; fill: #64748b; }
+    .arrow { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 8; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02)); }
+    .box-highlight { fill: #f0fdf4; stroke: #22c55e; stroke-width: 2; rx: 8; }
+    .math-bold { font-weight: bold; fill: #047857; }
+  </style>
+
+  <!-- 마커 정의 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <!-- 타이틀 -->
+  <text x="30" y="40" class="title">최소 상승 횟수(a) 도출을 위한 부등식 전개 과정</text>
+
+  <!-- Step 1 -->
+  <rect x="30" y="80" width="210" height="90" class="box" />
+  <text x="45" y="110" class="node-text">S₀ · uʲ · dⁿ⁻ʲ &gt; K</text>
+  <text x="45" y="140" class="desc-text">1단계: 만기 주가(S_T)가</text>
+  <text x="45" y="155" class="desc-text">행사가격(K)보다 큰 조건 수립</text>
+
+  <!-- Arrow 1 -> 2 -->
+  <path d="M 240 125 L 290 125" class="arrow" />
+
+  <!-- Step 2 -->
+  <rect x="300" y="80" width="200" height="90" class="box" />
+  <text x="315" y="110" class="node-text">uʲ · dⁿ⁻ʲ &gt; K / S₀</text>
+  <text x="315" y="140" class="desc-text">2단계: 현재 주가(S_0)로</text>
+  <text x="315" y="155" class="desc-text">양변을 나누어 지수항 분리</text>
+
+  <!-- Arrow 2 -> 3 -->
+  <path d="M 500 125 L 550 125" class="arrow" />
+
+  <!-- Step 3 -->
+  <rect x="560" y="80" width="210" height="90" class="box" />
+  <text x="575" y="110" class="node-text">j ln(u) + (n-j) ln(d) &gt; ln(K/S₀)</text>
+  <text x="575" y="140" class="desc-text">3단계: 양변에 자연로그(ln)</text>
+  <text x="575" y="155" class="desc-text">취하여 곱셈을 덧셈으로 분해</text>
+
+  <!-- Arrow 3 -> Down -> 4 -->
+  <path d="M 665 170 L 665 210 M 665 210 L 135 210 L 135 230" class="arrow" />
+
+  <!-- Step 4 -->
+  <rect x="30" y="240" width="340" height="90" class="box" />
+  <text x="45" y="270" class="node-text">j &gt; ln( K / (S₀ · dⁿ) ) / ln(u/d)</text>
+  <text x="45" y="300" class="desc-text">4단계: 동류항(j)을 묶어 정리한 후</text>
+  <text x="45" y="315" class="desc-text">양수 ln(u/d)로 나누어 일차 부등식 완성</text>
+
+  <!-- Arrow 4 -> 5 -->
+  <path d="M 370 285 L 420 285" class="arrow" />
+
+  <!-- Step 5 -->
+  <rect x="430" y="240" width="340" height="90" class="box-highlight" />
+  <text x="445" y="270" class="node-text math-bold">a = ⌈ ln( K / (S₀ · dⁿ) ) / ln(u/d) ⌉</text>
+  <text x="445" y="300" class="desc-text" style="fill: #15803d; font-weight: bold;">최종: 올림 기호(Ceiling) 적용</text>
+  <text x="445" y="315" class="desc-text" style="fill: #166534;">이산적 트리 환경에 부합하는 최소 정수 도출</text>
+</svg>

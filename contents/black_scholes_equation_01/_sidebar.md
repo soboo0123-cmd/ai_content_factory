@@ -25,10 +25,10 @@
 * **03 이항 모델 옵션 가치평가 공식**
   * [3.1 1기간 주가 확률 트리와 만기 페이오프](contents/black_scholes_equation_01/sec_03/sub_03_01_final.md)
   * [3.2 1기간 헤지 비율(델타) 및 현금 차입분(B)의 대수적 도출](contents/black_scholes_equation_01/sec_03/sub_03_02_final.md)
-  * [3.3 역방향 귀납법(Backward Induction)에 의한 2기간 옵션 가치 결정](contents/black_scholes_equation_01/sec_03/sub_03_03_v1.md)
-  * [3.4 n기간 일반화 이항 모델의 수학적 설계](contents/black_scholes_equation_01/sec_03/sub_03_04_v1.md)
-  * [3.5 최소 상승 횟수(a) 판별을 통한 내가격(ITM) 조건 정의](contents/black_scholes_equation_01/sec_03/sub_03_05_v1.md)
-  * [3.6 이항 정리 변환과 옵션 가격 공식(CRR) 도출](contents/black_scholes_equation_01/sec_03/sub_03_06_v1.md)
+  * [3.3 역방향 귀납법(Backward Induction)에 의한 2기간 옵션 가치 결정](contents/black_scholes_equation_01/sec_03/sub_03_03_final.md)
+  * [3.4 n기간 일반화 이항 모델의 수학적 설계](contents/black_scholes_equation_01/sec_03/sub_03_04_final.md)
+  * [3.5 최소 상승 횟수(a) 판별을 통한 내가격(ITM) 조건 정의](contents/black_scholes_equation_01/sec_03/sub_03_05_final.md)
+  * [3.6 이항 정리 변환과 옵션 가격 공식(CRR) 도출](contents/black_scholes_equation_01/sec_03/sub_03_06_final.md)
   * [3.7 주무 상태 가격(State Price) 활용 가치평가 기법](contents/black_scholes_equation_01/sec_03/sub_03_07_v1.md)
 
 * **04 무위험 거래 전략 (Riskless Trading Strategies)**

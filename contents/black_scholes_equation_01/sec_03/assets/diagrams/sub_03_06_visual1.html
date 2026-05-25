@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CRR Binomial Distribution Explorer</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 p-4 md:p-6 min-h-screen flex flex-col justify-between">
+  
+  <div class="max-w-6xl mx-auto w-full bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-slate-950 to-slate-900 p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h1 class="text-xl md:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+          <span class="text-teal-400">CRR 이항 모델</span> 대화형 확률 공간 탐색기
+        </h1>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          시장 변수가 변할 때 가상 확률 <span class="text-teal-400 font-semibold">p'</span>와 위험중립확률 <span class="text-amber-400 font-semibold">p</span>의 분포 궤적이 어떻게 분리되는지 확인하십시오.
+        </p>
+      </div>
+      <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-semibold text-slate-300">
+        CRR 공식 실시간 평가 엔진 탑재
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-12">
+      <!-- Left: Interactive Sliders (4 cols) -->
+      <div class="lg:col-span-4 p-6 border-r border-slate-700 space-y-5 bg-slate-850">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-2">시장 매개변수 설정</h2>
+        
+        <!-- S0 Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300 font-medium">현재 주가 (S₀)</span>
+            <span class="mono text-white font-bold" id="val_S0">$100.00</span>
+          </div>
+          <input type="range" id="input_S0" min="80" max="120" step="1" value="100" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500">
+        </div>
+
+        <!-- K Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300 font-medium">행사가격 (K)</span>
+            <span class="mono text-white font-bold" id="val_K">$100.00</span>
+          </div>
+          <input type="range" id="input_K" min="80" max="120" step="1" value="100" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500">
+        </div>
+
+        <!-- r Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300 font-medium">무위험 이자율 (r)</span>
+            <span class="mono text-white font-bold" id="val_r">5.00%</span>
+          </div>
+          <input type="range" id="input_r" min="0" max="15" step="0.5" value="5" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+        </div>
+
+        <!-- u Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300 font-medium">상승률 배수 (u)</span>
+            <span class="mono text-teal-400 font-bold" id="val_u">1.10</span>
+          </div>
+          <input type="range" id="input_u" min="1.01" max="1.30" step="0.01" value="1.10" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500">
+        </div>
+
+        <!-- d Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300 font-medium">하락률 배수 (d)</span>
+            <span class="mono text-amber-400 font-bold" id="val_d">0.90</span>
+          </div>
+          <input type="range" id="input_d" min="0.70" max="0.99" step="0.01" value="0.90" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500">
+        </div>
+
+        <!-- n Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300 font-medium">총 분할 단계 (n)</span>
+            <span class="mono text-white font-bold" id="val_n">10단계</span>
+          </div>
+          <input type="range" id="input_n" min="4" max="15" step="1" value="10" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+        </div>
+
+        <!-- Warning Area -->
+        <div id="arbitrage_warning" class="hidden p-3 bg-red-950/50 border border-red-500/50 rounded-xl text-xs text-red-300">
+          ⚠️ <strong>차익거래 발생 가능성 감지:</strong> 위험중립확률이 성립하려면 반드시 <code class="mono font-bold text-white">d &lt; 1+r &lt; u</code> 조건이 충족되어야 합니다.
+        </div>
+      </div>
+
+      <!-- Right: Charts & Outputs (8 cols) -->
+      <div class="lg:col-span-8 p-6 space-y-6 flex flex-col justify-between">
+        <!-- Live Calculations Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 text-center">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">최소 상승 허들 (a)</div>
+            <div class="text-xl font-extrabold text-indigo-400 mt-1 mono" id="calc_a">2</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">이상의 정수 상승 시 ITM</div>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 text-center">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">위험중립확률 (p)</div>
+            <div class="text-xl font-extrabold text-amber-400 mt-1 mono" id="calc_p">0.5000</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">1-p = <span id="calc_one_minus_p">0.5000</span></div>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 text-center">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">조정 가상 확률 (p')</div>
+            <div class="text-xl font-extrabold text-teal-400 mt-1 mono" id="calc_p_prime">0.5238</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">1-p' = <span id="calc_one_minus_p_prime">0.4762</span></div>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50 text-center">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">최종 콜옵션 가치 (C)</div>
+            <div class="text-xl font-extrabold text-emerald-400 mt-1 mono" id="calc_C">$6.72</div>
+            <div class="text-[9px] text-slate-500 mt-0.5">CRR 다기간 공식 산출값</div>
+          </div>
+        </div>
+
+        <!-- Custom SVG Chart Container -->
+        <div class="bg-slate-950 rounded-xl p-4 border border-slate-700 flex-1 flex flex-col justify-between relative min-h-[220px]">
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">확률 질량 함수 (PMF) 대조 분석</h3>
+            <div class="flex items-center gap-3 text-[10px]">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-amber-500 rounded"></span>p (현금 지불)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-teal-500 rounded"></span>p' (주식 기대치)</span>
+              <span class="flex items-center gap-1"><span class="w-1 h-3 bg-red-500"></span>허들 a</span>
+            </div>
+          </div>
+          
+          <div class="flex-1 w-full flex items-end justify-between px-2 py-4 h-48" id="chart_bars">
+            <!-- Bars will be injected dynamically via JS -->
+          </div>
+          
+          <div class="flex justify-between text-[10px] text-slate-500 border-t border-slate-800 pt-2 px-1">
+            <span>상승 0회 (만기 최저가)</span>
+            <span>성공 횟수 (j)</span>
+            <span>상승 n회 (만기 최고가)</span>
+          </div>
+        </div>
+
+        <!-- Algebraic Component Proof Dashboard -->
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="space-y-1.5">
+            <div class="font-bold text-teal-400 flex justify-between">
+              <span>수취 자산 기댓값 [S₀ · Φ(a; n, p')]</span>
+              <span id="part_asset_val">$58.42</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              가상 확률 <code class="mono text-teal-300">p'</code> 하에서 만기 내가격(ITM) 영역에 안착할 누적 기대 가치입니다.
+              <code class="mono text-teal-300">Φ(p') = <span id="calc_phi_p_prime">0.5842</span></code>
+            </p>
+          </div>
+          <div class="space-y-1.5 border-t md:border-t-0 md:border-l border-slate-800 md:pl-4">
+            <div class="font-bold text-amber-500 flex justify-between">
+              <span>예상 지불 비용 [K(1+r)⁻ⁿ · Φ(a; n, p)]</span>
+              <span id="part_cash_val">$51.70</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              위험중립확률 <code class="mono text-amber-300">p</code> 기준 실제 만기 권리 행사(ITM) 확률과 행사가의 현재가치입니다.
+              <code class="mono text-amber-300">Φ(p) = <span id="calc_phi_p">0.5421</span></code>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Engine -->
+  <script>
+    // Elements
+    const inputs = {
+      S0: document.getElementById('input_S0'),
+      K: document.getElementById('input_K'),
+      r: document.getElementById('input_r'),
+      u: document.getElementById('input_u'),
+      d: document.getElementById('input_d'),
+      n: document.getElementById('input_n')
+    };
+
+    const labels = {
+      S0: document.getElementById('val_S0'),
+      K: document.getElementById('val_K'),
+      r: document.getElementById('val_r'),
+      u: document.getElementById('val_u'),
+      d: document.getElementById('val_d'),
+      n: document.getElementById('val_n')
+    };
+
+    const calcs = {
+      a: document.getElementById('calc_a'),
+      p: document.getElementById('calc_p'),
+      one_p: document.getElementById('calc_one_minus_p'),
+      p_prime: document.getElementById('calc_p_prime'),
+      one_p_prime: document.getElementById('calc_one_minus_p_prime'),
+      C: document.getElementById('calc_C'),
+      phi_p: document.getElementById('calc_phi_p'),
+      phi_p_prime: document.getElementById('calc_phi_p_prime'),
+      part_asset: document.getElementById('part_asset_val'),
+      part_cash: document.getElementById('part_cash_val'),
+      warning: document.getElementById('arbitrage_warning'),
+      chart: document.getElementById('chart_bars')
+    };
+
+    // Binomial Coefficient Calculator
+    function nCr(n, r) {
+      if (r < 0 || r > n) return 0;
+      if (r === 0 || r === n) return 1;
+      let coeff = 1;
+      for (let i = 1; i <= r; i++) {
+        coeff = coeff * (n - r + i) / i;
+      }
+      return coeff;
+    }
+
+    // Cumulative Binomial Probability (Phi)
+    function phi(a, n, prob) {
+      if (a > n) return 0;
+      if (a <= 0) return 1;
+      let sum = 0;
+      for (let j = a; j <= n; j++) {
+        sum += nCr(n, j) * Math.pow(prob, j) * Math.pow(1 - prob, n - j);
+      }
+      return sum;
+    }
+
+    // Main Compute and Render Engine
+    function calculate() {
+      // Get Values
+      const S0 = parseFloat(inputs.S0.value);
+      const K = parseFloat(inputs.K.value);
+      const r = parseFloat(inputs.r.value) / 100;
+      const u = parseFloat(inputs.u.value);
+      const d = parseFloat(inputs.d.value);
+      const n = parseInt(inputs.n.value);
+
+      // Label Updates
+      labels.S0.innerText = `$${S0.toFixed(2)}`;
+      labels.K.innerText = `$${K.toFixed(2)}`;
+      labels.r.innerText = `${(r * 100).toFixed(2)}%`;
+      labels.u.innerText = u.toFixed(2);
+      labels.d.innerText = d.toFixed(2);
+      labels.n.innerText = `${n}단계`;
+
+      // No Arbitrage Validation
+      const discount = 1 + r;
+      if (d >= discount || discount >= u) {
+        calcs.warning.classList.remove('hidden');
+      } else {
+        calcs.warning.classList.add('hidden');
+      }
+
+      // 1. Probabilities
+      const p = (discount - d) / (u - d);
+      const p_prime = p * u / discount;
+
+      calcs.p.innerText = p.toFixed(4);
+      calcs.one_p.innerText = (1 - p).toFixed(4);
+      calcs.p_prime.innerText = p_prime.toFixed(4);
+      calcs.one_p_prime.innerText = (1 - p_prime).toFixed(4);
+
+      // 2. Hurdle "a" derivation (from 3.5 formula)
+      const power_d_n = Math.pow(d, n);
+      const denominator = Math.log(u / d);
+      const numerator = Math.log(K / (S0 * power_d_n));
+      
+      let raw_a = Math.ceil(numerator / denominator);
+      let a = raw_a;
+      if (a < 0) a = 0;
+      
+      calcs.a.innerText = a > n ? `${n+1} (행사불가)` : a;
+
+      // 3. 누적 이항 확률 (Phi)
+      const phi_p = phi(a, n, p);
+      const phi_p_prime = phi(a, n, p_prime);
+
+      calcs.phi_p.innerText = phi_p.toFixed(4);
+      calcs.phi_p_prime.innerText = phi_p_prime.toFixed(4);
+
+      // 4. Decomposed Component Calculations
+      const discount_factor = Math.pow(discount, -n);
+      const asset_component = S0 * phi_p_prime;
+      const cash_component = K * discount_factor * phi_p;
+      const C = Math.max(0, asset_component - cash_component);
+
+      calcs.part_asset.innerText = `$${asset_component.toFixed(2)}`;
+      calcs.part_cash.innerText = `$${cash_component.toFixed(2)}`;
+      calcs.C.innerText = `$${C.toFixed(2)}`;
+
+      // 5. Render Dynamic Chart Bars
+      renderChart(n, a, p, p_prime);
+    }
+
+    function renderChart(n, a, p, p_prime) {
+      calcs.chart.innerHTML = '';
+      
+      // Compute highest probability to scale bars proportionately
+      let maxProb = 0.01;
+      for (let j = 0; j <= n; j++) {
+        const prob_p = nCr(n, j) * Math.pow(p, j) * Math.pow(1 - p, n - j);
+        const prob_p_prime = nCr(n, j) * Math.pow(p_prime, j) * Math.pow(1 - p_prime, n - j);
+        maxProb = Math.max(maxProb, prob_p, prob_p_prime);
+      }
+
+      // Draw custom dual bar system per state
+      for (let j = 0; j <= n; j++) {
+        const prob_p = nCr(n, j) * Math.pow(p, j) * Math.pow(1 - p, n - j);
+        const prob_p_prime = nCr(n, j) * Math.pow(p_prime, j) * Math.pow(1 - p_prime, n - j);
+
+        const pct_p = (prob_p / maxProb) * 90; // scale max height to 90% of wrapper
+        const pct_p_prime = (prob_p_prime / maxProb) * 90;
+
+        const isITM = (j >= a);
+
+        // State Container
+        const container = document.createElement('div');
+        container.className = "flex-1 flex flex-col items-center justify-end h-full px-0.5 group relative";
+
+        // Hover Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = "absolute bottom-full mb-2 bg-slate-950 border border-slate-700 text-[10px] p-2 rounded shadow-xl hidden group-hover:block z-20 w-32 text-center pointer-events-none";
+        tooltip.innerHTML = `
+          <div class="font-bold text-indigo-300">상승 횟수: ${j}회</div>
+          <div class="text-amber-400 mt-0.5">p: ${(prob_p*100).toFixed(1)}%</div>
+          <div class="text-teal-400">p': ${(prob_p_prime*100).toFixed(1)}%</div>
+          <div class="text-xs font-semibold mt-1 ${isITM ? 'text-emerald-400':'text-red-400'}">${isITM ? '내가격 (ITM)':'외가격 (OTM)'}</div>
+        `;
+        container.appendChild(tooltip);
+
+        // Dual Bars Wrapper
+        const barWrapper = document.createElement('div');
+        barWrapper.className = `w-full flex items-end justify-center gap-[2px] h-full rounded-t-sm transition-all duration-300 ${isITM ? 'bg-indigo-950/20 border-x border-t border-indigo-500/20' : 'opacity-30'}`;
+
+        // Bar P
+        const barP = document.createElement('div');
+        barP.style.height = `${pct_p}%`;
+        barP.className = `w-2.5 rounded-t-sm transition-all duration-300 ${isITM ? 'bg-amber-500' : 'bg-slate-600'}`;
+        
+        // Bar P'
+        const barPPrime = document.createElement('div');
+        barPPrime.style.height = `${pct_p_prime}%`;
+        barPPrime.className = `w-2.5 rounded-t-sm transition-all duration-300 ${isITM ? 'bg-teal-500' : 'bg-slate-500'}`;
+
+        barWrapper.appendChild(barP);
+        barWrapper.appendChild(barPPrime);
+        container.appendChild(barWrapper);
+
+        // State Marker under chart
+        const label = document.createElement('span');
+        label.className = `text-[9px] mt-1.5 mono font-medium ${isITM ? 'text-indigo-400 font-bold' : 'text-slate-600'}`;
+        label.innerText = j;
+        container.appendChild(label);
+
+        // If it's the exact threshold line 'a', let's draw a vertical marker overlay
+        if (j === a) {
+          const markerLine = document.createElement('div');
+          markerLine.className = "absolute top-0 bottom-6 left-0 w-[2px] bg-red-500 z-10 pointer-events-none";
+          container.appendChild(markerLine);
+          
+          const labelA = document.createElement('div');
+          labelA.className = "absolute -top-3 left-1 text-[8px] font-extrabold text-red-400 bg-slate-950 px-1 rounded border border-red-500/30 whitespace-nowrap z-10";
+          labelA.innerText = `허들 a = ${a}`;
+          container.appendChild(labelA);
+        }
+
+        calcs.chart.appendChild(container);
+      }
+    }
+
+    // Event listeners
+    Object.keys(inputs).forEach(key => {
+      inputs[key].addEventListener('input', calculate);
+    });
+
+    // Run Initial Calc
+    calculate();
+  </script>
+</body>
+</html>
