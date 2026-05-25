@@ -1389,7 +1389,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택하되, e^−r(T−t)이 할인계수가 되는 이유를 수학적으로 설명하는 내용을 추가해줘."
                 }
               },
               "metadata": {
@@ -1423,7 +1423,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택하되, 3. 이론적 배경: 일물일가의 법칙에 왜 120원이나 110원이 아니고 정확히 100원으로 수렴하는지 더 자세히 설명해줘(옵션 매도가 늘어나니까 가격이 떨어져야), 3. 이론적 배경: 일물일가의 법칙에서 '옵션의 현재 가격  V_0​  는 다음과 같이 정의' 부분을 더 자세히 설명해줘(위 식 2개를 연립해서 델타와 B를 구할 수 있다는 건가?)."
                 }
               },
               "metadata": {
@@ -1451,7 +1451,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v2를 채택하되, '어라? 왜 0이 되지 않을까요?'라는 내용이 있으므로  4. 진정한 무위험 포트폴리오의 수식적 증명에서 계산을 바탕으로 콜 매도 하나당 주식 0.5주 매수, 6달러 차입를 하면 주가가 오르든 내리든 만기 손익이 0이 된다는 내용을 표로 확인할 수 있게 추가해줘."
                 }
               },
               "metadata": {
@@ -1485,7 +1485,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v2를 채택해줘."
                 }
               },
               "metadata": {
@@ -1513,7 +1513,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘."
                 }
               },
               "metadata": {
