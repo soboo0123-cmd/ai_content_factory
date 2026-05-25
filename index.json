@@ -1541,7 +1541,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택하되, 2. 역방향 귀납법의 실행 단계에 나온 최종 가치 산출식에 지금까지 구한 C_u, C_d를 대입 또 C_uu 등을 대입한 더 자세한 식을 제시해줘."
                 }
               },
               "metadata": {
@@ -1569,7 +1569,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘"
                 }
               },
               "metadata": {
@@ -1597,7 +1597,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘."
                 }
               },
               "metadata": {
@@ -1625,7 +1625,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v2를 채택해줘. 2.1 항의 분리: 주가와 행사가격의 분열에서 앞부분은 주가로부터 오는 수익, 뒷부분은 행사가격의 현재가치(왜 이자율 할인외에 nCj가 추가되는지도)라는 설명을 추가해줘."
                 }
               },
               "metadata": {
