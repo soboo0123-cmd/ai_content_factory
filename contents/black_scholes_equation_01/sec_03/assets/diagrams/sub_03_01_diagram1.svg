@@ -1,0 +1,46 @@
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 220" width="100%" height="100%">
+  <!-- 배경 무반응형 투명 설정 -->
+  <rect width="100%" height="100%" fill="none"/>
+  
+  <!-- 마커 정의 (화살표) -->
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3B82F6" />
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#EF4444" />
+    </marker>
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="1" dy="3" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- 연결선 (부드러운 곡선 연출) -->
+  <path d="M 80,110 C 140,80 160,50 215,50" fill="none" stroke="#3B82F6" stroke-width="2.5" marker-end="url(#arrow-blue)" />
+  <path d="M 80,110 C 140,140 160,170 215,170" fill="none" stroke="#EF4444" stroke-width="2.5" marker-end="url(#arrow-red)" />
+  
+  <!-- 현재 노드 S -->
+  <g filter="url(#soft-shadow)">
+    <circle cx="80" cy="110" r="28" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.5"/>
+    <text x="80" y="116" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle" fill="#1E293B">S</text>
+  </g>
+  <text x="80" y="160" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#64748B" text-anchor="middle">현재 주가 (t = 0)</text>
+
+  <!-- 상승 노드 uS -->
+  <g filter="url(#soft-shadow)">
+    <circle cx="245" cy="50" r="28" fill="#F0F9FF" stroke="#0284C7" stroke-width="2.5"/>
+    <text x="245" y="56" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle" fill="#0369A1">uS</text>
+  </g>
+  <text x="350" y="54" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#0369A1">상승 상태 (u &gt; 1)</text>
+  <text x="350" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748B">확률 p</text>
+
+  <!-- 하락 노드 dS -->
+  <g filter="url(#soft-shadow)">
+    <circle cx="245" cy="170" r="28" fill="#FEF2F2" stroke="#DC2626" stroke-width="2.5"/>
+    <text x="245" y="176" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" text-anchor="middle" fill="#991B1B">dS</text>
+  </g>
+  <text x="350" y="174" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#B91C1C">하락 상태 (d &lt; 1)</text>
+  <text x="350" y="192" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748B">확률 1 - p</text>
+</svg>
+```

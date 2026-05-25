@@ -16,15 +16,15 @@
   * [1.13 위험중립확률의 개념과 기초 수식 유도](contents/black_scholes_equation_01/sec_01/sub_01_13_final.md)
   * [1.14 위험중립평가법(Risk-Neutral Valuation)의 유용성](contents/black_scholes_equation_01/sec_01/sub_01_14_final.md)
   * [1.15 콜/풋옵션의 정의 및 만기 페이오프 구조](contents/black_scholes_equation_01/sec_01/sub_01_15_final.md)
-  * [1.16 옵션 가격 책정(Pricing)의 본질과 문제 제기](contents/black_scholes_equation_01/sec_01/sub_01_16_v1.md)
+  * [1.16 옵션 가격 책정(Pricing)의 본질과 문제 제기](contents/black_scholes_equation_01/sec_01/sub_01_16_final.md)
 
 * **02 기본 아이디어**
-  * [2.1 복제 포트폴리오(Replicating Portfolio)의 정의](contents/black_scholes_equation_01/sec_02/sub_02_01_v1.md)
-  * [2.2 주식과 현금 결합을 통한 옵션 무위험 복제 실증 예시](contents/black_scholes_equation_01/sec_02/sub_02_02_v1.md)
+  * [2.1 복제 포트폴리오(Replicating Portfolio)의 정의](contents/black_scholes_equation_01/sec_02/sub_02_01_final.md)
+  * [2.2 주식과 현금 결합을 통한 옵션 무위험 복제 실증 예시](contents/black_scholes_equation_01/sec_02/sub_02_02_final.md)
 
 * **03 이항 모델 옵션 가치평가 공식**
-  * [3.1 1기간 주가 확률 트리와 만기 페이오프](contents/black_scholes_equation_01/sec_03/sub_03_01_v1.md)
-  * [3.2 1기간 헤지 비율(델타) 및 현금 차입분(B)의 대수적 도출](contents/black_scholes_equation_01/sec_03/sub_03_02_v1.md)
+  * [3.1 1기간 주가 확률 트리와 만기 페이오프](contents/black_scholes_equation_01/sec_03/sub_03_01_final.md)
+  * [3.2 1기간 헤지 비율(델타) 및 현금 차입분(B)의 대수적 도출](contents/black_scholes_equation_01/sec_03/sub_03_02_final.md)
   * [3.3 역방향 귀납법(Backward Induction)에 의한 2기간 옵션 가치 결정](contents/black_scholes_equation_01/sec_03/sub_03_03_v1.md)
   * [3.4 n기간 일반화 이항 모델의 수학적 설계](contents/black_scholes_equation_01/sec_03/sub_03_04_v1.md)
   * [3.5 최소 상승 횟수(a) 판별을 통한 내가격(ITM) 조건 정의](contents/black_scholes_equation_01/sec_03/sub_03_05_v1.md)

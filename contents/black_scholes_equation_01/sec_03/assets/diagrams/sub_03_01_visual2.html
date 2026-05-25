@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>콜옵션 만기 페이오프 시각화</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-3 min-h-[420px] flex flex-col justify-between">
+
+  <div class="max-w-4xl mx-auto w-full bg-white rounded-xl shadow-md border border-slate-100 p-4">
+    <!-- Header -->
+    <div class="border-b border-slate-100 pb-2 mb-3">
+      <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+        <span class="inline-block w-2 h-4 bg-indigo-600 rounded"></span>
+        콜옵션 비대칭 만기 페이오프 (Max 함수 매핑 차트)
+      </h2>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+      <!-- Sliders Panel -->
+      <div class="md:col-span-4 space-y-3">
+        <!-- S Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-0.5">
+            <span>기초자산 현재주가 (S)</span>
+            <span class="text-blue-600 font-mono" id="val-s">100원</span>
+          </div>
+          <input type="range" id="input-s" min="60" max="140" value="100" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <!-- K Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-0.5">
+            <span>행사가격 (K)</span>
+            <span class="text-orange-600 font-mono" id="val-k">100원</span>
+          </div>
+          <input type="range" id="input-k" min="60" max="140" value="100" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600">
+        </div>
+
+        <!-- u Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-0.5">
+            <span>상승 계수 (u)</span>
+            <span class="text-emerald-600 font-mono" id="val-u">1.20</span>
+          </div>
+          <input type="range" id="input-u" min="1.01" max="1.50" value="1.20" step="0.01" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+        </div>
+
+        <!-- d Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-0.5">
+            <span>하락 계수 (d)</span>
+            <span class="text-rose-600 font-mono" id="val-d">0.80</span>
+          </div>
+          <input type="range" id="input-d" min="0.50" max="0.99" value="0.80" step="0.01" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-600">
+        </div>
+
+        <!-- Mini Value Board -->
+        <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-100 space-y-1 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span>상승 시 주가 (uS): <strong class="text-slate-800 font-mono" id="info-us">120원</strong></span>
+            <span>페이오프 (C<sub>u</sub>): <strong class="text-emerald-600 font-mono" id="info-cu">20원</strong></span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>하락 시 주가 (dS): <strong class="text-slate-800 font-mono" id="info-ds">80원</strong></span>
+            <span>페이오프 (C<sub>d</sub>): <strong class="text-rose-600 font-mono" id="info-cd">0원</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Panel -->
+      <div class="md:col-span-8 bg-white border border-slate-100 rounded-xl p-2 relative h-[250px]">
+        <canvas id="payoffChart" class="w-full h-full"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputS = document.getElementById('input-s');
+    const inputK = document.getElementById('input-k');
+    const inputU = document.getElementById('input-u');
+    const inputD = document.getElementById('input-d');
+
+    const valS = document.getElementById('val-s');
+    const valK = document.getElementById('val-k');
+    const valU = document.getElementById('val-u');
+    const valD = document.getElementById('val-d');
+
+    const infoUS = document.getElementById('info-us');
+    const infoDS = document.getElementById('info-ds');
+    const infoCU = document.getElementById('info-cu');
+    const infoCD = document.getElementById('info-cd');
+
+    // ChartJS Setup
+    const ctx = document.getElementById('payoffChart').getContext('2d');
+    const payoffChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: '만기 콜옵션 페이오프',
+            data: [],
+            borderColor: '#6366f1',
+            borderWidth: 2.5,
+            fill: false,
+            pointRadius: 0,
+            tension: 0
+          },
+          {
+            label: '상태 지점',
+            data: [],
+            backgroundColor: ['#10B981', '#EF4444'],
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            showLine: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: { display: true, text: '만기 시점 주가 (ST)', font: { size: 10, weight: 'bold' } },
+            min: 40,
+            max: 180
+          },
+          y: {
+            title: { display: true, text: '옵션 가치 (Payoff)', font: { size: 10, weight: 'bold' } },
+            min: -5,
+            max: 70
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    function update() {
+      const S = parseFloat(inputS.value);
+      const K = parseFloat(inputK.value);
+      const u = parseFloat(inputU.value);
+      const d = parseFloat(inputD.value);
+
+      // Label Text Update
+      valS.innerText = `${S}원`;
+      valK.innerText = `${K}원`;
+      valU.innerText = u.toFixed(2);
+      valD.innerText = d.toFixed(2);
+
+      const uS = u * S;
+      const dS = d * S;
+
+      const Cu = Math.max(uS - K, 0);
+      const Cd = Math.max(dS - K, 0);
+
+      infoUS.innerText = `${uS.toFixed(1)}원`;
+      infoDS.innerText = `${dS.toFixed(1)}원`;
+      infoCU.innerText = `${Cu.toFixed(1)}원`;
+      infoCD.innerText = `${Cd.toFixed(1)}원`;
+
+      // Update Chart Payoff Curve
+      const maxRange = Math.max(180, uS + 20);
+      payoffChart.options.scales.x.max = maxRange;
+      payoffChart.options.scales.y.max = Math.max(50, Cu + 10);
+
+      const curvePoints = [];
+      const steps = 100;
+      const stepSize = maxRange / steps;
+      for (let i = 0; i <= steps; i++) {
+        const currentST = i * stepSize;
+        curvePoints.push({ x: currentST, y: Math.max(currentST - K, 0) });
+      }
+
+      payoffChart.data.datasets[0].data = curvePoints;
+
+      // Update Points (uS, Cu) & (dS, Cd)
+      payoffChart.data.datasets[1].data = [
+        { x: uS, y: Cu },
+        { x: dS, y: Cd }
+      ];
+      payoffChart.data.datasets[1].pointBackgroundColor = ['#10B981', '#EF4444'];
+      payoffChart.data.datasets[1].pointBorderColor = ['#059669', '#DC2626'];
+
+      payoffChart.update('none'); // Update without full animation for smoothness
+    }
+
+    [inputS, inputK, inputU, inputD].forEach(input => {
+      input.addEventListener('input', update);
+    });
+
+    update();
+  </script>
+</body>
+</html>

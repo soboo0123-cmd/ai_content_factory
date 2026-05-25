@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <!-- 배경 정의 -->
+  <rect width="800" height="450" rx="15" fill="#f8fafc"/>
+  
+  <!-- 그라데이션 정의 -->
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- 제목 및 설명 -->
+  <text x="40" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#0f172a">복제 포트폴리오와 파생상품의 동치성 및 가격 수렴 구조</text>
+  <text x="40" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#64748b">일물일가의 법칙(Law of One Price)에 의하여 만기 시점의 동일한 현금흐름은 현재 시점의 동일한 가치를 강제합니다.</text>
+
+  <!-- 가이드 라인 (만기 시점/현재 시점 점선 구분) -->
+  <line x1="400" y1="100" x2="400" y2="400" stroke="#cbd5e1" stroke-dasharray="5,5" stroke-width="1.5" />
+  <text x="210" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#64748b" text-anchor="middle">현재 시점 (t = 0)</text>
+  <text x="590" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#64748b" text-anchor="middle">만기 시점 (t = 1)</text>
+
+  <!-- 1. 복제 포트폴리오 라인 (위쪽) -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="130" width="280" height="90" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="50" y="130" width="8" height="90" rx="0" fill="url(#blueGrad)" clip-path="inset(0px 0px 0px 0px round 10px 0px 0px 10px)"/>
+    <text x="75" y="160" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">복제 포트폴리오 (Replicating Portfolio)</text>
+    <text x="75" y="182" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#475569">구성: 주식 Δ주 매수 + 채권 B원 매수/매도</text>
+    <text x="75" y="202" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#2563eb">현재 비용 = Δ · S₀ + B</text>
+  </g>
+
+  <!-- 2. 옵션 상품 라인 (아래쪽) -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="280" width="280" height="90" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+    <rect x="50" y="280" width="8" height="90" rx="0" fill="url(#purpleGrad)" clip-path="inset(0px 0px 0px 0px round 10px 0px 0px 10px)"/>
+    <text x="75" y="310" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#4c1d95">대상 파생상품 (Option)</text>
+    <text x="75" y="332" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#475569">특징: 미래 가격 예측 및 직접 평가가 어려움</text>
+    <text x="75" y="352" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#7c3aed">현재 가치 = V₀ (구하고자 하는 값)</text>
+  </g>
+
+  <!-- 만기 시점 흐름 매칭선 및 노드 -->
+  <!-- 복제 만기 노드 -->
+  <g filter="url(#shadow)">
+    <rect x="470" y="125" width="260" height="100" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="490" y="152" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155">포트폴리오 만기 페이오프</text>
+    <text x="490" y="177" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#475569">상승 상태 (u) : Δ · S_u + B · (1+r)</text>
+    <text x="490" y="197" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#475569">하락 상태 (d) : Δ · S_d + B · (1+r)</text>
+  </g>
+
+  <!-- 옵션 만기 노드 -->
+  <g filter="url(#shadow)">
+    <rect x="470" y="275" width="260" height="100" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="490" y="302" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155">옵션 만기 실질 가치 (Payoff)</text>
+    <text x="490" y="327" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#475569">상승 상태 (u) : V_u  (예: max(S_u - K, 0))</text>
+    <text x="490" y="347" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#475569">하락 상태 (d) : V_d  (예: max(S_d - K, 0))</text>
+  </g>
+
+  <!-- 가치 일치 연결 (세로 화살표 및 등호) -->
+  <path d="M 600,225 L 600,275" stroke="#10b981" stroke-width="3" stroke-dasharray="2,2" marker-end="url(#arrow)" />
+  <circle cx="600" cy="250" r="18" fill="url(#emeraldGrad)" />
+  <text x="600" y="255" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">=</text>
+  <text x="650" y="254" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#047857">상태별 매칭 완성</text>
+
+  <!-- 현재 가치 일치 연결 (세로 화살표 및 등호) -->
+  <path d="M 190,220 L 190,280" stroke="#10b981" stroke-width="3" marker-end="url(#arrow)" />
+  <circle cx="190" cy="250" r="18" fill="url(#emeraldGrad)" />
+  <text x="190" y="255" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">=</text>
+  <text x="250" y="254" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#047857">일물일가의 법칙</text>
+
+  <!-- 좌에서 우로 이동하는 점선 화살표 -->
+  <path d="M 330,175 L 470,175" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4" />
+  <path d="M 330,325 L 470,325" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4" />
+
+  <!-- 마커 정의 -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+    </marker>
+  </defs>
+</svg>

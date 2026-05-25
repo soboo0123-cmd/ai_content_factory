@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>1기간 복제 포트폴리오 가치 천칭 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    input[type="range"] {
+      accent-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6 flex items-center justify-center min-h-[420px]">
+  <div class="bg-white rounded-xl shadow-lg border border-slate-100 p-6 w-full max-w-4xl">
+    <div class="text-center mb-6">
+      <h2 class="text-xl font-bold text-slate-800">⚖️ 복제 포트폴리오 vs 옵션 가치 실시간 천칭</h2>
+      <p class="text-xs text-slate-500 mt-1">변수를 조절하면 상승/하락 상태의 만기 시 가치가 항상 완벽히 일치(헤징)하는 모습을 볼 수 있습니다.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Controls -->
+      <div class="bg-slate-50 p-4 rounded-lg space-y-4">
+        <h3 class="text-sm font-bold text-slate-700 border-b pb-2">시장 변수 설정</h3>
+        
+        <!-- Stock S -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>현재 주가 (S)</span>
+            <span class="text-blue-600"><span id="valS">100</span>원</span>
+          </div>
+          <input type="range" id="paramS" min="50" max="150" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Strike K -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>행사가격 (K)</span>
+            <span class="text-emerald-600"><span id="valK">100</span>원</span>
+          </div>
+          <input type="range" id="paramK" min="50" max="150" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Up / Down ratio -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+              <span>상승 계수 (u)</span>
+              <span class="text-indigo-600" id="valU">1.2</span>
+            </div>
+            <input type="range" id="paramU" min="1.05" max="1.50" step="0.01" value="1.20" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+              <span>하락 계수 (d)</span>
+              <span class="text-rose-600" id="valD">0.8</span>
+            </div>
+            <input type="range" id="paramD" min="0.50" max="0.95" step="0.01" value="0.80" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Interest rate r -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>무위험 이자율 (r)</span>
+            <span class="text-amber-600"><span id="valR">5</span>%</span>
+          </div>
+          <input type="range" id="paramR" min="1" max="20" value="5" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+      </div>
+
+      <!-- Live Calculation output -->
+      <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-lg flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-blue-900 border-b border-blue-100 pb-2 mb-3">🛠️ 도출된 복제 파라미터</h3>
+          <div class="space-y-3">
+            <div class="bg-white p-2.5 rounded shadow-sm border border-blue-50">
+              <span class="text-xs text-slate-500 block">주식 매수비율 (헤지 델타, Δ)</span>
+              <span class="text-lg font-extrabold text-blue-700" id="outDelta">0.5000주</span>
+            </div>
+            <div class="bg-white p-2.5 rounded shadow-sm border border-blue-50">
+              <span class="text-xs text-slate-500 block">현금 차입/보유분 (B)</span>
+              <span class="text-lg font-extrabold text-slate-700" id="outB">-38.10원</span>
+              <span class="text-[10px] text-rose-600 font-semibold block mt-0.5" id="borrowNotice">⚠️ 마이너스 가치는 은행 차입(레버리지)을 의미합니다.</span>
+            </div>
+          </div>
+        </div>
+        <div class="pt-3 border-t border-blue-100 text-center">
+          <span class="text-xs text-slate-500 block">현재 시점 옵션 공정가치 (C)</span>
+          <span class="text-xl font-black text-indigo-700" id="outC">11.90원</span>
+        </div>
+      </div>
+
+      <!-- Balanced Scale Representation -->
+      <div class="bg-slate-50 p-4 rounded-lg flex flex-col justify-between">
+        <h3 class="text-sm font-bold text-slate-700 border-b pb-2 mb-3">📊 만기 상태별 가치 검증</h3>
+        
+        <div class="space-y-4">
+          <!-- Up State Box -->
+          <div class="p-3 bg-indigo-50/60 rounded border border-indigo-100">
+            <div class="flex justify-between items-center text-xs font-bold text-indigo-900 mb-1">
+              <span>상승 시 (uS = <span id="lblUS">120</span>원)</span>
+              <span class="px-1.5 py-0.5 bg-indigo-600 text-white rounded text-[10px]">완벽 헤징</span>
+            </div>
+            <div class="text-xs space-y-1 text-slate-600">
+              <div class="flex justify-between">
+                <span>옵션 페이오프 (Cu):</span>
+                <span class="font-bold text-slate-800" id="lblCu">20.00원</span>
+              </div>
+              <div class="flex justify-between">
+                <span>포트폴리오 만기가치:</span>
+                <span class="font-bold text-indigo-600" id="lblPortU">20.00원</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Down State Box -->
+          <div class="p-3 bg-rose-50/60 rounded border border-rose-100">
+            <div class="flex justify-between items-center text-xs font-bold text-rose-900 mb-1">
+              <span>하락 시 (dS = <span id="lblDS">80</span>원)</span>
+              <span class="px-1.5 py-0.5 bg-rose-600 text-white rounded text-[10px]">완벽 헤징</span>
+            </div>
+            <div class="text-xs space-y-1 text-slate-600">
+              <div class="flex justify-between">
+                <span>옵션 페이오프 (Cd):</span>
+                <span class="font-bold text-slate-800" id="lblCd">0.00원</span>
+              </div>
+              <div class="flex justify-between">
+                <span>포트폴리오 만기가치:</span>
+                <span class="font-bold text-rose-600" id="lblPortD">0.00원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-[10px] text-slate-400 text-center mt-2">
+          ※ 포트폴리오 가치 = Δ · (만기주가) + B(1+r)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const paramS = document.getElementById('paramS');
+    const paramK = document.getElementById('paramK');
+    const paramU = document.getElementById('paramU');
+    const paramD = document.getElementById('paramD');
+    const paramR = document.getElementById('paramR');
+
+    const valS = document.getElementById('valS');
+    const valK = document.getElementById('valK');
+    const valU = document.getElementById('valU');
+    const valD = document.getElementById('valD');
+    const valR = document.getElementById('valR');
+
+    const outDelta = document.getElementById('outDelta');
+    const outB = document.getElementById('outB');
+    const outC = document.getElementById('outC');
+    const borrowNotice = document.getElementById('borrowNotice');
+
+    const lblUS = document.getElementById('lblUS');
+    const lblDS = document.getElementById('lblDS');
+    const lblCu = document.getElementById('lblCu');
+    const lblCd = document.getElementById('lblCd');
+    const lblPortU = document.getElementById('lblPortU');
+    const lblPortD = document.getElementById('lblPortD');
+
+    function calculate() {
+      const S = parseFloat(paramS.value);
+      const K = parseFloat(paramK.value);
+      const u = parseFloat(paramU.value);
+      const d = parseFloat(paramD.value);
+      const r = parseFloat(paramR.value) / 100;
+
+      // Update Labels
+      valS.innerText = S;
+      valK.innerText = K;
+      valU.innerText = u.toFixed(2);
+      valD.innerText = d.toFixed(2);
+      valR.innerText = paramR.value;
+
+      const uS = u * S;
+      const dS = d * S;
+
+      lblUS.innerText = uS.toFixed(1);
+      lblDS.innerText = dS.toFixed(1);
+
+      // Call Payoffs
+      const Cu = Math.max(uS - K, 0);
+      const Cd = Math.max(dS - K, 0);
+
+      lblCu.innerText = Cu.toFixed(2) + "원";
+      lblCd.innerText = Cd.toFixed(2) + "원";
+
+      // Delta
+      const delta = (Cu - Cd) / ((u - d) * S);
+      outDelta.innerText = delta.toFixed(4) + "주";
+
+      // B
+      const B = (u * Cd - d * Cu) / ((u - d) * (1 + r));
+      outB.innerText = B.toFixed(2) + "원";
+
+      if (B < 0) {
+        borrowNotice.style.display = 'block';
+      } else {
+        borrowNotice.style.display = 'none';
+      }
+
+      // Portfolio Up/Down Values
+      const portU = delta * uS + B * (1 + r);
+      const portD = delta * dS + B * (1 + r);
+
+      lblPortU.innerText = portU.toFixed(2) + "원";
+      lblPortD.innerText = portD.toFixed(2) + "원";
+
+      // Price of Option today
+      const C = delta * S + B;
+      outC.innerText = C.toFixed(2) + "원";
+    }
+
+    [paramS, paramK, paramU, paramD, paramR].forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+
+    // Run first time
+    calculate();
+  </script>
+</body>
+</html>

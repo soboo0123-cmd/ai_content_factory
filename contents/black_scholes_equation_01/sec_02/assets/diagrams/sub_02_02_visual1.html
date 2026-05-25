@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무위험 복제 포트폴리오 실증 시뮬레이터</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            transition: background 0.15s ease-in-out;
+        }
+        .slider-thumb::-webkit-slider-thumb:hover {
+            background: #4f46e5;
+        }
+        .custom-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 flex justify-center items-center min-h-screen">
+    <div class="w-full max-w-4xl custom-card rounded-2xl p-6 shadow-2xl">
+        <!-- 헤더 -->
+        <div class="border-b border-slate-700 pb-4 mb-6">
+            <h2 class="text-xl md:text-2xl font-bold text-indigo-400">무위험 복제 포트폴리오 실증 시뮬레이터</h2>
+            <p class="text-xs md:text-sm text-slate-400 mt-1">포트폴리오의 주식 수량과 무위험 이자율을 조정해 만기 시점의 상승/하락 시나리오 손익을 일치시켜 보세요.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- 조작 패널 (왼쪽 5칸) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                <!-- 슬라이더 1: 주식 보유량 (Delta) -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-semibold text-slate-300">주식 보유량 (<span class="italic text-indigo-400">&Delta;</span>)</label>
+                        <span id="deltaValue" class="text-lg font-bold text-indigo-400">0.20 주</span>
+                    </div>
+                    <input type="range" id="deltaSlider" min="0" max="1" step="0.01" value="0.20" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <div class="flex justify-between text-2xs text-slate-500 mt-1">
+                        <span>0.0주</span>
+                        <span>0.5주 (균형)</span>
+                        <span>1.0주</span>
+                    </div>
+                </div>
+
+                <!-- 슬라이더 2: 채권 차입액 (B) -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-semibold text-slate-300">채권 차입액 (<span class="italic text-indigo-400">B</span>)</label>
+                        <span id="bondValue" class="text-lg font-bold text-indigo-400">-3.0 달러</span>
+                    </div>
+                    <input type="range" id="bondSlider" min="-12" max="0" step="0.1" value="-3.0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <div class="flex justify-between text-2xs text-slate-500 mt-1">
+                        <span>-12.0달러</span>
+                        <span>-6.0달러 (균형)</span>
+                        <span>0.0달러</span>
+                    </div>
+                </div>
+
+                <!-- 슬라이더 3: 무위험 이자율 (r) -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-semibold text-slate-300">무위험 이자율 (<span class="italic text-indigo-400">r</span>)</label>
+                        <span id="rateValue" class="text-lg font-bold text-indigo-400">25 %</span>
+                    </div>
+                    <input type="range" id="rateSlider" min="0" max="50" step="1" value="25" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <div class="flex justify-between text-2xs text-slate-500 mt-1">
+                        <span>0%</span>
+                        <span>25% (고정 기준)</span>
+                        <span>50%</span>
+                    </div>
+                </div>
+
+                <!-- 자동 매칭 버튼 -->
+                <div class="pt-2">
+                    <button id="autoMatchBtn" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg transition-all transform active:scale-95 duration-150 text-sm">
+                        정밀 복제 자동 매칭 (Auto-Match)
+                    </button>
+                    <p class="text-center text-3xs text-slate-500 mt-2">* 클릭 시 해당 이자율 하의 완벽한 헤징 포트폴리오를 자동 계산합니다.</p>
+                </div>
+            </div>
+
+            <!-- 시각화 및 결과 패널 (오른쪽 7칸) -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                <!-- 결과 상태판 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- 상승 상태 결과 -->
+                    <div class="p-4 rounded-xl bg-slate-800 border border-slate-700">
+                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">주가 상승 시 ($25) 만기 손익</div>
+                        <div id="upPayoff" class="text-xl font-bold transition-colors">계산 중...</div>
+                        <div class="text-3xs text-slate-500 mt-1">&Delta;&times;25 + B&times;(1+r) - 5 (옵션매도분)</div>
+                    </div>
+
+                    <!-- 하락 상태 결과 -->
+                    <div class="p-4 rounded-xl bg-slate-800 border border-slate-700">
+                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">주가 하락 시 ($15) 만기 손익</div>
+                        <div id="downPayoff" class="text-xl font-bold transition-colors">계산 중...</div>
+                        <div class="text-3xs text-slate-500 mt-1">&Delta;&times;15 + B&times;(1+r) - 0 (옵션매도분)</div>
+                    </div>
+                </div>
+
+                <!-- 헤지 매칭 성공 상태 인디케이터 -->
+                <div id="matchIndicator" class="p-4 rounded-xl text-center font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                    <span>-</span>
+                </div>
+
+                <!-- 가로형 막대그래프 시각화 -->
+                <div class="bg-slate-800 rounded-xl p-4 border border-slate-700 flex flex-col gap-4">
+                    <span class="text-xs font-semibold text-slate-300">상태별 만기 포트폴리오 가치 대조 (목표치인 옵션 페이오프에 가까워져야 합니다)</span>
+                    
+                    <!-- 상승 시 그래프 -->
+                    <div>
+                        <div class="flex justify-between text-2xs text-slate-400 mb-1">
+                            <span>상승 시 포트폴리오 가치</span>
+                            <span id="upBarLabel">0.0달러 / 목표 5.0달러</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-6 rounded-full overflow-hidden relative flex items-center">
+                            <div id="upBar" class="bg-indigo-500 h-full transition-all duration-150" style="width: 0%"></div>
+                            <!-- 목표값 세로 라인 점선 -->
+                            <div class="absolute border-l-2 border-dashed border-teal-400 h-full left-[50%] z-10" title="목표 가치 5.0"></div>
+                        </div>
+                    </div>
+
+                    <!-- 하락 시 그래프 -->
+                    <div>
+                        <div class="flex justify-between text-2xs text-slate-400 mb-1">
+                            <span>하락 시 포트폴리오 가치</span>
+                            <span id="downBarLabel">0.0달러 / 목표 0.0달러</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-6 rounded-full overflow-hidden relative flex items-center">
+                            <div id="downBar" class="bg-emerald-500 h-full transition-all duration-150" style="width: 0%"></div>
+                            <!-- 목표값 세로 라인 점선 (0은 가장 왼쪽) -->
+                            <div class="absolute border-l-2 border-dashed border-teal-400 h-full left-[0%] z-10" title="목표 가치 0.0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const deltaSlider = document.getElementById('deltaSlider');
+        const bondSlider = document.getElementById('bondSlider');
+        const rateSlider = document.getElementById('rateSlider');
+
+        const deltaValue = document.getElementById('deltaValue');
+        const bondValue = document.getElementById('bondValue');
+        const rateValue = document.getElementById('rateValue');
+
+        const upPayoff = document.getElementById('upPayoff');
+        const downPayoff = document.getElementById('downPayoff');
+        const matchIndicator = document.getElementById('matchIndicator');
+
+        const upBar = document.getElementById('upBar');
+        const downBar = document.getElementById('downBar');
+        const upBarLabel = document.getElementById('upBarLabel');
+        const downBarLabel = document.getElementById('downBarLabel');
+
+        const autoMatchBtn = document.getElementById('autoMatchBtn');
+
+        function updateValues() {
+            const delta = parseFloat(deltaSlider.value);
+            const bond = parseFloat(bondSlider.value);
+            const rate = parseFloat(rateSlider.value) / 100;
+
+            // 라벨 업데이트
+            deltaValue.textContent = delta.toFixed(2) + " 주";
+            bondValue.textContent = bond.toFixed(1) + " 달러";
+            rateValue.textContent = (rate * 100).toFixed(0) + " %";
+
+            // 만기 가치 계산
+            // 포트폴리오 가치 = Delta * S_t + B * (1 + r)
+            // 콜옵션 페이오프: 상승시 5, 하락시 0
+            // 순 손익 = 포트폴리오 가치 - 옵션 페이오프
+            const upPortfolioVal = (delta * 25) + (bond * (1 + rate));
+            const downPortfolioVal = (delta * 15) + (bond * (1 + rate));
+
+            const upNet = upPortfolioVal - 5;
+            const downNet = downPortfolioVal - 0;
+
+            // 순 손익 텍스트 및 컬러 렌더링
+            upPayoff.textContent = (upNet >= 0 ? "+" : "") + upNet.toFixed(2) + " 달러";
+            upPayoff.className = `text-xl font-bold ${Math.abs(upNet) < 0.05 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            downPayoff.textContent = (downNet >= 0 ? "+" : "") + downNet.toFixed(2) + " 달러";
+            downPayoff.className = `text-xl font-bold ${Math.abs(downNet) < 0.05 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            // 오차 범위 검증 및 매칭 상태창 연출
+            const totalError = Math.abs(upNet) + Math.abs(downNet);
+            if (totalError < 0.1) {
+                matchIndicator.className = "p-4 rounded-xl text-center font-bold text-sm bg-emerald-950 text-emerald-400 border border-emerald-500/30 flex items-center justify-center gap-2";
+                matchIndicator.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>퍼펙트 매칭 성공! 완벽한 무위험 복제가 성립되었습니다.</span>
+                `;
+            } else {
+                matchIndicator.className = "p-4 rounded-xl text-center font-medium text-sm bg-slate-800 text-slate-300 border border-slate-700 flex items-center justify-center gap-2";
+                matchIndicator.innerHTML = `
+                    <svg class="w-5 h-5 text-indigo-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span>미스매치: 주가 변동 리스크 잔존 (오차 합: ${totalError.toFixed(2)} 달러)</span>
+                `;
+            }
+
+            // 시각화 바 차트 업데이트 (가상의 퍼센트 스케일링)
+            // 기준 0 ~ 10 달러 가치를 0% ~ 100%로 맵핑
+            let upWidth = Math.max(0, Math.min(100, (upPortfolioVal / 10) * 100));
+            let downWidth = Math.max(0, Math.min(100, (downPortfolioVal / 10) * 100));
+
+            // 음수나 오버플로우 방지
+            if (upPortfolioVal < 0) upWidth = 0;
+            if (downPortfolioVal < 0) downWidth = 0;
+
+            upBar.style.width = upWidth + "%";
+            downBar.style.width = downWidth + "%";
+
+            upBarLabel.textContent = `${upPortfolioVal.toFixed(2)}달러 (목표 5.0달러)`;
+            downBarLabel.textContent = `${downPortfolioVal.toFixed(2)}달러 (목표 0.0달러)`;
+        }
+
+        // 자동 매칭 계산 함수
+        function runAutoMatch() {
+            const r = parseFloat(rateSlider.value) / 100;
+            
+            // 수식으로 역산:
+            // Delta = (C_u - C_d) / (S_u - S_d) = (5 - 0) / (25 - 15) = 0.5
+            const exactDelta = 0.5;
+            
+            // B = (C_d - Delta * S_d) / (1 + r) = (0 - 0.5 * 15) / (1 + r) = -7.5 / (1 + r)
+            const exactBond = -7.5 / (1 + r);
+
+            // 슬라이더 값을 정확히 강제 셋팅
+            deltaSlider.value = exactDelta.toFixed(2);
+            bondSlider.value = exactBond.toFixed(1);
+
+            updateValues();
+        }
+
+        // 이벤트 리스너 연동
+        deltaSlider.addEventListener('input', updateValues);
+        bondSlider.addEventListener('input', updateValues);
+        rateSlider.addEventListener('input', updateValues);
+        autoMatchBtn.addEventListener('click', runAutoMatch);
+
+        // 초기 계산 실행
+        updateValues();
+    </script>
+</body>
+</html>

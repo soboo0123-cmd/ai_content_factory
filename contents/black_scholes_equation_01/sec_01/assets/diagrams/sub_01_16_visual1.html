@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Decay & Option Value Curves</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    input[type="range"] {
+      accent-color: #38bdf8;
+    }
+  </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-[500px]">
+
+  <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b border-slate-800 pb-3">
+      <div>
+        <h2 class="text-lg font-bold text-sky-400">옵션의 시간 가치 소멸 (Time Decay) 시뮬레이터</h2>
+        <p class="text-xs text-slate-400">만기 잔존 기간이 줄어듦에 따라 실제 옵션 가치가 만기 페이오프(꺾인 선)에 완벽하게 수렴하는 양상을 관찰하세요.</p>
+      </div>
+      <div class="mt-2 md:mt-0 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-xs text-slate-300">
+        모델: 블랙-숄즈 콜옵션 식 기준
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Left: Interactive Controls -->
+      <div class="space-y-4 bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-col justify-center">
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span>만기 잔존 기간 (<span class="italic">T - t</span>)</span>
+            <span class="text-sky-400 font-bold" id="val-time">0.50 년</span>
+          </div>
+          <input id="slider-time" type="range" min="0.001" max="1.0" step="0.01" value="0.5" class="w-full bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>0 (만기 당일)</span>
+            <span>1년 (장기)</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span>행사 가격 (<span class="italic">K</span>)</span>
+            <span class="text-rose-400 font-bold" id="val-strike">1,000 원</span>
+          </div>
+          <input id="slider-strike" type="range" min="800" max="1200" step="10" value="1000" class="w-full bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>800원</span>
+            <span>1,200원</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span>기초자산 변동성 (<span class="italic">σ</span>)</span>
+            <span class="text-emerald-400 font-bold" id="val-vol">30 %</span>
+          </div>
+          <input id="slider-vol" type="range" min="5" max="80" step="5" value="30" class="w-full bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>5% (안정적)</span>
+            <span>80% (극심함)</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span>무위험 이자율 (<span class="italic">r</span>)</span>
+            <span class="text-indigo-400 font-bold" id="val-rate">5 %</span>
+          </div>
+          <input id="slider-rate" type="range" min="0" max="15" step="1" value="5" class="w-full bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>0%</span>
+            <span>15%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center & Right: Chart Display -->
+      <div class="lg:col-span-2 flex flex-col justify-between">
+        <div class="h-64 w-full relative">
+          <canvas id="decayChart"></canvas>
+        </div>
+
+        <!-- Real-time dynamic stats -->
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+          <div class="bg-slate-950 p-2.5 rounded border border-slate-800">
+            <div class="text-[10px] text-slate-400">현재 주가 1,000원 기준</div>
+            <div class="text-sm font-extrabold text-sky-400" id="stat-total">-- 원</div>
+            <div class="text-[8px] text-slate-500">총 시장 가치</div>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded border border-slate-800">
+            <div class="text-[10px] text-slate-400">현재 주가 1,000원 기준</div>
+            <div class="text-sm font-extrabold text-rose-400" id="stat-intrinsic">-- 원</div>
+            <div class="text-[8px] text-slate-500">내재 가치 (즉시행사)</div>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded border border-slate-800">
+            <div class="text-[10px] text-slate-400">현재 주가 1,000원 기준</div>
+            <div class="text-sm font-extrabold text-emerald-400" id="stat-timeval">-- 원</div>
+            <div class="text-[8px] text-slate-500">시간 가치 (Premium)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Standard Normal Cumulative Distribution Function
+    function stdNormalCDF(x) {
+      const b1 =  0.319381530;
+      const b2 = -0.356563782;
+      const b3 =  1.781477937;
+      const b4 = -1.821255978;
+      const b5 =  1.330274429;
+      const p  =  0.2316419;
+      const c  =  0.39894228;
+
+      if (x >= 0) {
+        let t = 1.0 / (1.0 + p * x);
+        return (1.0 - c * Math.exp(-x * x / 2.0) * t *
+          (t * (t * (t * (t * b5 + b4) + b3) + b2) + b1));
+      } else {
+        let t = 1.0 / (1.0 - p * x);
+        return (c * Math.exp(-x * x / 2.0) * t *
+          (t * (t * (t * (t * b5 + b4) + b3) + b2) + b1));
+      }
+    }
+
+    // Black-Scholes Call Pricing Formula
+    function blackScholesCall(S, K, T, r, sigma) {
+      if (T <= 0.002) {
+        return Math.max(S - K, 0);
+      }
+      const d1 = (Math.log(S / K) + (r + (sigma * sigma) / 2) * T) / (sigma * Math.sqrt(T));
+      const d2 = d1 - sigma * Math.sqrt(T);
+      return S * stdNormalCDF(d1) - K * Math.exp(-r * T) * stdNormalCDF(d2);
+    }
+
+    // Elements
+    const sliderTime = document.getElementById('slider-time');
+    const sliderStrike = document.getElementById('slider-strike');
+    const sliderVol = document.getElementById('slider-vol');
+    const sliderRate = document.getElementById('slider-rate');
+
+    const valTime = document.getElementById('val-time');
+    const valStrike = document.getElementById('val-strike');
+    const valVol = document.getElementById('val-vol');
+    const valRate = document.getElementById('val-rate');
+
+    const statTotal = document.getElementById('stat-total');
+    const statIntrinsic = document.getElementById('stat-intrinsic');
+    const statTimeval = document.getElementById('stat-timeval');
+
+    // Chart Setup
+    const ctx = document.getElementById('decayChart').getContext('2d');
+    
+    // Generate Stock Price Axis Data
+    const generateLabels = () => {
+      const labels = [];
+      for (let s = 600; s <= 1400; s += 20) {
+        labels.push(s);
+      }
+      return labels;
+    };
+
+    const labels = generateLabels();
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: '현재 옵션 가치',
+            data: [],
+            borderColor: '#38bdf8',
+            borderWidth: 3,
+            pointRadius: 0,
+            fill: false,
+            tension: 0.1
+          },
+          {
+            label: '만기 페이오프',
+            data: [],
+            borderColor: '#f43f5e',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#94a3b8',
+              font: { size: 11 }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: '주가 (S)', color: '#94a3b8', font: { size: 10 } },
+            grid: { color: '#334155' },
+            ticks: { color: '#64748b', font: { size: 9 } }
+          },
+          y: {
+            title: { display: true, text: '옵션 가치 (C)', color: '#94a3b8', font: { size: 10 } },
+            grid: { color: '#334155' },
+            ticks: { color: '#64748b', font: { size: 9 } },
+            min: 0,
+            max: 500
+          }
+        }
+      }
+    });
+
+    function updateChart() {
+      const T = parseFloat(sliderTime.value);
+      const K = parseFloat(sliderStrike.value);
+      const sigma = parseFloat(sliderVol.value) / 100;
+      const r = parseFloat(sliderRate.value) / 100;
+
+      // Update Slider Label Displays
+      valTime.innerText = `${T.toFixed(2)} 년`;
+      valStrike.innerText = `${K.toLocaleString()} 원`;
+      valVol.innerText = `${Math.round(sigma * 100)} %`;
+      valRate.innerText = `${Math.round(r * 100)} %`;
+
+      const currentPrices = [];
+      const payoffPrices = [];
+
+      labels.forEach(S => {
+        currentPrices.push(blackScholesCall(S, K, T, r, sigma));
+        payoffPrices.push(Math.max(S - K, 0));
+      });
+
+      chart.data.datasets[0].data = currentPrices;
+      chart.data.datasets[1].data = payoffPrices;
+      chart.update('none'); // silent update
+
+      // Update Stats (for standard spot price S = 1000)
+      const testS = 1000;
+      const totalVal = blackScholesCall(testS, K, T, r, sigma);
+      const intrinsicVal = Math.max(testS - K, 0);
+      const timeVal = totalVal - intrinsicVal;
+
+      statTotal.innerText = `${totalVal.toFixed(1)} 원`;
+      statIntrinsic.innerText = `${intrinsicVal.toFixed(1)} 원`;
+      statTimeval.innerText = `${timeVal.toFixed(1)} 원`;
+    }
+
+    // Event listeners
+    [sliderTime, sliderStrike, sliderVol, sliderRate].forEach(slider => {
+      slider.addEventListener('input', updateChart);
+    });
+
+    // Initial Trigger
+    updateChart();
+  </script>
+</body>
+</html>

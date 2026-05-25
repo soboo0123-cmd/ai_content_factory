@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <!-- Shadows -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <drop-shadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.1" />
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12" />
+
+  <!-- Left Side: Replicating Portfolio -->
+  <g transform="translate(60, 50)" filter="url(#shadow)">
+    <rect width="280" height="230" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+    <rect width="280" height="48" rx="16" fill="url(#blueGrad)" />
+    <!-- Round top corners only -->
+    <rect width="280" height="20" y="28" fill="url(#blueGrad)" />
+    <text x="140" y="30" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">복제 포트폴리오 (Replication)</text>
+    
+    <!-- Components -->
+    <g transform="translate(20, 70)">
+      <rect width="240" height="60" rx="8" fill="#f1f5f9" />
+      <circle cx="30" cy="30" r="15" fill="#3b82f6" />
+      <text x="30" y="35" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">S</text>
+      <text x="60" y="28" fill="#1e293b" font-family="sans-serif" font-size="14" font-weight="bold">주식 포지션</text>
+      <text x="60" y="48" fill="#64748b" font-family="sans-serif" font-size="12">Δ 개 주식 매수 (Δ · S)</text>
+    </g>
+
+    <g transform="translate(20, 145)">
+      <rect width="240" height="60" rx="8" fill="#f1f5f9" />
+      <circle cx="30" cy="30" r="15" fill="#64748b" />
+      <text x="30" y="35" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">B</text>
+      <text x="60" y="28" fill="#1e293b" font-family="sans-serif" font-size="14" font-weight="bold">현금 차입 / 예치</text>
+      <text x="60" y="48" fill="#64748b" font-family="sans-serif" font-size="12">무위험 채권 거래 (B)</text>
+    </g>
+  </g>
+
+  <!-- Right Side: Option Contract -->
+  <g transform="translate(460, 50)" filter="url(#shadow)">
+    <rect width="280" height="230" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+    <rect width="280" height="48" rx="16" fill="url(#tealGrad)" />
+    <rect width="280" height="20" y="28" fill="url(#tealGrad)" />
+    <text x="140" y="30" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">대상 옵션 (Call Option)</text>
+
+    <!-- Option Details -->
+    <g transform="translate(20, 70)">
+      <rect width="240" height="135" rx="8" fill="#f0fdfa" stroke="#ccfbf1" stroke-width="1" />
+      <text x="120" y="35" fill="#0f766e" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">만기 페이오프 완벽 일치</text>
+      <text x="40" y="75" fill="#1e293b" font-family="sans-serif" font-size="13" font-weight="bold">상승 시 가치:</text>
+      <text x="200" y="75" fill="#0d9488" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="end">Cu</text>
+      <text x="40" y="105" fill="#1e293b" font-family="sans-serif" font-size="13" font-weight="bold">하락 시 가치:</text>
+      <text x="200" y="105" fill="#0d9488" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="end">Cd</text>
+    </g>
+  </g>
+
+  <!-- Connection: No-Arbitrage Equivalence -->
+  <g transform="translate(340, 130)">
+    <!-- Double-headed elegant arrow -->
+    <path d="M 10 35 L 110 35" stroke="url(#goldGrad)" stroke-width="4" stroke-dasharray="2 2" />
+    <polygon points="10,35 22,29 22,41" fill="#b45309" />
+    <polygon points="110,35 98,29 98,41" fill="#b45309" />
+    
+    <!-- Label -->
+    <rect x="15" y="0" width="90" height="24" rx="12" fill="#fffbeb" stroke="#fef3c7" stroke-width="1" />
+    <text x="60" y="16" fill="#b45309" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">무차익 원리</text>
+    <text x="60" y="55" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="bold" font-size="13" text-anchor="middle">가치 일치 (Value = C)</text>
+  </g>
+</svg>

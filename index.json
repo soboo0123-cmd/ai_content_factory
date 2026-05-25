@@ -1371,9 +1371,9 @@
             {
               "sub_id": "sub_01_16",
               "sub_title": "1.16 옵션 가격 책정(Pricing)의 본질과 문제 제기",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_16_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1386,9 +1386,9 @@
                   "created_at": "2026-05-24T10:07:15.335063"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_16_v3.md",
+                  "created_at": "2026-05-25T00:41:52.528631",
                   "user_feedback": "v1을 채택하되, e^−r(T−t)이 할인계수가 되는 이유를 수학적으로 설명하는 내용을 추가해줘."
                 }
               },
@@ -1405,9 +1405,9 @@
             {
               "sub_id": "sub_02_01",
               "sub_title": "2.1 복제 포트폴리오(Replicating Portfolio)의 정의",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_02/sub_02_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1420,9 +1420,9 @@
                   "created_at": "2026-05-24T10:08:24.824183"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_02/sub_02_01_v3.md",
+                  "created_at": "2026-05-25T00:42:51.883200",
                   "user_feedback": "v1을 채택하되, 3. 이론적 배경: 일물일가의 법칙에 왜 120원이나 110원이 아니고 정확히 100원으로 수렴하는지 더 자세히 설명해줘(옵션 매도가 늘어나니까 가격이 떨어져야), 3. 이론적 배경: 일물일가의 법칙에서 '옵션의 현재 가격  V_0​  는 다음과 같이 정의' 부분을 더 자세히 설명해줘(위 식 2개를 연립해서 델타와 B를 구할 수 있다는 건가?)."
                 }
               },
@@ -1433,9 +1433,9 @@
             {
               "sub_id": "sub_02_02",
               "sub_title": "2.2 주식과 현금 결합을 통한 옵션 무위험 복제 실증 예시",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_02/sub_02_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1448,9 +1448,9 @@
                   "created_at": "2026-05-24T10:09:46.870656"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_02/sub_02_02_v3.md",
+                  "created_at": "2026-05-25T00:44:03.970442",
                   "user_feedback": "v2를 채택하되, '어라? 왜 0이 되지 않을까요?'라는 내용이 있으므로  4. 진정한 무위험 포트폴리오의 수식적 증명에서 계산을 바탕으로 콜 매도 하나당 주식 0.5주 매수, 6달러 차입를 하면 주가가 오르든 내리든 만기 손익이 0이 된다는 내용을 표로 확인할 수 있게 추가해줘."
                 }
               },
@@ -1467,9 +1467,9 @@
             {
               "sub_id": "sub_03_01",
               "sub_title": "3.1 1기간 주가 확률 트리와 만기 페이오프",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_03/sub_03_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1482,9 +1482,9 @@
                   "created_at": "2026-05-24T10:10:55.790954"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_03/sub_03_01_v3.md",
+                  "created_at": "2026-05-25T00:44:50.562109",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1495,9 +1495,9 @@
             {
               "sub_id": "sub_03_02",
               "sub_title": "3.2 1기간 헤지 비율(델타) 및 현금 차입분(B)의 대수적 도출",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_03/sub_03_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1510,9 +1510,9 @@
                   "created_at": "2026-05-24T10:12:38.442598"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_03/sub_03_02_v3.md",
+                  "created_at": "2026-05-25T00:45:45.171862",
                   "user_feedback": "v1을 채택해줘."
                 }
               },

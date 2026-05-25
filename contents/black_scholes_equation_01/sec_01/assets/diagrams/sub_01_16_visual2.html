@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Walk Path & Payoff Distribution</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+  </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-[500px]">
+
+  <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b border-slate-800 pb-3">
+      <div>
+        <h2 class="text-lg font-bold text-sky-400">무작위 주가 경로와 만기 페이오프 분포</h2>
+        <p class="text-xs text-slate-400">몬테카를로 기법을 사용해 주가의 무수한 변동 경로를 실시간으로 그리고, 만기($T$)에서의 옵션 보상 분포를 도식화합니다.</p>
+      </div>
+      <button id="btn-simulate" class="mt-2 md:mt-0 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs py-2 px-4 rounded-lg transition-all shadow-md active:scale-95">
+        시뮬레이션 재생 실행
+      </button>
+    </div>
+
+    <!-- Parameter Dashboard -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-950 p-3 rounded-lg border border-slate-800 mb-4 text-xs">
+      <div>
+        <span class="text-slate-400 block">현재 주가 (<span class="italic">S₀</span>)</span>
+        <strong class="text-slate-200 text-sm">1,000 원</strong>
+      </div>
+      <div>
+        <span class="text-slate-400 block">행사 가격 (<span class="italic">K</span>)</span>
+        <strong class="text-rose-400 text-sm">1,000 원</strong>
+      </div>
+      <div>
+        <span class="text-slate-400 block">무위험 이자율 (<span class="italic">r</span>)</span>
+        <strong class="text-indigo-400 text-sm">5.0 % (무위험 표류)</strong>
+      </div>
+      <div>
+        <span class="text-slate-400 block">자산 변동성 (<span class="italic">σ</span>)</span>
+        <strong class="text-emerald-400 text-sm">35.0 %</strong>
+      </div>
+    </div>
+
+    <!-- Multi-Chart Canvas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Path Chart -->
+      <div class="md:col-span-2 h-64 bg-slate-950 p-2 rounded-lg border border-slate-800 relative">
+        <div class="absolute top-2 left-2 text-[10px] text-slate-500 z-10 font-bold">시간 흐름과 무작위 주가 경로 (30 Paths)</div>
+        <canvas id="pathChart"></canvas>
+      </div>
+
+      <!-- Histogram Payoff Chart -->
+      <div class="h-64 bg-slate-950 p-2 rounded-lg border border-slate-800 relative">
+        <div class="absolute top-2 left-2 text-[10px] text-rose-400 z-10 font-bold">만기 페이오프 분포 [Max(S_T - K, 0)]</div>
+        <canvas id="distributionChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Analytical Note -->
+    <div class="mt-4 bg-slate-950 p-3 rounded border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+      💡 <strong class="text-slate-300">금융공학적 통찰:</strong> 주가는 기하 브라운 운동(GBM)을 따라 확률적으로 분산됩니다. 우측 분포에서 확인되듯, 하방 가격은 <span class="text-rose-400 font-bold">0원</span>에서 조밀하게 차단(하방 경직성)되는 반면, 상방 영역은 길게 늘어지며 비선형적 비대칭성을 창출합니다. 이 무수히 넓게 퍼진 페이오프 분포의 평균(기댓값)을 구한 뒤 무위험 금리로 할인한 값이 바로 오늘의 공정 가격입니다.
+    </div>
+
+  </div>
+
+  <script>
+    const S0 = 1000;
+    const K = 1000;
+    const r = 0.05;
+    const sigma = 0.35;
+    const T = 1.0; // 1 year
+    const steps = 50; // daily resolution
+    const dt = T / steps;
+
+    // Normal Random Box-Muller Transform
+    function randomNormal() {
+      let u = 0, v = 0;
+      while(u === 0) u = Math.random(); 
+      while(v === 0) v = Math.random();
+      return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    }
+
+    // Charts Setup
+    const ctxPath = document.getElementById('pathChart').getContext('2d');
+    const ctxDist = document.getElementById('distributionChart').getContext('2d');
+
+    let pathChart, distChart;
+
+    function initCharts() {
+      // Setup Path Chart
+      const timeLabels = Array.from({length: steps + 1}, (_, i) => (i * dt).toFixed(2));
+      
+      pathChart = new Chart(ctxPath, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: []
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { 
+              grid: { color: '#1e293b' }, 
+              ticks: { color: '#64748b', font: { size: 9 } },
+              title: { display: true, text: '시간 (t)', color: '#94a3b8', font: { size: 10 } }
+            },
+            y: { 
+              grid: { color: '#1e293b' }, 
+              ticks: { color: '#64748b', font: { size: 9 } },
+              title: { display: true, text: '주가 (S)', color: '#94a3b8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+
+      // Setup Distribution Chart
+      distChart = new Chart(ctxDist, {
+        type: 'bar',
+        data: {
+          labels: ['0원 (행사포기)', '0-50원', '50-150원', '150-300원', '300원 이상'],
+          datasets: [{
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: ['#f43f5e', '#38bdf8', '#0ea5e9', '#0284c7', '#0369a1'],
+            borderWidth: 0,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { 
+              grid: { display: false }, 
+              ticks: { color: '#64748b', font: { size: 9 } } 
+            },
+            y: { 
+              grid: { color: '#1e293b' }, 
+              ticks: { color: '#64748b', font: { size: 9 } },
+              title: { display: true, text: '도달 경로 횟수', color: '#94a3b8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    function runSimulation() {
+      const numPaths = 30;
+      const paths = [];
+      const finalPayoffs = [];
+
+      // Calculate GBM Paths
+      for (let p = 0; p < numPaths; p++) {
+        const path = [S0];
+        let S = S0;
+        for (let t = 1; t <= steps; t++) {
+          const drift = (r - 0.5 * sigma * sigma) * dt;
+          const diffusion = sigma * Math.sqrt(dt) * randomNormal();
+          S = S * Math.exp(drift + diffusion);
+          path.push(S);
+        }
+        paths.push(path);
+        
+        // Option Payoff at Maturity T
+        const payoff = Math.max(S - K, 0);
+        finalPayoffs.push(payoff);
+      }
+
+      // Update Path Datasets
+      pathChart.data.datasets = paths.map((path, index) => ({
+        data: path,
+        borderColor: index === 0 ? '#38bdf8' : 'rgba(56, 189, 248, 0.15)',
+        borderWidth: index === 0 ? 2.5 : 1,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.1
+      }));
+      pathChart.update();
+
+      // Bin the payoffs for the distribution chart
+      let binZero = 0;
+      let binLow = 0;
+      let binMid = 0;
+      let binHigh = 0;
+      let binMax = 0;
+
+      finalPayoffs.forEach(payoff => {
+        if (payoff === 0) binZero++;
+        else if (payoff <= 50) binLow++;
+        else if (payoff <= 150) binMid++;
+        else if (payoff <= 300) binHigh++;
+        else binMax++;
+      });
+
+      distChart.data.datasets[0].data = [binZero, binLow, binMid, binHigh, binMax];
+      distChart.update();
+    }
+
+    // Initialize & Execute
+    initCharts();
+    runSimulation();
+
+    document.getElementById('btn-simulate').addEventListener('click', () => {
+      runSimulation();
+    });
+  </script>
+</body>
+</html>

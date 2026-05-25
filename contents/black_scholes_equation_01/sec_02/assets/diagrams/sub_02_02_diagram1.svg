@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <!-- 배경색 정의 -->
+  <rect width="100%" height="100%" fill="#0f172a" rx="16"/>
+
+  <!-- 그리드 장식 라인 -->
+  <g stroke="#334155" stroke-width="0.5" opacity="0.3">
+    <line x1="50" y1="50" x2="750" y2="50"/>
+    <line x1="50" y1="150" x2="750" y2="150"/>
+    <line x1="50" y1="250" x2="750" y2="250"/>
+    <line x1="50" y1="350" x2="750" y2="350"/>
+    <line x1="150" y1="50" x2="150" y2="400"/>
+    <line x1="400" y1="50" x2="400" y2="400"/>
+    <line x1="650" y1="50" x2="650" y2="400"/>
+  </g>
+
+  <!-- Title -->
+  <text x="50" y="40" font-family="'Noto Sans KR', sans-serif" font-size="18" font-weight="bold" fill="#38bdf8">복제 포트폴리오와 옵션의 미래 가치 동치성 및 가격 수렴 구조</text>
+
+  <!-- Left Column: Present (t = 0) -->
+  <g transform="translate(60, 90)">
+    <!-- Present Boundary Box -->
+    <rect width="240" height="280" fill="#1e293b" stroke="#475569" stroke-width="1.5" rx="12"/>
+    <text x="120" y="30" font-family="'Noto Sans KR', sans-serif" font-size="15" font-weight="bold" fill="#94a3b8" text-anchor="middle">현재 시점 (t = 0)</text>
+
+    <!-- Asset A: Replicating Portfolio -->
+    <g transform="translate(15, 60)">
+      <rect width="210" height="85" fill="#312e81" stroke="#6366f1" stroke-width="2" rx="8"/>
+      <text x="105" y="25" font-family="'Noto Sans KR', sans-serif" font-size="12" font-weight="bold" fill="#c7d2fe" text-anchor="middle">복제 포트폴리오 (A)</text>
+      <text x="105" y="48" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#e0e7ff" text-anchor="middle">주식 &Delta; = 0.5주 매수</text>
+      <text x="105" y="68" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#e0e7ff" text-anchor="middle">채권 B = -6.0달러 차입</text>
+      <text x="105" y="112" font-family="'Noto Sans KR', sans-serif" font-size="11" font-weight="bold" fill="#818cf8" text-anchor="middle">조립 원가 = 4달러</text>
+    </g>
+
+    <!-- Double Arrow (Equivalence under No Arbitrage) -->
+    <g transform="translate(120, 160)">
+      <path d="M 0,-10 L 0,10 M -5,-5 L 0,-10 L 5,-5 M -5,5 L 0,10 L 5,5" stroke="#38bdf8" stroke-width="2" fill="none"/>
+      <text x="15" y="5" font-family="'Noto Sans KR', sans-serif" font-size="11" font-weight="bold" fill="#38bdf8">일물일가의 법칙</text>
+    </g>
+
+    <!-- Asset B: Option -->
+    <g transform="translate(15, 180)">
+      <rect width="210" height="75" fill="#065f46" stroke="#10b981" stroke-width="2" rx="8"/>
+      <text x="105" y="25" font-family="'Noto Sans KR', sans-serif" font-size="12" font-weight="bold" fill="#a7f3d0" text-anchor="middle">실제 콜옵션 (B)</text>
+      <text x="105" y="48" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#ecfdf5" text-anchor="middle">행사가격 K = 20달러</text>
+      <text x="105" y="105" font-family="'Noto Sans KR', sans-serif" font-size="12" font-weight="bold" fill="#34d399" text-anchor="middle">시장 균형가 C₀ = 4달러</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Present to Future -->
+  <!-- Upper Paths (Replicating Portfolio) -->
+  <path d="M 285,190 L 410,130" stroke="#6366f1" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+  <path d="M 285,190 L 410,240" stroke="#6366f1" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+
+  <!-- Lower Paths (Option) -->
+  <path d="M 285,310 L 410,240" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+  <path d="M 285,310 L 410,350" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+
+  <!-- Right Column: Future State (t = 1) -->
+  <g transform="translate(430, 90)">
+    <!-- Future Boundary Box -->
+    <rect width="310" height="280" fill="#1e293b" stroke="#475569" stroke-width="1.5" rx="12"/>
+    <text x="155" y="30" font-family="'Noto Sans KR', sans-serif" font-size="15" font-weight="bold" fill="#94a3b8" text-anchor="middle">만기 시점 (t = 1)</text>
+
+    <!-- Scenario Up Box -->
+    <g transform="translate(15, 50)">
+      <rect width="280" height="95" fill="#0f172a" stroke="#f43f5e" stroke-width="1.5" rx="8"/>
+      <text x="15" y="25" font-family="'Noto Sans KR', sans-serif" font-size="12" font-weight="bold" fill="#fda4af">주가 상승 시 시나리오 (Su = 25)</text>
+      <line x1="15" y1="35" x2="265" y2="35" stroke="#334155" stroke-width="1"/>
+      
+      <!-- Payoff Match Up -->
+      <text x="15" y="55" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#f1f5f9">포트폴리오 가치 : 0.5 × 25 - 6.0 × 1.25 = 5.0달러</text>
+      <text x="15" y="75" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#f1f5f9">실제 옵션 페이오프 : max(25 - 20, 0) = 5.0달러</text>
+      <rect x="220" y="10" width="50" height="18" fill="#fda4af" rx="4" opacity="0.2"/>
+      <text x="245" y="23" font-family="'Noto Sans KR', sans-serif" font-size="9" font-weight="bold" fill="#f43f5e" text-anchor="middle">100% 일치</text>
+    </g>
+
+    <!-- Scenario Down Box -->
+    <g transform="translate(15, 165)">
+      <rect width="280" height="95" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5" rx="8"/>
+      <text x="15" y="25" font-family="'Noto Sans KR', sans-serif" font-size="12" font-weight="bold" fill="#93c5fd">주가 하락 시 시나리오 (Sd = 15)</text>
+      <line x1="15" y1="35" x2="265" y2="35" stroke="#334155" stroke-width="1"/>
+      
+      <!-- Payoff Match Down -->
+      <text x="15" y="55" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#f1f5f9">포트폴리오 가치 : 0.5 × 15 - 6.0 × 1.25 = 0.0달러</text>
+      <text x="15" y="75" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="#f1f5f9">실제 옵션 페이오프 : max(15 - 20, 0) = 0.0달러</text>
+      <rect x="220" y="10" width="50" height="18" fill="#93c5fd" rx="4" opacity="0.2"/>
+      <text x="245" y="23" font-family="'Noto Sans KR', sans-serif" font-size="9" font-weight="bold" fill="#3b82f6" text-anchor="middle">100% 일치</text>
+    </g>
+  </g>
+
+  <!-- Flow Direction Labels -->
+  <text x="350" y="140" font-family="'Noto Sans KR', sans-serif" font-size="11" font-weight="bold" fill="#a5b4fc" text-anchor="middle">만기 복제 정산</text>
+  <text x="350" y="325" font-family="'Noto Sans KR', sans-serif" font-size="11" font-weight="bold" fill="#6ee7b7" text-anchor="middle">만기 페이오프 수렴</text>
+</svg>
