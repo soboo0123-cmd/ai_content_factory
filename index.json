@@ -1725,8 +1725,8 @@
             {
               "sub_id": "sub_04_03",
               "sub_title": "4.3 각 기간별(n=3에서 n=1까지) 포트폴리오 동적 조정 경로 실행",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1740,9 +1740,9 @@
                   "created_at": "2026-05-24T10:23:50.642243"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_04/sub_04_03_v3.md",
+                  "created_at": "2026-05-28T14:54:42.002947",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1843,8 +1843,8 @@
             {
               "sub_id": "sub_05_01",
               "sub_title": "5.1 이산 시간 무위험이자율과 연속 시간 실효이자율 변환",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1858,9 +1858,9 @@
                   "created_at": "2026-05-24T10:29:34.099756"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_01_v3.md",
+                  "created_at": "2026-05-28T14:55:36.227064",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1871,8 +1871,8 @@
             {
               "sub_id": "sub_05_02",
               "sub_title": "5.2 실제 확률 측도(q measure) 하 로그수익률의 기댓값과 분산식 유도",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1886,9 +1886,9 @@
                   "created_at": "2026-05-24T10:30:55.978479"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_02_v3.md",
+                  "created_at": "2026-05-28T14:56:49.347221",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1899,8 +1899,8 @@
             {
               "sub_id": "sub_05_03",
               "sub_title": "5.3 기하급수적 기간 세분화에 따른 수익률 분포 분석",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1914,9 +1914,9 @@
                   "created_at": "2026-05-24T10:32:17.248818"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_03_v3.md",
+                  "created_at": "2026-05-28T14:57:52.471903",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1927,8 +1927,8 @@
             {
               "sub_id": "sub_05_04",
               "sub_title": "5.4 CRR 모형의 왜도(Skewness)와 정규분포 수렴 요건 분석",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1942,9 +1942,9 @@
                   "created_at": "2026-05-24T10:33:29.649542"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_04_v3.md",
+                  "created_at": "2026-05-28T14:58:55.642790",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1955,8 +1955,8 @@
             {
               "sub_id": "sub_05_05",
               "sub_title": "5.5 이산 변수의 연속 표준화 변수 표현 및 p-측도 연결성",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1970,9 +1970,9 @@
                   "created_at": "2026-05-24T10:34:42.821290"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_05_v3.md",
+                  "created_at": "2026-05-28T15:00:04.642466",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1983,8 +1983,8 @@
             {
               "sub_id": "sub_05_06",
               "sub_title": "5.6 테일러 전개 분석에 따른 왜도 제로 확률 p의 수학적 근사",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1998,9 +1998,9 @@
                   "created_at": "2026-05-24T10:35:55.480605"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_06_v3.md",
+                  "created_at": "2026-05-28T15:01:25.489309",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -2011,8 +2011,8 @@
             {
               "sub_id": "sub_05_07",
               "sub_title": "5.7 근사 매개변수 대입을 통한 주가 분포의 연속 시간 모델링",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -2026,9 +2026,9 @@
                   "created_at": "2026-05-24T10:37:35.791280"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_07_v3.md",
+                  "created_at": "2026-05-28T15:02:57.916676",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -2039,8 +2039,8 @@
             {
               "sub_id": "sub_05_08",
               "sub_title": "5.8 드무아브르-라플라스 정리 및 CLT 기반 표준정규분포 수렴성 검증",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -2054,9 +2054,9 @@
                   "created_at": "2026-05-24T10:39:06.213091"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_08_v3.md",
+                  "created_at": "2026-05-28T15:05:06.618335",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -2067,8 +2067,8 @@
             {
               "sub_id": "sub_05_09",
               "sub_title": "5.9 블랙-숄즈 공식(Black-Scholes Formula) 도출 및 리미트 케이스 정리",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -2082,9 +2082,9 @@
                   "created_at": "2026-05-24T10:41:02.016509"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_05/sub_05_09_v3.md",
+                  "created_at": "2026-05-28T15:07:40.735615",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
