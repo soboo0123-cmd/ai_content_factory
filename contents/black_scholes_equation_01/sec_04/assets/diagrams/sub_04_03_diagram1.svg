@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
+  
+  <!-- Grid Lines (Subtle) -->
+  <g stroke="#1e293b" stroke-width="1">
+    <line x1="100" y1="50" x2="100" y2="400" />
+    <line x1="400" y1="50" x2="400" y2="400" />
+    <line x1="700" y1="50" x2="700" y2="400" />
+  </g>
+
+  <!-- Title & Setup -->
+  <text x="400" y="35" text-anchor="middle" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="18" font-weight="bold">동적 델타 리밸런싱 및 자기자금조달(Self-Financing) 메커니즘</text>
+
+  <!-- Nodes Group -->
+  <!-- Node t=0 -->
+  <g transform="translate(100, 225)">
+    <circle r="30" fill="#312e81" stroke="#6366f1" stroke-width="2"/>
+    <text y="-40" text-anchor="middle" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">출발점 (t=0)</text>
+    <text y="5" text-anchor="middle" fill="#ffffff" font-family="'Inter', sans-serif" font-size="14" font-weight="bold">S₀ = 80</text>
+    <text y="50" text-anchor="middle" fill="#a5b4fc" font-family="'Inter', sans-serif" font-size="11">Δ₀ = 0.6555</text>
+    <text y="65" text-anchor="middle" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="11">B₀ = -18.38</text>
+  </g>
+
+  <!-- Node t=1 Up -->
+  <g transform="translate(400, 110)">
+    <circle r="30" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+    <text y="-40" text-anchor="middle" fill="#34d399" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">상승 국면 (t=1, Up)</text>
+    <text y="5" text-anchor="middle" fill="#ffffff" font-family="'Inter', sans-serif" font-size="14" font-weight="bold">Sᵤ = 120</text>
+    <text y="50" text-anchor="middle" fill="#a7f3d0" font-family="'Inter', sans-serif" font-size="11">목표 Δ = 0.7080</text>
+  </g>
+
+  <!-- Node t=1 Down -->
+  <g transform="translate(400, 340)">
+    <circle r="30" fill="#7f1d1d" stroke="#f43f5e" stroke-width="2"/>
+    <text y="45" text-anchor="middle" fill="#f43f5e" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">하락 국면 (t=1, Down)</text>
+    <text y="5" text-anchor="middle" fill="#ffffff" font-family="'Inter', sans-serif" font-size="14" font-weight="bold">S_d = 40</text>
+    <text y="-40" text-anchor="middle" fill="#fecdd3" font-family="'Inter', sans-serif" font-size="11">목표 Δ = 0.3750</text>
+  </g>
+
+  <!-- Branching Arrows (t=0 -> t=1) -->
+  <path d="M 130,210 Q 250,135 365,115" fill="none" stroke="#6366f1" stroke-dasharray="4" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 130,240 Q 250,315 365,335" fill="none" stroke="#6366f1" stroke-dasharray="4" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Action Block: Upward -->
+  <g transform="translate(560, 60)">
+    <rect width="200" height="100" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+    <text x="15" y="25" fill="#34d399" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">추세 추종 매수 (Buy High)</text>
+    <text x="15" y="50" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="11">• 주식 추가 매수: +0.0525주</text>
+    <text x="15" y="70" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="11">• 매수 대금 조달: +6.30원 차입</text>
+    <text x="15" y="90" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10">최종 부채 잔액 B = -26.52원</text>
+  </g>
+
+  <!-- Action Block: Downward -->
+  <g transform="translate(560, 290)">
+    <rect width="200" height="100" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5"/>
+    <text x="15" y="25" fill="#f43f5e" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">헤지 비중 축소 (Sell Low)</text>
+    <text x="15" y="50" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="11">• 주식 일부 매도: -0.2805주</text>
+    <text x="15" y="70" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="11">• 매도 대금 처리: -11.22원 부채 상환</text>
+    <text x="15" y="90" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10">최종 부채 잔액 B = -9.00원</text>
+  </g>
+
+  <!-- Connections to Action Blocks -->
+  <path d="M 430,110 L 550,110" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 430,340 L 550,340" fill="none" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Self-Financing Badge/Label -->
+  <rect x="250" y="205" width="300" height="40" rx="20" fill="#312e81" stroke="#818cf8" stroke-width="1"/>
+  <text x="400" y="229" text-anchor="middle" fill="#e0e7ff" font-family="'Inter', sans-serif" font-size="12" font-weight="bold">자가자금조달(Self-Financing): 추가 자본 유입/유출 0</text>
+
+  <!-- Arrow Marker Definition -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366f1"/>
+    </marker>
+  </defs>
+</svg>

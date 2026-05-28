@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동적 델타 헷징 시뮬레이터</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .transition-all-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 text-slate-100 flex items-center justify-center min-h-screen">
+    <div class="max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <!-- Header -->
+        <div class="mb-6 text-center">
+            <span class="px-3 py-1 text-xs font-semibold text-indigo-400 bg-indigo-950/50 border border-indigo-800 rounded-full">인터랙티브 대조 시뮬레이터</span>
+            <h1 class="text-xl md:text-2xl font-bold mt-2 text-white">포트폴리오 동적 조정(Dynamic Rebalancing) 시각화</h1>
+            <p class="text-sm text-slate-400 mt-1">t=0 시점의 포지션에서 출발하여 t=1 시점의 주가 시나리오별 자산 가치 재조정 흐름을 시뮬레이션합니다.</p>
+        </div>
+
+        <!-- Node Selector Controls -->
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <button onclick="updateNode('t0')" id="btn-t0" class="py-3 px-4 rounded-xl text-sm font-semibold transition-all-custom border text-center focus:outline-none bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20">
+                시작점 (t=0)<br><span class="text-xs font-normal opacity-90">S₀ = 80 원</span>
+            </button>
+            <button onclick="updateNode('t1u')" id="btn-t1u" class="py-3 px-4 rounded-xl text-sm font-semibold transition-all-custom border text-center focus:outline-none bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700">
+                상승 (t=1, Up)<br><span class="text-xs font-normal opacity-90">Sᵤ = 120 원</span>
+            </button>
+            <button onclick="updateNode('t1d')" id="btn-t1d" class="py-3 px-4 rounded-xl text-sm font-semibold transition-all-custom border text-center focus:outline-none bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700">
+                하락 (t=1, Down)<br><span class="text-xs font-normal opacity-90">S_d = 40 원</span>
+            </button>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Panel: State Variables -->
+            <div class="lg:col-span-5 bg-slate-950/60 border border-slate-800/80 rounded-xl p-5">
+                <h3 class="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wider">포트폴리오 주요 변수</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>기초자산 주가 (S)</span>
+                            <span id="label-price" class="font-mono text-white">80 원</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="bar-price" class="bg-indigo-500 h-2 rounded-full transition-all-custom" style="width: 66.6%;"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>보유 주식 수량 (Delta, Δ)</span>
+                            <span id="label-delta" class="font-mono text-emerald-400">0.6555 주</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="bar-delta" class="bg-emerald-500 h-2 rounded-full transition-all-custom" style="width: 65.5%;"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>채권/차입금 잔액 (B)</span>
+                            <span id="label-debt" class="font-mono text-rose-400">-18.38 원</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="bar-debt" class="bg-rose-500 h-2 rounded-full transition-all-custom" style="width: 45%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800">
+                        <div class="flex justify-between items-center bg-indigo-950/30 border border-indigo-900/50 p-3 rounded-lg">
+                            <div>
+                                <p class="text-xs text-indigo-300 font-semibold">포트폴리오 순자산 가치</p>
+                                <p class="text-lg font-bold text-white mt-0.5" id="val-portfolio">34.06 원</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-400">이론 콜옵션 가치</p>
+                                <p class="text-base font-semibold text-slate-300" id="val-option">34.065 원</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Rebalancing Action Detail -->
+            <div class="lg:col-span-7 bg-slate-950/40 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-300 mb-4 uppercase tracking-wider">리밸런싱 정산 및 조정 액션</h3>
+                    
+                    <div id="action-empty" class="hidden text-center py-10 text-slate-500">
+                        <p class="text-sm">출발점 포지션이 구축되었습니다.</p>
+                        <p class="text-xs mt-1">상승 또는 하락 노드를 선택하여 동적 조정 과정을 시작하세요.</p>
+                    </div>
+
+                    <div id="action-content" class="space-y-4">
+                        <div class="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800">
+                            <h4 class="text-xs font-semibold text-indigo-400 mb-2">1단계: 시간 경과에 따른 부채 이자 누적</h4>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="text-slate-400">이전 원금: <span id="act-prev-debt" class="text-slate-300 font-mono">18.38 원</span></div>
+                                <div class="text-slate-400">누적 이자 (10%): <span id="act-interest" class="text-rose-400 font-mono">+1.84 원</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800">
+                            <h4 class="text-xs font-semibold text-emerald-400 mb-2">2단계: 델타 조정을 위한 주식 매매</h4>
+                            <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+                                <div class="text-slate-400">목표 델타 격차: <span id="act-delta-diff" class="text-emerald-400 font-semibold font-mono">+0.0525 주</span></div>
+                                <div class="text-slate-400">조정 주식 거래액: <span id="act-stock-flow" class="text-white font-mono">-6.30 원</span></div>
+                            </div>
+                            <div class="text-[11px] text-slate-400 leading-relaxed bg-slate-950 p-2 rounded border border-slate-900" id="act-desc-1">
+                                상승 델타를 맞추기 위해 주식을 추가 매수하고 자금을 추가 차입합니다.
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 p-3.5 rounded-lg border border-slate-800">
+                            <h4 class="text-xs font-semibold text-rose-400 mb-2">3단계: 자기자금조달(Self-Financing) 결산</h4>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">최종 부채 잔액 (B)</span>
+                                <span id="act-final-debt" class="font-mono text-white text-sm font-semibold">-26.52 원</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-1.5">* 외부 현금 유입 없이 전액 채권(대출) 계정 한도 내에서 자가가동되었습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Summary inside Card -->
+                <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+                    <span>헷징 완성도: <span class="text-emerald-400 font-bold">100.00% (오차 0.00원)</span></span>
+                    <span class="px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded font-mono" id="node-badge">t=0 Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive script -->
+    <script>
+        const nodes = {
+            t0: {
+                price: 80,
+                delta: 0.6555,
+                debt: -18.38,
+                portfolio: 34.06,
+                option: 34.065,
+                badge: "t=0 Active",
+                isStart: true
+            },
+            t1u: {
+                price: 120,
+                delta: 0.7080,
+                debt: -26.52,
+                portfolio: 58.44,
+                option: 58.440,
+                badge: "t=1 Up Active",
+                isStart: false,
+                prevDebt: -18.38,
+                interest: -1.84,
+                deltaDiff: 0.0525,
+                stockFlow: -6.30,
+                desc: "주가가 120원으로 급상승하여 요구되는 주식 비율이 증가했습니다. 기존 0.6555주에서 0.7080주로 맞추기 위해 0.0525주를 더 비싸게 추가 매수(+6.30원)하고, 이를 위해 채권 시장에서 자금을 추가로 빌려와 자기자금조달 상태를 유지합니다."
+            },
+            t1d: {
+                price: 40,
+                delta: 0.3750,
+                debt: -9.00,
+                portfolio: 6.00,
+                option: 6.000,
+                badge: "t=1 Down Active",
+                isStart: false,
+                prevDebt: -18.38,
+                interest: -1.84,
+                deltaDiff: -0.2805,
+                stockFlow: 11.22,
+                desc: "주가가 40원으로 급락하여 옵션 가치가 떨어지고 델타도 0.3750으로 수렴합니다. 불필요해진 주식 0.2805주를 즉시 매도하여 확보한 현금 11.22원으로 기존 누적 채권 차입금을 즉각 상환하여 부채 부담을 크게 줄였습니다."
+            }
+        };
+
+        function updateNode(nodeKey) {
+            const data = nodes[nodeKey];
+
+            // 1. Update Buttons
+            ['t0', 't1u', 't1d'].forEach(k => {
+                const btn = document.getElementById('btn-' + k);
+                if (k === nodeKey) {
+                    btn.className = "py-3 px-4 rounded-xl text-sm font-semibold transition-all-custom border text-center focus:outline-none bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20";
+                } else {
+                    btn.className = "py-3 px-4 rounded-xl text-sm font-semibold transition-all-custom border text-center focus:outline-none bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700";
+                }
+            });
+
+            // 2. Update Left Panel Values
+            document.getElementById('label-price').innerText = data.price + " 원";
+            document.getElementById('label-delta').innerText = data.delta.toFixed(4) + " 주";
+            document.getElementById('label-debt').innerText = data.debt.toFixed(2) + " 원";
+            document.getElementById('val-portfolio').innerText = data.portfolio.toFixed(2) + " 원";
+            document.getElementById('val-option').innerText = data.option.toFixed(3) + " 원";
+            document.getElementById('node-badge').innerText = data.badge;
+
+            // Progress bar adjustment
+            document.getElementById('bar-price').style.width = (data.price / 150 * 100) + "%";
+            document.getElementById('bar-delta').style.width = (data.delta * 100) + "%";
+            document.getElementById('bar-debt').style.width = Math.abs(data.debt) / 40 * 100 + "%";
+
+            // 3. Update Action Details
+            const emptyEl = document.getElementById('action-empty');
+            const contentEl = document.getElementById('action-content');
+
+            if (data.isStart) {
+                emptyEl.classList.remove('hidden');
+                contentEl.classList.add('hidden');
+            } else {
+                emptyEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+
+                document.getElementById('act-prev-debt').innerText = Math.abs(data.prevDebt).toFixed(2) + " 원";
+                document.getElementById('act-interest').innerText = "+" + Math.abs(data.interest).toFixed(2) + " 원";
+                
+                const sign = data.deltaDiff >= 0 ? "+" : "";
+                document.getElementById('act-delta-diff').innerText = sign + data.deltaDiff.toFixed(4) + " 주";
+                document.getElementById('act-delta-diff').className = data.deltaDiff >= 0 ? "text-emerald-400 font-semibold font-mono" : "text-rose-400 font-semibold font-mono";
+                
+                const flowSign = data.stockFlow >= 0 ? "+" : "-";
+                document.getElementById('act-stock-flow').innerText = (data.stockFlow >= 0 ? "회수(매도): " : "지출(매수): ") + Math.abs(data.stockFlow).toFixed(2) + " 원";
+                
+                document.getElementById('act-desc-1').innerText = data.desc;
+                document.getElementById('act-final-debt').innerText = data.debt.toFixed(2) + " 원";
+            }
+        }
+    </script>
+</body>
+</html>

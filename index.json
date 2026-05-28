@@ -1725,9 +1725,9 @@
             {
               "sub_id": "sub_04_03",
               "sub_title": "4.3 각 기간별(n=3에서 n=1까지) 포트폴리오 동적 조정 경로 실행",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_04/sub_04_03_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1843,9 +1843,9 @@
             {
               "sub_id": "sub_05_01",
               "sub_title": "5.1 이산 시간 무위험이자율과 연속 시간 실효이자율 변환",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_05/sub_05_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",

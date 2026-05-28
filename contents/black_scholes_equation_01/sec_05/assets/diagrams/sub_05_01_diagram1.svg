@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12"/>
+  
+  <!-- Boundary/Grid Lines -->
+  <line x1="400" y1="40" x2="400" y2="310" stroke="#cbd5e1" stroke-dasharray="6,4" stroke-width="1.5"/>
+
+  <!-- Left Side: Discrete World (이산 세계) -->
+  <g transform="translate(20, 0)">
+    <!-- Title -->
+    <rect x="50" y="30" width="280" height="40" rx="20" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="190" y="55" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">이산 시간 세계 (Discrete Time)</text>
+    
+    <!-- Step Chart Illustration -->
+    <path d="M 60,240 L 130,240 L 130,200 L 200,200 L 200,160 L 270,160 L 270,120 L 340,120" fill="none" stroke="#3b82f6" stroke-width="3"/>
+    <!-- Dots on steps -->
+    <circle cx="130" cy="240" r="4" fill="#1d4ed8"/>
+    <circle cx="200" cy="200" r="4" fill="#1d4ed8"/>
+    <circle cx="270" cy="160" r="4" fill="#1d4ed8"/>
+    <circle cx="340" cy="120" r="4" fill="#1d4ed8"/>
+    
+    <text x="75" y="260" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">t = 0</text>
+    <text x="145" y="260" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">t = 1</text>
+    <text x="215" y="260" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">t = 2</text>
+    <text x="285" y="260" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">t = 3</text>
+    
+    <!-- Formula -->
+    <rect x="100" y="275" width="180" height="30" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="190" y="294" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155" text-anchor="middle">V(t) = V(0) · (1 + r)ⁿ</text>
+  </g>
+
+  <!-- Right Side: Continuous World (연속 세계) -->
+  <g transform="translate(420, 0)">
+    <!-- Title -->
+    <rect x="50" y="30" width="280" height="40" rx="20" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="190" y="55" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="bold" fill="#14532d" text-anchor="middle">연속 시간 세계 (Continuous Time)</text>
+    
+    <!-- Smooth Curve Illustration -->
+    <path d="M 60,240 Q 150,210 240,160 T 340,110" fill="none" stroke="#22c55e" stroke-width="3"/>
+    <!-- Gradient Shading under curve -->
+    <path d="M 60,240 Q 150,210 240,160 T 340,110 L 340,240 L 60,240 Z" fill="#f0fdf4" opacity="0.5"/>
+    
+    <text x="60" y="260" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">t = 0</text>
+    <text x="340" y="260" font-family="'Segoe UI', Roboto, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">t = T</text>
+    
+    <!-- Formula -->
+    <rect x="100" y="275" width="180" height="30" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="190" y="294" font-family="'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#334155" text-anchor="middle">V(t) = V(0) · e^(r_cont · t)</text>
+  </g>
+
+  <!-- Central Bridge (수학적 가교) -->
+  <g transform="translate(280, 135)">
+    <rect x="0" y="0" width="240" height="55" rx="10" fill="#faf5ff" stroke="#a855f7" stroke-width="2" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.05))"/>
+    <text x="120" y="22" font-family="'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="bold" fill="#6b21a8" text-anchor="middle">수학적 등가성 가교 (Bridge)</text>
+    <text x="120" y="42" font-family="'Consolas', 'Courier New', monospace" font-size="15" font-weight="bold" fill="#7e22ce" text-anchor="middle">r_cont = ln(1 + r)</text>
+    
+    <!-- Left Arrow -->
+    <path d="M -15,27 L -2,20 L -2,34 Z" fill="#a855f7"/>
+    <line x1="-15" y1="27" x2="0" y2="27" stroke="#a855f7" stroke-width="1.5"/>
+    
+    <!-- Right Arrow -->
+    <path d="M 255,27 L 242,20 L 242,34 Z" fill="#a855f7"/>
+    <line x1="240" y1="27" x2="255" y2="27" stroke="#a855f7" stroke-width="1.5"/>
+  </g>
+</svg>
