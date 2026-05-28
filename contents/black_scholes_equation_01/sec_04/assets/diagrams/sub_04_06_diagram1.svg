@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c2d12" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <linearGradient id="grayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#374151" />
+      <stop offset="100%" stop-color="#9ca3af" />
+    </linearGradient>
+    
+    <!-- Shadow Filter -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <style>
+    .title { font-family: 'Inter', 'Noto Sans KR', sans-serif; font-size: 18px; font-weight: bold; fill: #1f2937; }
+    .node-text-title { font-family: 'Inter', 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: bold; fill: #ffffff; }
+    .node-text-detail { font-family: 'Inter', 'Noto Sans KR', sans-serif; font-size: 11px; fill: #f3f4f6; }
+    .label-text { font-family: 'Inter', 'Noto Sans KR', sans-serif; font-size: 11px; font-weight: bold; fill: #4b5563; }
+    .arrow-line { stroke: #9ca3af; stroke-width: 2; fill: none; stroke-dasharray: 4 4; }
+    .solid-line { stroke: #4b5563; stroke-width: 2; fill: none; }
+    .arrow-head { fill: #4b5563; }
+  </style>
+
+  <!-- Title -->
+  <text x="20" y="35" class="title">미국식 풋옵션 조기 행사에 따른 헤징 데스크 정산 흐름도</text>
+
+  <!-- 1. Option Holder (Trigger) -->
+  <g transform="translate(40, 180)" filter="url(#dropShadow)">
+    <rect width="180" height="90" rx="8" fill="url(#orangeGrad)" />
+    <text x="15" y="30" class="node-text-title">1. 옵션 보유자 (매수자)</text>
+    <text x="15" y="52" class="node-text-detail">• 조기 행사 권리 트리거</text>
+    <text x="15" y="70" class="node-text-detail">• 풋옵션 행사: 주식 매도 요구</text>
+  </g>
+
+  <!-- Flow Arrow 1 -> 2 -->
+  <path d="M 220 225 L 290 225" class="solid-line" />
+  <polygon points="290,221 298,225 290,229" class="arrow-head" />
+  <text x="228" y="215" class="label-text">조기행사 통보</text>
+
+  <!-- 2. Hedging Desk (Option Seller) -->
+  <g transform="translate(300, 150)" filter="url(#dropShadow)">
+    <rect width="200" height="150" rx="8" fill="url(#blueGrad)" />
+    <text x="15" y="30" class="node-text-title">2. 헤징 데스크 (매도자)</text>
+    <text x="15" y="55" class="node-text-detail">• 행사 가격(K) 현금 지급 의무</text>
+    <text x="15" y="75" class="node-text-detail">• 행사자로부터 기초자산(1주) 인수</text>
+    <text x="15" y="105" class="node-text-detail" fill="#fde047" style="font-weight: bold;">[정산 포트폴리오 해체 개시]</text>
+    <text x="15" y="125" class="node-text-detail">• 주식 숏 커버링 &amp; 예치금 회수</text>
+  </g>
+
+  <!-- Flow Arrow 2 -> 3 (Top right: Share Settlement) -->
+  <path d="M 500 200 L 570 150" class="solid-line" />
+  <polygon points="564,148 578,145 572,157" class="arrow-head" />
+  
+  <!-- Flow Arrow 2 -> 4 (Bottom right: Bond Settlement) -->
+  <path d="M 500 250 L 570 300" class="solid-line" />
+  <polygon points="572,293 578,305 564,302" class="arrow-head" />
+
+  <!-- 3. Stock Liquidation (Hedge Assets) -->
+  <g transform="translate(580, 80)" filter="url(#dropShadow)">
+    <rect width="180" height="100" rx="8" fill="url(#greenGrad)" />
+    <text x="15" y="25" class="node-text-title">3-A. 기초자산 정산</text>
+    <text x="15" y="45" class="node-text-detail">• 인도받은 주식 1주 매입</text>
+    <text x="15" y="65" class="node-text-detail">• 델타 수량(Δ주) 시장 매도</text>
+    <text x="15" y="85" class="node-text-detail" fill="#a7f3d0" style="font-style: italic;">→ 슬리피지 통제가 핵심!</text>
+  </g>
+
+  <!-- 4. Bond Liquidation (Funding) -->
+  <g transform="translate(580, 270)" filter="url(#dropShadow)">
+    <rect width="180" height="100" rx="8" fill="url(#grayGrad)" />
+    <text x="15" y="25" class="node-text-title">3-B. 자금 계정 정산</text>
+    <text x="15" y="45" class="node-text-detail">• 예치 머니마켓 가용화</text>
+    <text x="15" y="65" class="node-text-detail">• 이자 기회비용 정산</text>
+    <text x="15" y="85" class="node-text-detail" fill="#e5e7eb">• 차입/예치금 잔액(B) 회수</text>
+  </g>
+
+  <!-- Core Equilibrium Sync Link -->
+  <path d="M 670 180 L 670 270" class="arrow-line" stroke="#10b981" />
+  <text x="680" y="230" class="label-text" fill="#059669">포트폴리오 동시 청산</text>
+
+  <!-- Summary Box -->
+  <rect x="40" y="410" width="720" height="60" rx="6" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1.5" />
+  <text x="60" y="435" class="label-text" style="font-size:12px; fill:#1f2937;">
+    합리적 청산 결과: K(행사지급) - S(주식인수) + Δ·S(델타청산) + B(채권회수) = 이항 이론가와 완벽 일치 (슬리피지 없을 시)
+  </text>
+  <text x="60" y="455" class="node-text-detail" style="fill:#4b5563;">
+    실무적으로는 조기 행사 경계면에 도달하기 전에 예비 유동성 버퍼를 확보하여 긴급 청산 시 슬리피지를 최소화해야 합니다.
+  </text>
+</svg>

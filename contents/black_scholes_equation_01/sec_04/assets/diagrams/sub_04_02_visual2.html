@@ -1,0 +1,239 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>다기간 델타 리밸런싱 인터랙티브 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+    .node-btn {
+      transition: all 0.2s ease;
+    }
+    .node-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 p-6 flex flex-col items-center justify-center min-h-[480px]">
+  <div class="w-full max-w-5xl bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-800">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-800 pb-4 gap-2">
+      <div>
+        <h1 class="text-lg font-bold text-white">다기간 복제 파라미터 리밸런싱 내비게이터</h1>
+        <p class="text-xs text-slate-400 mt-0.5">이항 트리의 각 노드를 클릭하여 해당 시점의 복제 포트폴리오(Δ, B) 구성을 추적해 보세요.</p>
+      </div>
+      <div class="flex gap-2 text-[11px]">
+        <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-1 rounded">u = 1.5</span>
+        <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-1 rounded">d = 0.5</span>
+        <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-1 rounded">r = 1.1</span>
+        <span class="bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-1 rounded">p = 0.6</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left: Interactive Tree Map -->
+      <div class="lg:col-span-7 bg-slate-950/60 p-4 rounded-xl border border-slate-800 flex flex-col justify-center relative min-h-[280px]">
+        <div class="text-center text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-4">트리 맵 (노드를 클릭해 보세요)</div>
+        
+        <!-- Tree Nodes Structure Container -->
+        <div class="flex justify-between items-center px-4 relative">
+          <!-- Connective SVG Lines -->
+          <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
+            <!-- Lines between columns -->
+            <!-- t=0 to t=1 -->
+            <line x1="16%" y1="50%" x2="50%" y2="25%" stroke="#334155" stroke-width="2"/>
+            <line x1="16%" y1="50%" x2="50%" y2="75%" stroke="#334155" stroke-width="2"/>
+            
+            <!-- t=1 to t=2 -->
+            <line x1="50%" y1="25%" x2="84%" y2="10%" stroke="#334155" stroke-width="2"/>
+            <line x1="50%" y1="25%" x2="84%" y2="40%" stroke="#334155" stroke-width="2"/>
+            <line x1="50%" y1="75%" x2="84%" y2="60%" stroke="#334155" stroke-width="2"/>
+            <line x1="50%" y1="75%" x2="84%" y2="90%" stroke="#334155" stroke-width="2"/>
+          </svg>
+
+          <!-- Column t=0 -->
+          <div class="flex flex-col justify-center items-center w-1/4 h-64 z-10">
+            <button onclick="selectNode('S0')" id="btn-S0" class="node-btn bg-indigo-600 hover:bg-indigo-500 text-white font-bold p-3 rounded-xl text-center shadow-lg border border-indigo-400">
+              <div class="text-[10px] opacity-80">t = 0</div>
+              <div class="text-sm">S = 80</div>
+            </button>
+          </div>
+
+          <!-- Column t=1 -->
+          <div class="flex flex-col justify-between items-center w-1/4 h-64 z-10 py-6">
+            <button onclick="selectNode('Su')" id="btn-Su" class="node-btn bg-slate-800 text-slate-200 font-semibold p-3 rounded-xl text-center border border-slate-700">
+              <div class="text-[9px] text-emerald-400">상승 (u)</div>
+              <div class="text-xs font-bold">S = 120</div>
+            </button>
+            <button onclick="selectNode('Sd')" id="btn-Sd" class="node-btn bg-slate-800 text-slate-200 font-semibold p-3 rounded-xl text-center border border-slate-700">
+              <div class="text-[9px] text-red-400">하락 (d)</div>
+              <div class="text-xs font-bold">S = 40</div>
+            </button>
+          </div>
+
+          <!-- Column t=2 -->
+          <div class="flex flex-col justify-between items-center w-1/4 h-64 z-10 py-2">
+            <button onclick="selectNode('Suu')" id="btn-Suu" class="node-btn bg-slate-800 text-slate-200 font-semibold p-2.5 rounded-xl text-center border border-slate-700">
+              <div class="text-[9px] opacity-75">uu</div>
+              <div class="text-xs font-bold">S = 180</div>
+            </button>
+            <button onclick="selectNode('Sud')" id="btn-Sud" class="node-btn bg-slate-800 text-slate-200 font-semibold p-2.5 rounded-xl text-center border border-slate-700">
+              <div class="text-[9px] opacity-75">ud</div>
+              <div class="text-xs font-bold">S = 60</div>
+            </button>
+            <button onclick="selectNode('Sdd')" id="btn-Sdd" class="node-btn bg-slate-800 text-slate-200 font-semibold p-2.5 rounded-xl text-center border border-slate-700">
+              <div class="text-[9px] opacity-75">dd</div>
+              <div class="text-xs font-bold">S = 20</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Detailed Calculation Board -->
+      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <span id="selectedNodeName" class="text-sm font-bold text-indigo-400 uppercase tracking-wider">노드: S0 (현재 시점)</span>
+            <span class="bg-slate-800 px-2 py-0.5 text-[10px] text-slate-300 rounded font-semibold">정보 카드</span>
+          </div>
+
+          <div class="space-y-4">
+            <div class="bg-slate-950 p-3 rounded-lg flex justify-between items-center">
+              <div>
+                <div class="text-[10px] text-slate-500">기초자산 가격 (S)</div>
+                <div id="nodePrice" class="text-xl font-extrabold text-white">80.00</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] text-slate-500">옵션 이론가 (C)</div>
+                <div id="nodeOptPrice" class="text-xl font-extrabold text-emerald-400">34.065</div>
+              </div>
+            </div>
+
+            <!-- Math Results -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs py-1.5 border-b border-slate-800">
+                <span class="text-slate-400">주식 복제 비율 (Δ)</span>
+                <span id="nodeDelta" class="font-bold text-slate-200 text-sm">0.6555</span>
+              </div>
+              <div class="flex justify-between text-xs py-1.5 border-b border-slate-800">
+                <span class="text-slate-400">무위험 채권 차입 (B)</span>
+                <span id="nodeBond" class="font-bold text-red-400 text-sm">-18.38</span>
+              </div>
+              <div class="flex justify-between text-xs py-1.5">
+                <span class="text-slate-400">물리적 델타 범위 검증</span>
+                <span id="deltaCheck" class="text-emerald-400 font-bold">정상 (0 ≤ Δ ≤ 1)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-slate-950/80 rounded-lg border border-slate-850">
+          <div class="text-[10px] text-slate-400 font-semibold mb-1">💡 델타 리밸런싱 힌트</div>
+          <p id="hintText" class="text-[11px] text-slate-400 leading-relaxed">
+            t=0 노드에서는 델타가 0.6555입니다. 다음 단계로 주가가 상승하거나 하락할 때 델타가 역동적으로 변하므로 보유 주식 수량을 수시로 조정해야 합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Node Data Define
+    const nodes = {
+      S0: {
+        name: "현재 노드 (t = 0)",
+        S: 80.00,
+        C: 34.065,
+        delta: 0.6555,
+        B: -18.38,
+        hint: "t=0 노드에서는 델타가 0.6555입니다. 주가가 상승(u)하면 델타는 증가하고, 하락(d)하면 델타는 감소하게 됩니다."
+      },
+      Su: {
+        name: "상승 노드 (t = 1, u)",
+        S: 120.00,
+        C: 58.44,
+        delta: 0.8143,
+        B: -35.71,
+        hint: "주가가 120으로 상승함에 따라 콜옵션의 내가격 가능성이 커져 델타가 0.6555에서 0.8143으로 증가했습니다. 추가 주식 매수가 수반되어야 합니다."
+      },
+      Sd: {
+        name: "하락 노드 (t = 1, d)",
+        S: 40.00,
+        C: 6.00,
+        delta: 0.1364,
+        B: -4.00,
+        hint: "주가가 40으로 폭락하여 외가격 상태에 가까워집니다. 델타는 0.1364로 급감하여 보유했던 현물 주식을 대거 매도하여 포지션을 청산해야 합니다."
+      },
+      Suu: {
+        name: "연속상승 노드 (t = 2, uu)",
+        S: 180.00,
+        C: 107.27,
+        delta: 0.9500,
+        B: -57.97,
+        hint: "만기를 한 단계 앞두고 주가가 180까지 치솟아 옵션이 깊은 내가격(Deep In-the-money)에 안착했습니다. 델타는 거의 1.0에 도달합니다."
+      },
+      Sud: {
+        name: "상승후하락 노드 (t = 2, ud)",
+        S: 60.00,
+        C: 5.45,
+        delta: 0.2500,
+        B: -8.68,
+        hint: "주가가 행사가격(80) 아래인 60으로 떨어지면서 델타가 다시 0.2500으로 대폭 축소되었습니다."
+      },
+      Sdd: {
+        name: "연속하락 노드 (t = 2, dd)",
+        S: 20.00,
+        C: 0.00,
+        delta: 0.0000,
+        B: 0.00,
+        hint: "주가가 20으로 폭락하여 만기 시 권리 행사가 사실상 불가능해진 완전 외가격 상태입니다. 델타는 0이 되어 주식을 한 주도 가질 필요가 없습니다."
+      }
+    };
+
+    let activeNode = 'S0';
+
+    function selectNode(nodeId) {
+      // Remove previous active classes
+      Object.keys(nodes).forEach(id => {
+        const btn = document.getElementById(`btn-${id}`);
+        if (btn) {
+          btn.className = "node-btn bg-slate-800 text-slate-200 font-semibold p-2.5 rounded-xl text-center border border-slate-700";
+        }
+      });
+
+      // Set active node button styling
+      const activeBtn = document.getElementById(`btn-${nodeId}`);
+      if (activeBtn) {
+        activeBtn.className = "node-btn bg-indigo-600 text-white font-bold p-3 rounded-xl text-center shadow-lg border border-indigo-400";
+      }
+
+      // Update Data Panel
+      const node = nodes[nodeId];
+      document.getElementById('selectedNodeName').textContent = `노드: ${nodeId} (${node.name})`;
+      document.getElementById('nodePrice').textContent = node.S.toFixed(2);
+      document.getElementById('nodeOptPrice').textContent = node.C.toFixed(3);
+      document.getElementById('nodeDelta').textContent = node.delta.toFixed(4);
+      document.getElementById('nodeBond').textContent = node.B.toFixed(2);
+      document.getElementById('hintText').textContent = node.hint;
+
+      // Delta validation status
+      const dStatus = document.getElementById('deltaCheck');
+      if (node.delta >= 0 && node.delta <= 1) {
+        dStatus.textContent = "정상 (0 ≤ Δ ≤ 1)";
+        dStatus.className = "text-emerald-400 font-bold text-sm";
+      } else {
+        dStatus.textContent = "범위 이탈 경고";
+        dStatus.className = "text-red-400 font-bold text-sm";
+      }
+    }
+
+    // Default Initialization
+    selectNode('S0');
+  </script>
+</body>
+</html>
+```

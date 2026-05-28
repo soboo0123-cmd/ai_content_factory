@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>미국식 풋옵션 조기 행사 경계 시뮬레이션</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 p-4 font-sans text-slate-800">
+
+  <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-100">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-4">
+      <h1 class="text-lg font-bold text-white">미국식 vs 유럽식 풋옵션 조기 행사 경계 시뮬레이션</h1>
+      <p class="text-xs text-slate-300 mt-1">이항 모형(CRR Binomial Tree)을 실시간으로 연산하여 조기 행사 경계가 형성되는 원리를 시각화합니다.</p>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
+      
+      <!-- Left Panel: Controls -->
+      <div class="lg:col-span-4 bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-slate-700 mb-4 border-b pb-2">시뮬레이션 변수 제어</h2>
+          
+          <!-- Strike Price (K) -->
+          <div class="mb-4">
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+              <span>행사 가격 (K)</span>
+              <span class="text-blue-600" id="valK">100원</span>
+            </div>
+            <input type="range" id="paramK" min="80" max="120" value="100" step="5" class="w-full accent-blue-600">
+          </div>
+
+          <!-- Volatility (sigma) -->
+          <div class="mb-4">
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+              <span>기초자산 변동성 (σ)</span>
+              <span class="text-blue-600" id="valVol">30%</span>
+            </div>
+            <input type="range" id="paramVol" min="10" max="60" value="30" step="5" class="w-full accent-blue-600">
+          </div>
+
+          <!-- Risk-free rate (r) -->
+          <div class="mb-4">
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+              <span>무위험 이자율 (r)</span>
+              <span class="text-blue-600" id="valR">5.0%</span>
+            </div>
+            <input type="range" id="paramR" min="1" max="15" value="5" step="1" class="w-full accent-blue-600">
+          </div>
+
+          <!-- Time to Maturity (T) -->
+          <div class="mb-4">
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+              <span>잔존 만기 (T - t)</span>
+              <span class="text-blue-600" id="valT">0.50년</span>
+            </div>
+            <input type="range" id="paramT" min="10" id="paramT" min="0.1" max="2.0" value="0.5" step="0.1" class="w-full accent-blue-600">
+          </div>
+
+          <!-- Current Stock Price (S) Cursor Slider -->
+          <div class="mb-4 p-3 bg-blue-50 rounded border border-blue-100">
+            <div class="flex justify-between text-xs font-bold text-blue-800 mb-1">
+              <span>실시간 가상 주가 (S)</span>
+              <span id="valS" class="text-sm">70원</span>
+            </div>
+            <input type="range" id="paramS" min="30" max="140" value="70" step="2" class="w-full accent-blue-700">
+          </div>
+        </div>
+
+        <!-- Metric Indicators -->
+        <div class="mt-6 pt-4 border-t border-slate-200">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">실시간 상태 분석</h3>
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-600">현재 즉시 행사 가치(내재가치):</span>
+              <span id="metricIntrinsic" class="font-bold text-slate-800">30원</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-600">미국식 풋옵션 가치:</span>
+              <span id="metricAmerican" class="font-bold text-orange-600">31.2원</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-600">유럽식 풋옵션 가치:</span>
+              <span id="metricEuropean" class="font-bold text-blue-600">29.1원</span>
+            </div>
+            <div class="mt-2 p-2 rounded text-center text-xs font-bold" id="statusBadge">
+              조기행사 미추천
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Visual Chart -->
+      <div class="lg:col-span-8 flex flex-col justify-between">
+        <div class="relative h-[320px] w-full">
+          <canvas id="optChart"></canvas>
+        </div>
+
+        <div class="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 text-xs leading-relaxed text-slate-600">
+          <strong class="text-slate-800">💡 차트 감상 포인트:</strong>
+          <ul class="list-disc pl-4 mt-1 space-y-1">
+            <li><span class="text-orange-600 font-bold">주황색 실선(미국식)</span>은 <span class="text-gray-500 font-bold">회색 점선(즉시 행사 페이오프)</span> 아래로 절대로 내려가지 않습니다.</li>
+            <li>반면, 이자율(<span class="font-semibold">r</span>)을 높이고 잔존만기(<span class="font-semibold">T</span>)를 늘리면, <span class="text-blue-600 font-bold">파란색 점선(유럽식)</span>은 주가가 극단적으로 낮아질 때 회색 페이오프선 아래로 이탈(할인 영향)하는 현상이 벌어집니다.</li>
+            <li>주황색 실선이 회색 페이오프와 만나는 지점 이하가 바로 <strong class="text-red-600">조기 행사 영역</strong>입니다.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // --- Binomial Tree (CRR) Options Pricing Engine ---
+    function priceOptions(S_range, K, T, r, sigma, N = 40) {
+      const dt = T / N;
+      const u = Math.exp(sigma * Math.sqrt(dt));
+      const d = 1 / u;
+      const p = (Math.exp(r * dt) - d) / (u - d);
+      const discount = Math.exp(-r * dt);
+
+      const results = {
+        S: [],
+        american: [],
+        european: [],
+        payoff: []
+      };
+
+      for (let S of S_range) {
+        results.S.push(S);
+        results.payoff.push(Math.max(K - S, 0));
+
+        // Solver Helper
+        function solve(isAmerican) {
+          let prices = new Array(N + 1);
+          let values = new Array(N + 1);
+          for (let i = 0; i <= N; i++) {
+            prices[i] = S * Math.pow(u, N - i) * Math.pow(d, i);
+            values[i] = Math.max(K - prices[i], 0);
+          }
+
+          for (let j = N - 1; j >= 0; j--) {
+            for (let i = 0; i <= j; i++) {
+              prices[i] = S * Math.pow(u, j - i) * Math.pow(d, i);
+              const holdValue = discount * (p * values[i] + (1 - p) * values[i + 1]);
+              if (isAmerican) {
+                values[i] = Math.max(K - prices[i], holdValue);
+              } else {
+                values[i] = holdValue;
+              }
+            }
+          }
+          return values[0];
+        }
+
+        results.american.push(solve(true));
+        results.european.push(solve(false));
+      }
+      return results;
+    }
+
+    // Initialize DOM references
+    const paramK = document.getElementById('paramK');
+    const paramVol = document.getElementById('paramVol');
+    const paramR = document.getElementById('paramR');
+    const paramT = document.getElementById('paramT');
+    const paramS = document.getElementById('paramS');
+
+    const valK = document.getElementById('valK');
+    const valVol = document.getElementById('valVol');
+    const valR = document.getElementById('valR');
+    const valT = document.getElementById('valT');
+    const valS = document.getElementById('valS');
+
+    const metricIntrinsic = document.getElementById('metricIntrinsic');
+    const metricAmerican = document.getElementById('metricAmerican');
+    const metricEuropean = document.getElementById('metricEuropean');
+    const statusBadge = document.getElementById('statusBadge');
+
+    // Chart Setup
+    const ctx = document.getElementById('optChart').getContext('2d');
+    let chart;
+
+    function getRange(K) {
+      let range = [];
+      for (let s = 30; s <= 150; s += 2) {
+        range.push(s);
+      }
+      return range;
+    }
+
+    function update() {
+      // Inputs
+      const K = parseFloat(paramK.value);
+      const vol = parseFloat(paramVol.value) / 100;
+      const r = parseFloat(paramR.value) / 100;
+      const T = parseFloat(paramT.value);
+      const currentS = parseFloat(paramS.value);
+
+      // Label Updates
+      valK.textContent = K + "원";
+      valVol.textContent = Math.round(vol * 100) + "%";
+      valR.textContent = (r * 100).toFixed(1) + "%";
+      valT.textContent = T.toFixed(2) + "년";
+      valS.textContent = currentS + "원";
+
+      // Price arrays
+      const S_range = getRange(K);
+      const data = priceOptions(S_range, K, T, r, vol);
+
+      // Single point pricing for metrics
+      const singlePoint = priceOptions([currentS], K, T, r, vol);
+      const curIntrinsic = Math.max(K - currentS, 0);
+      const curAmerVal = singlePoint.american[0];
+      const curEuroVal = singlePoint.european[0];
+
+      metricIntrinsic.textContent = curIntrinsic.toFixed(2) + "원";
+      metricAmerican.textContent = curAmerVal.toFixed(2) + "원";
+      metricEuropean.textContent = curEuroVal.toFixed(2) + "원";
+
+      // Exercise Status Logic
+      if (curAmerVal <= curIntrinsic + 0.05 && curIntrinsic > 0) {
+        statusBadge.textContent = "🚨 조기 행사 최적 상태 (내재가치 극대화)";
+        statusBadge.className = "mt-2 p-2 rounded text-center text-xs font-bold bg-red-100 text-red-800 border border-red-200";
+      } else {
+        statusBadge.textContent = "⏱️ 권리 보류 및 헤징 유지 권장";
+        statusBadge.className = "mt-2 p-2 rounded text-center text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
+      }
+
+      // Render chart
+      const chartData = {
+        labels: data.S,
+        datasets: [
+          {
+            label: '즉시 행사 가치 (Payoff)',
+            data: data.payoff,
+            borderColor: '#94a3b8',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            pointRadius: 0
+          },
+          {
+            label: '미국식 풋옵션 가치 (American)',
+            data: data.american,
+            borderColor: '#f97316',
+            borderWidth: 3,
+            fill: false,
+            pointRadius: 0
+          },
+          {
+            label: '유럽식 풋옵션 가치 (European)',
+            data: data.european,
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            borderDash: [3, 3],
+            fill: false,
+            pointRadius: 0
+          },
+          {
+            label: '현재 주가 위치',
+            data: data.S.map(s => s === currentS ? curAmerVal : null),
+            borderColor: '#ef4444',
+            backgroundColor: '#ef4444',
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            showLine: false
+          }
+        ]
+      };
+
+      if (chart) {
+        chart.data = chartData;
+        chart.update('none');
+      } else {
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: 'index',
+              intersect: false
+            },
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  boxWidth: 15,
+                  font: { size: 10 }
+                }
+              }
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: '기초자산 주가 (S)',
+                  font: { size: 11, weight: 'bold' }
+                },
+                grid: { display: false }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: '풋옵션 가치 (P)',
+                  font: { size: 11, weight: 'bold' }
+                },
+                min: 0,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // Attach listeners
+    [paramK, paramVol, paramR, paramT, paramS].forEach(input => {
+      input.addEventListener('input', update);
+    });
+
+    // Initial run
+    update();
+  </script>
+</body>
+</html>

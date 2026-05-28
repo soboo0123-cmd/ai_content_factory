@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이항트리 매개변수 실시간 계산기 및 차익거래 탐지기</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-4 flex flex-col items-center justify-center min-h-[420px]">
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-150 p-6 w-full max-w-2xl">
+    <!-- Header -->
+    <div class="mb-5">
+      <h2 class="text-lg font-bold text-slate-800">위험중립확률($p$) 실시간 매개변수 분석기</h2>
+      <p class="text-xs text-slate-500">슬라이더를 드래그하여 매개변수 값을 조정해 보세요. 차익거래 발생 여부를 자동으로 판독합니다.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Sliders (Inputs) -->
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>주가 상승률 ($u$)</span>
+            <span id="u-val" class="text-indigo-600">1.50</span>
+          </div>
+          <input type="range" id="u-slider" min="1.01" max="2.0" step="0.01" value="1.50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>주가 하락률 ($d$)</span>
+            <span id="d-val" class="text-indigo-600">0.50</span>
+          </div>
+          <input type="range" id="d-slider" min="0.1" max="0.99" step="0.01" value="0.50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+            <span>무위험 할인 요인 ($r$)</span>
+            <span id="r-val" class="text-indigo-600">1.10</span>
+          </div>
+          <input type="range" id="r-slider" min="0.8" max="1.8" step="0.01" value="1.10" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+      </div>
+
+      <!-- Result Panel -->
+      <div id="result-card" class="rounded-xl p-5 border flex flex-col justify-between transition-colors duration-300 bg-emerald-50 border-emerald-200">
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">시장 상태 및 확률 검증</span>
+            <span id="status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-emerald-500 text-white">정상 (차익거래 없음)</span>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex justify-between items-baseline">
+              <span class="text-sm text-slate-600">상승 확률 ($p$)</span>
+              <span id="p-calc" class="text-xl font-extrabold text-slate-800">0.6000</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <span class="text-sm text-slate-600">하락 확률 ($1-p$)</span>
+              <span id="down-calc" class="text-lg font-bold text-slate-600">0.4000</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs text-slate-500">합산 조건 ($p + (1-p)$)</span>
+              <span class="text-xs font-semibold text-slate-700">1.0000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert or Explanation -->
+        <div id="explanation-box" class="mt-4 pt-3 border-t border-slate-200/50 text-[11px] text-slate-600 leading-relaxed">
+          <strong>무위험 차익거래 부재 상태:</strong> $0.50 < 1.10 < 1.50$ 조건이 충족되므로 가상 확률이 $0 \le p \le 1$ 범위 내에 안전하게 존재하며, 균형 시장이 유지됩니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const uSlider = document.getElementById('u-slider');
+    const dSlider = document.getElementById('d-slider');
+    const rSlider = document.getElementById('r-slider');
+
+    const uVal = document.getElementById('u-val');
+    const dVal = document.getElementById('d-val');
+    const rVal = document.getElementById('r-val');
+
+    const pCalc = document.getElementById('p-calc');
+    const downCalc = document.getElementById('down-calc');
+    const statusBadge = document.getElementById('status-badge');
+    const resultCard = document.getElementById('result-card');
+    const explanationBox = document.getElementById('explanation-box');
+
+    function recalculate() {
+      const u = parseFloat(uSlider.value);
+      const d = parseFloat(dSlider.value);
+      const r = parseFloat(rSlider.value);
+
+      uVal.textContent = u.toFixed(2);
+      dVal.textContent = d.toFixed(2);
+      rVal.textContent = r.toFixed(2);
+
+      // 위험중립확률 공식 계산
+      const p = (r - d) / (u - d);
+      const oneMinusP = 1.0 - p;
+
+      // 차익거래 조건식 검증 d < r < u
+      const noArbitrage = (d < r) && (r < u);
+
+      if (noArbitrage) {
+        // 정상 상태 UI 적용
+        pCalc.textContent = p.toFixed(4);
+        downCalc.textContent = oneMinusP.toFixed(4);
+        
+        statusBadge.textContent = "정상 (차익거래 없음)";
+        statusBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-emerald-500 text-white";
+        resultCard.className = "rounded-xl p-5 border flex flex-col justify-between transition-colors duration-300 bg-emerald-50 border-emerald-200";
+        explanationBox.innerHTML = `<strong>무위험 차익거래 부재 상태:</strong> $${d.toFixed(2)} < ${r.toFixed(2)} < ${u.toFixed(2)}$ 조건이 정상 충족되어 실제 확률계의 정합성이 지켜집니다.`;
+      } else {
+        // 비정상 상태 UI 적용 (차익거래 가능)
+        pCalc.textContent = "N/A (범위이탈)";
+        downCalc.textContent = "N/A";
+        
+        statusBadge.textContent = "경고 (차익거래 가능)";
+        statusBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide bg-rose-500 text-white animate-pulse";
+        resultCard.className = "rounded-xl p-5 border flex flex-col justify-between transition-colors duration-300 bg-rose-50 border-rose-200";
+        
+        if (r <= d) {
+          explanationBox.innerHTML = `<strong>차익거래 발생! (r ≤ d):</strong> 은행 예금 이율($${r.toFixed(2)}$)이 최악의 주식 하락수익률($${d.toFixed(2)}$)보다 나쁩니다. 누구나 무상 대출을 받아 주식을 구매함으로써 공짜 수익을 취할 수 있습니다.`;
+        } else if (r >= u) {
+          explanationBox.innerHTML = `<strong>차익거래 발생! (r ≥ u):</strong> 은행 이율($${r.toFixed(2)}$)이 최상의 주식 상승수익률($${u.toFixed(2)}$)보다 높습니다. 모든 주식을 숏(공매도) 치고 은행에만 예치해 버리는 쏠림 현상이 발생합니다.`;
+        }
+      }
+    }
+
+    uSlider.addEventListener('input', recalculate);
+    dSlider.addEventListener('input', recalculate);
+    rSlider.addEventListener('input', recalculate);
+
+    // 최초 1회 실행
+    recalculate();
+  </script>
+</body>
+</html>

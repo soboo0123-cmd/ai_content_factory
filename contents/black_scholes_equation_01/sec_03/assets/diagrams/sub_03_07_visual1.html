@@ -1,0 +1,417 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>주무 상태 가격(State Price) 상호작용형 가치평가기</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #4f46e5;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 md:p-6">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-6 text-white">
+      <h2 class="text-xl md:text-2xl font-bold tracking-tight">주무 상태 가격(State Price) 가치평가 시뮬레이터</h2>
+      <p class="text-slate-300 text-xs md:text-sm mt-1">상태 가격(State Price) 벡터와 만기 페이오프 벡터의 선형적 내적을 통한 파생상품 가치평가 검증</p>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+      
+      <!-- Control Panel (Left) -->
+      <div class="lg:col-span-4 p-6 bg-slate-50 border-r border-slate-100 space-y-6">
+        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">시장 변수 설정</h3>
+        
+        <!-- S_0 Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-sm font-medium text-slate-700">기초자산 현재가 ($S_0$)</label>
+            <span id="v_s0" class="mono text-sm font-bold text-indigo-600">$100.00</span>
+          </div>
+          <input type="range" id="s0" min="50" max="150" step="5" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+
+        <!-- K Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-sm font-medium text-slate-700">행사가격 ($K$)</label>
+            <span id="v_k" class="mono text-sm font-bold text-indigo-600">$100.00</span>
+          </div>
+          <input type="range" id="k" min="50" max="150" step="5" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+
+        <!-- r Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-sm font-medium text-slate-700">무위험 이자율 ($r$)</label>
+            <span id="v_r" class="mono text-sm font-bold text-indigo-600">10.0%</span>
+          </div>
+          <input type="range" id="r" min="0" max="20" step="1" value="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+
+        <!-- Toggle Mode -->
+        <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-600">위험중립확률 산출 방식</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn_manual" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 transition-all">
+              교과서 수치 (p=0.5)
+            </button>
+            <button id="btn_calc" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-all">
+              이론 수식 계산
+            </button>
+          </div>
+        </div>
+
+        <!-- p Slider (Only active if manual mode is chosen, but let's allow u/d adjustments) -->
+        <div id="p_container" class="space-y-2 transition-opacity duration-300">
+          <div class="flex justify-between items-center">
+            <label class="text-sm font-medium text-slate-700">상승 위험중립확률 ($p$)</label>
+            <span id="v_p" class="mono text-sm font-bold text-indigo-600">0.50</span>
+          </div>
+          <input type="range" id="p" min="10" max="90" step="5" value="50" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        </div>
+
+        <!-- u and d sliders (shown for calculation mode) -->
+        <div id="ud_container" class="space-y-4 hidden transition-opacity duration-300">
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-medium text-slate-700">상승률 ($u$)</label>
+              <span id="v_u" class="mono text-xs font-bold text-indigo-600">1.10</span>
+            </div>
+            <input type="range" id="u" min="101" max="150" step="1" value="110" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-medium text-slate-700">하락률 ($d$)</label>
+              <span id="v_d" class="mono text-xs font-bold text-indigo-600">0.90</span>
+            </div>
+            <input type="range" id="d" min="50" max="99" step="1" value="90" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          </div>
+        </div>
+
+        <!-- Option Type -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">옵션 구분</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="opt_call" class="py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow">CALL</button>
+            <button id="opt_put" class="py-2 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">PUT</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Panel (Right) -->
+      <div class="lg:col-span-8 p-6 space-y-6">
+        
+        <!-- Live Mathematical Verification Card -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-indigo-800 uppercase tracking-wider">채권 복제 (상태가격 합)</span>
+            <span id="sum_pi" class="mono text-2xl font-extrabold text-indigo-950 mt-2">0.7513</span>
+            <p id="sum_pi_lbl" class="text-[11px] text-indigo-600 mt-1">1 / (1.10)³ = 0.7513 일치</p>
+          </div>
+          <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-emerald-800 uppercase tracking-wider">최종 옵션 가격 (내적값)</span>
+            <span id="opt_price" class="mono text-2xl font-extrabold text-emerald-950 mt-2">$5.62</span>
+            <p class="text-[11px] text-emerald-600 mt-1">C = Σ (V_j × π_j)</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">내가격(ITM) 마감 확률</span>
+            <span id="itm_prob" class="mono text-2xl font-extrabold text-slate-800 mt-2">50.0%</span>
+            <p class="text-[11px] text-slate-500 mt-1">만기 행사조건 만족 확률</p>
+          </div>
+        </div>
+
+        <!-- State-Price Vector Matrix Multiplication Visualizer -->
+        <div class="bg-slate-900 text-white rounded-xl p-5 shadow-inner">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">선형대수적 내적 연산 (V · π)</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-center text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-700 text-slate-400">
+                  <th class="py-2 text-left pl-2">상태 (상승 n회)</th>
+                  <th class="py-2">만기 기초자산 ($S_3$)</th>
+                  <th class="py-2 text-indigo-400 font-bold">만기 페이오프 ($V_j$)</th>
+                  <th class="py-2 text-emerald-400 font-bold">상태 가격 ($\pi_j$)</th>
+                  <th class="py-2 text-amber-400 font-bold">부분합 ($V_j \cdot \pi_j$)</th>
+                </tr>
+              </thead>
+              <tbody id="matrix_body" class="mono">
+                <!-- Javascript will render here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center text-xs">
+            <span class="text-slate-400">내적 합산 수식:</span>
+            <span id="dot_product_expr" class="text-emerald-400 font-semibold text-right"></span>
+          </div>
+        </div>
+
+        <!-- Bar chart representation of State Prices -->
+        <div>
+          <h4 class="text-sm font-semibold text-slate-700 mb-3">상태 가격 분포 시각화 (State Price Density Distribution)</h4>
+          <div class="bg-white border border-slate-150 rounded-xl p-4">
+            <div id="chart_container" class="h-32 flex items-end justify-around gap-2 pt-4">
+              <!-- Dynamically generated bars -->
+            </div>
+            <div class="flex justify-around text-center text-[10px] text-slate-500 font-semibold mt-2 border-t border-slate-100 pt-2">
+              <div class="w-1/4">상태 3 (uuu)</div>
+              <div class="w-1/4">상태 2 (uud)</div>
+              <div class="w-1/4">상태 1 (udd)</div>
+              <div class="w-1/4">상태 0 (ddd)</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulation Engine -->
+  <script>
+    // Elements
+    const s0Slider = document.getElementById('s0');
+    const kSlider = document.getElementById('k');
+    const rSlider = document.getElementById('r');
+    const pSlider = document.getElementById('p');
+    const uSlider = document.getElementById('u');
+    const dSlider = document.getElementById('d');
+
+    const vS0 = document.getElementById('v_s0');
+    const vK = document.getElementById('v_k');
+    const vR = document.getElementById('v_r');
+    const vP = document.getElementById('v_p');
+    const vU = document.getElementById('v_u');
+    const vD = document.getElementById('v_d');
+
+    const btnManual = document.getElementById('btn_manual');
+    const btnCalc = document.getElementById('btn_calc');
+    const pContainer = document.getElementById('p_container');
+    const udContainer = document.getElementById('ud_container');
+
+    const optCall = document.getElementById('opt_call');
+    const optPut = document.getElementById('opt_put');
+
+    const sumPi = document.getElementById('sum_pi');
+    const sumPiLbl = document.getElementById('sum_pi_lbl');
+    const optPrice = document.getElementById('opt_price');
+    const itmProb = document.getElementById('itm_prob');
+    const matrixBody = document.getElementById('matrix_body');
+    const dotProductExpr = document.getElementById('dot_product_expr');
+    const chartContainer = document.getElementById('chart_container');
+
+    // App State
+    let isCalculatedMode = false;
+    let optionType = 'CALL'; // or 'PUT'
+
+    // Combination utility for n=3
+    const n = 3;
+    const combinations = [1, 3, 3, 1]; // j=0, 1, 2, 3 -> combinations inside table will be in reverse order for easy display (j=3, 2, 1, 0)
+
+    function updateParamsDisplay() {
+      vS0.textContent = `$${parseFloat(s0Slider.value).toFixed(2)}`;
+      vK.textContent = `$${parseFloat(kSlider.value).toFixed(2)}`;
+      vR.textContent = `${parseFloat(rSlider.value).toFixed(1)}%`;
+      vP.textContent = `${(parseFloat(pSlider.value)/100).toFixed(2)}`;
+      vU.textContent = `${(parseFloat(uSlider.value)/100).toFixed(2)}`;
+      vD.textContent = `${(parseFloat(dSlider.value)/100).toFixed(2)}`;
+    }
+
+    function calculate() {
+      const S0 = parseFloat(s0Slider.value);
+      const K = parseFloat(kSlider.value);
+      const r_pct = parseFloat(rSlider.value) / 100;
+      const discountFactor = 1 / Math.pow(1 + r_pct, n);
+
+      let p = parseFloat(pSlider.value) / 100;
+      let u = parseFloat(uSlider.value) / 100;
+      let d = parseFloat(dSlider.value) / 100;
+
+      if (isCalculatedMode) {
+        // Enforce logical arbitrage-free condition: d < 1+r < u
+        const minU = 1 + r_pct + 0.01;
+        if (u < minU) {
+          u = minU;
+          uSlider.value = Math.round(u * 100);
+          vU.textContent = u.toFixed(2);
+        }
+        const maxD = 1 + r_pct - 0.01;
+        if (d > maxD) {
+          d = maxD;
+          dSlider.value = Math.round(d * 100);
+          vD.textContent = d.toFixed(2);
+        }
+
+        p = ((1 + r_pct) - d) / (u - d);
+        if (p < 0) p = 0;
+        if (p > 1) p = 1;
+        pSlider.value = Math.round(p * 100);
+        vP.textContent = p.toFixed(2);
+      } else {
+        // Manual textbook mode parameters
+        u = 1.10;
+        d = 0.90;
+      }
+
+      // States calculation (j from 3 down to 0)
+      const states = [];
+      let totalOptionPrice = 0;
+      let sumOfStatePrices = 0;
+      let itmProbabilitySum = 0;
+
+      for (let j = 3; j >= 0; j--) {
+        const comb = combinations[j]; // n_C_j
+        const prob = comb * Math.pow(p, j) * Math.pow(1 - p, n - j);
+        const statePrice = discountFactor * prob;
+        sumOfStatePrices += statePrice;
+
+        const terminalStockPrice = S0 * Math.pow(u, j) * Math.pow(d, n - j);
+        
+        let payoff = 0;
+        if (optionType === 'CALL') {
+          payoff = Math.max(terminalStockPrice - K, 0);
+        } else {
+          payoff = Math.max(K - terminalStockPrice, 0);
+        }
+
+        if (payoff > 0) {
+          itmProbabilitySum += prob;
+        }
+
+        const partialVal = payoff * statePrice;
+        totalOptionPrice += partialVal;
+
+        states.push({
+          j,
+          comb,
+          prob,
+          statePrice,
+          terminalStockPrice,
+          payoff,
+          partialVal
+        });
+      }
+
+      // Update Top Metrics
+      sumPi.textContent = sumOfStatePrices.toFixed(4);
+      sumPiLbl.textContent = `1 / (1 + ${r_pct.toFixed(2)})³ = ${discountFactor.toFixed(4)} 일치`;
+      optPrice.textContent = `$${totalOptionPrice.toFixed(3)}`;
+      itmProb.textContent = `${(itmProbabilitySum * 100).toFixed(1)}%`;
+
+      // Draw Matrix / Vector Multiplication Table
+      matrixBody.innerHTML = '';
+      let expressionParts = [];
+      
+      states.forEach(state => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-800 hover:bg-slate-800/50 transition-colors";
+        
+        const isITM = state.payoff > 0;
+        const payoffColor = isITM ? 'text-indigo-400 font-bold' : 'text-slate-500';
+        const sumColor = isITM ? 'text-amber-400 font-bold' : 'text-slate-500';
+
+        tr.innerHTML = `
+          <td class="py-3 text-left pl-2 text-slate-400 font-medium">상태 ${state.j} (U:${state.j}, D:${3-state.j})</td>
+          <td class="py-3 text-slate-300">$${state.terminalStockPrice.toFixed(2)}</td>
+          <td class="py-3 ${payoffColor}">$${state.payoff.toFixed(2)}</td>
+          <td class="py-3 text-emerald-400">${state.statePrice.toFixed(4)}</td>
+          <td class="py-3 ${sumColor}">$${state.partialVal.toFixed(3)}</td>
+        `;
+        matrixBody.appendChild(tr);
+
+        if (state.payoff > 0) {
+          expressionParts.push(`(${state.payoff.toFixed(2)} × ${state.statePrice.toFixed(4)})`);
+        }
+      });
+
+      dotProductExpr.textContent = expressionParts.length > 0 
+        ? `${expressionParts.join(' + ')} = $${totalOptionPrice.toFixed(3)}`
+        : '$0.000 (모든 상태 OTM 소멸)';
+
+      // Draw Bars
+      chartContainer.innerHTML = '';
+      states.forEach(state => {
+        const barWrapper = document.createElement('div');
+        barWrapper.className = 'flex flex-col items-center w-1/4 h-full justify-end group relative cursor-pointer';
+        
+        const percent = (state.statePrice / 0.5) * 100; // max possible scaled around 0.5 for aesthetic display
+        
+        barWrapper.innerHTML = `
+          <!-- Tooltip -->
+          <div class="absolute bottom-full mb-1 bg-slate-800 text-white text-[10px] rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center shadow">
+            상태가격: ${state.statePrice.toFixed(4)}<br>확률: ${(state.prob*100).toFixed(1)}%
+          </div>
+          <div class="w-8 md:w-12 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-t-md group-hover:from-indigo-600 group-hover:to-indigo-400 transition-all duration-300 shadow" style="height: ${Math.max(percent, 8)}%"></div>
+          <span class="text-[11px] font-bold text-slate-700 mt-1 mono">${state.statePrice.toFixed(4)}</span>
+        `;
+        chartContainer.appendChild(barWrapper);
+      });
+    }
+
+    // Event Listeners
+    s0Slider.addEventListener('input', () => { updateParamsDisplay(); calculate(); });
+    kSlider.addEventListener('input', () => { updateParamsDisplay(); calculate(); });
+    rSlider.addEventListener('input', () => { updateParamsDisplay(); calculate(); });
+    pSlider.addEventListener('input', () => { updateParamsDisplay(); calculate(); });
+    uSlider.addEventListener('input', () => { updateParamsDisplay(); calculate(); });
+    dSlider.addEventListener('input', () => { updateParamsDisplay(); calculate(); });
+
+    btnManual.addEventListener('click', () => {
+      isCalculatedMode = false;
+      btnManual.className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 transition-all shadow-sm";
+      btnCalc.className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-all";
+      pContainer.classList.remove('opacity-40', 'pointer-events-none');
+      udContainer.classList.add('hidden');
+      calculate();
+    });
+
+    btnCalc.addEventListener('click', () => {
+      isCalculatedMode = true;
+      btnCalc.className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 transition-all shadow-sm";
+      btnManual.className = "px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-all";
+      pContainer.classList.add('opacity-40', 'pointer-events-none');
+      udContainer.classList.remove('hidden');
+      calculate();
+    });
+
+    optCall.addEventListener('click', () => {
+      optionType = 'CALL';
+      optCall.className = "py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow";
+      optPut.className = "py-2 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
+      calculate();
+    });
+
+    optPut.addEventListener('click', () => {
+      optionType = 'PUT';
+      optPut.className = "py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white shadow";
+      optCall.className = "py-2 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50";
+      calculate();
+    });
+
+    // Initial Trigger
+    updateParamsDisplay();
+    calculate();
+  </script>
+</body>
+</html>
+```

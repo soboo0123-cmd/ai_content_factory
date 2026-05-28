@@ -1635,9 +1635,9 @@
             {
               "sub_id": "sub_03_07",
               "sub_title": "3.7 주무 상태 가격(State Price) 활용 가치평가 기법",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_03/sub_03_07_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1650,9 +1650,9 @@
                   "created_at": "2026-05-24T10:19:36.882648"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_03/sub_03_07_v3.md",
+                  "created_at": "2026-05-28T12:56:48.338036",
                   "user_feedback": "v2를 채택해줘"
                 }
               },
@@ -1669,9 +1669,9 @@
             {
               "sub_id": "sub_04_01",
               "sub_title": "4.1 다기간 이항 트리 가치 평가 수치 모델 설정",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_04/sub_04_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1684,9 +1684,9 @@
                   "created_at": "2026-05-24T10:21:08.047829"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_04/sub_04_01_v3.md",
+                  "created_at": "2026-05-28T12:57:38.696606",
                   "user_feedback": "v2를 채택해줘. 대신, 1. 주가 변화의 지도: 3단계 이항 트리 모델에 S⋅u ^k⋅d^n−k ( k는 상승 횟수)과 같은 일반화한 공식을 추가해줘."
                 }
               },
@@ -1697,9 +1697,9 @@
             {
               "sub_id": "sub_04_02",
               "sub_title": "4.2 시장 가격 괴리에 기인한 무위험 차익거래 메커니즘 개요",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_04/sub_04_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1712,9 +1712,9 @@
                   "created_at": "2026-05-24T10:22:20.722723"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_04/sub_04_02_v3.md",
+                  "created_at": "2026-05-28T12:58:41.160398",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1753,9 +1753,9 @@
             {
               "sub_id": "sub_04_04",
               "sub_title": "4.4 만기 시나리오별(상승 및 하락) 현금 흐름 및 무위험 수익 확정",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_04/sub_04_04_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1768,9 +1768,9 @@
                   "created_at": "2026-05-24T10:25:08.990208"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_04/sub_04_04_v3.md",
+                  "created_at": "2026-05-28T12:59:35.137920",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1781,9 +1781,9 @@
             {
               "sub_id": "sub_04_05",
               "sub_title": "4.5 무위험 동적 복제 거래가 지니는 재무적 가치 규명",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_04/sub_04_05_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1796,9 +1796,9 @@
                   "created_at": "2026-05-24T10:26:51.843883"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_04/sub_04_05_v3.md",
+                  "created_at": "2026-05-28T13:00:31.707777",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -1809,9 +1809,9 @@
             {
               "sub_id": "sub_04_06",
               "sub_title": "4.6 조기 행사 여부와 헤징 포트폴리오 정산의 실무적 쟁점",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_04/sub_04_06_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1824,9 +1824,9 @@
                   "created_at": "2026-05-24T10:28:04.974703"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_04/sub_04_06_v3.md",
+                  "created_at": "2026-05-28T13:01:37.485160",
                   "user_feedback": "v2를 채택해줘."
                 }
               },

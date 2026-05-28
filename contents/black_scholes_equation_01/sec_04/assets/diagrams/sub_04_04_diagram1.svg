@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="100%" height="100%">
+  <!-- 배경 스타일 정의 -->
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="accent-blue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <linearGradient id="accent-green" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+    <linearGradient id="accent-red" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#f87171" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- 전체 배경 -->
+  <rect width="100%" height="100%" fill="url(#bg-grad)" rx="12" />
+
+  <!-- 다이어그램 제목 -->
+  <text x="400" y="40" font-family="'Pretendard', 'Inter', sans-serif" font-size="20" font-weight="bold" fill="#f8fafc" text-anchor="middle">
+    만기 무위험 포트폴리오의 상쇄 메커니즘 (정산 Balance)
+  </text>
+  <text x="400" y="65" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" fill="#94a3b8" text-anchor="middle">
+    시장 가격 변동에 관계없이 자산과 부채가 완벽한 대칭을 이루는 금융공학적 설계
+  </text>
+
+  <!-- 중앙 저울 기둥 -->
+  <path d="M 400 130 L 400 340" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 370 340 L 430 340" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="400,120 385,145 415,145" fill="#64748b" />
+  <circle cx="400" cy="120" r="5" fill="#f1f5f9" />
+
+  <!-- 저울 가로대 (수평 상태) -->
+  <path d="M 200 150 L 600 150" stroke="#64748b" stroke-width="4" stroke-linecap="round" />
+  
+  <!-- 왼쪽 저울 컵 연결선 및 접시 -->
+  <path d="M 200 150 L 150 250 L 250 250 Z" fill="none" stroke="#475569" stroke-width="2" />
+  <path d="M 130 250 L 270 250" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" />
+  
+  <!-- 오른쪽 저울 컵 연결선 및 접시 -->
+  <path d="M 600 150 L 550 250 L 650 250 Z" fill="none" stroke="#475569" stroke-width="2" />
+  <path d="M 530 250 L 670 250" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" />
+
+  <!-- 왼쪽 접시 위 자산: 주식 가치 -->
+  <g transform="translate(145, 185)" filter="url(#shadow)">
+    <rect width="110" height="55" rx="6" fill="url(#accent-green)" />
+    <text x="55" y="24" font-family="'Pretendard', sans-serif" font-size="12" font-weight="bold" fill="#064e3b" text-anchor="middle">보유 주식 가치</text>
+    <text x="55" y="42" font-family="'Pretendard', sans-serif" font-size="14" font-weight="extrabold" fill="#064e3b" text-anchor="middle">Δ × S(T)</text>
+  </g>
+
+  <!-- 오른쪽 접시 위 부채 1: 옵션 의무 이행액 -->
+  <g transform="translate(545, 160)" filter="url(#shadow)">
+    <rect width="110" height="42" rx="6" fill="url(#accent-red)" />
+    <text x="55" y="18" font-family="'Pretendard', sans-serif" font-size="11" font-weight="bold" fill="#7f1d1d" text-anchor="middle">콜옵션 매도의무</text>
+    <text x="55" y="34" font-family="'Pretendard', sans-serif" font-size="12" font-weight="extrabold" fill="#7f1d1d" text-anchor="middle">max(S(T) - K, 0)</text>
+  </g>
+
+  <!-- 오른쪽 접시 위 부채 2: 누적 차입금 -->
+  <g transform="translate(545, 207)" filter="url(#shadow)">
+    <rect width="110" height="38" rx="6" fill="url(#accent-blue)" />
+    <text x="55" y="16" font-family="'Pretendard', sans-serif" font-size="11" font-weight="bold" fill="#1e3a8a" text-anchor="middle">누적 차입금 상환</text>
+    <text x="55" y="30" font-family="'Pretendard', sans-serif" font-size="11" font-weight="extrabold" fill="#1e3a8a" text-anchor="middle">Debt(T)</text>
+  </g>
+
+  <!-- 등식 기호 및 상쇄 안내 라벨 -->
+  <circle cx="400" cy="225" r="24" fill="#1e293b" stroke="#475569" stroke-width="2" />
+  <text x="400" y="232" font-family="'Pretendard', sans-serif" font-size="22" font-weight="bold" fill="#38bdf8" text-anchor="middle">=</text>
+
+  <text x="200" y="320" font-family="'Pretendard', sans-serif" font-size="13" font-weight="bold" fill="#34d399" text-anchor="middle">총 자산 유입 (Inflow)</text>
+  <text x="600" y="320" font-family="'Pretendard', sans-serif" font-size="13" font-weight="bold" fill="#f87171" text-anchor="middle">총 현금 유출 (Outflow)</text>
+
+  <!-- 하단 수식 설명 캡션 -->
+  <rect x="180" y="355" width="440" height="40" rx="20" fill="#1e293b" stroke="#334155" stroke-width="1" />
+  <text x="400" y="380" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" font-weight="bold" fill="#e2e8f0" text-anchor="middle">
+    Portfolio Net Value = Stock Value - Option Obligation - Debt = 0 (무위험 확정)
+  </text>
+</svg>

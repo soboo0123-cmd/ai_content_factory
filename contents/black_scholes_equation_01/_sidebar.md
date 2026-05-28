@@ -29,15 +29,15 @@
   * [3.4 n기간 일반화 이항 모델의 수학적 설계](contents/black_scholes_equation_01/sec_03/sub_03_04_final.md)
   * [3.5 최소 상승 횟수(a) 판별을 통한 내가격(ITM) 조건 정의](contents/black_scholes_equation_01/sec_03/sub_03_05_final.md)
   * [3.6 이항 정리 변환과 옵션 가격 공식(CRR) 도출](contents/black_scholes_equation_01/sec_03/sub_03_06_final.md)
-  * [3.7 주무 상태 가격(State Price) 활용 가치평가 기법](contents/black_scholes_equation_01/sec_03/sub_03_07_v1.md)
+  * [3.7 주무 상태 가격(State Price) 활용 가치평가 기법](contents/black_scholes_equation_01/sec_03/sub_03_07_final.md)
 
 * **04 무위험 거래 전략 (Riskless Trading Strategies)**
-  * [4.1 다기간 이항 트리 가치 평가 수치 모델 설정](contents/black_scholes_equation_01/sec_04/sub_04_01_v1.md)
-  * [4.2 시장 가격 괴리에 기인한 무위험 차익거래 메커니즘 개요](contents/black_scholes_equation_01/sec_04/sub_04_02_v1.md)
+  * [4.1 다기간 이항 트리 가치 평가 수치 모델 설정](contents/black_scholes_equation_01/sec_04/sub_04_01_final.md)
+  * [4.2 시장 가격 괴리에 기인한 무위험 차익거래 메커니즘 개요](contents/black_scholes_equation_01/sec_04/sub_04_02_final.md)
   * [4.3 각 기간별(n=3에서 n=1까지) 포트폴리오 동적 조정 경로 실행](contents/black_scholes_equation_01/sec_04/sub_04_03_v1.md)
-  * [4.4 만기 시나리오별(상승 및 하락) 현금 흐름 및 무위험 수익 확정](contents/black_scholes_equation_01/sec_04/sub_04_04_v1.md)
-  * [4.5 무위험 동적 복제 거래가 지니는 재무적 가치 규명](contents/black_scholes_equation_01/sec_04/sub_04_05_v1.md)
-  * [4.6 조기 행사 여부와 헤징 포트폴리오 정산의 실무적 쟁점](contents/black_scholes_equation_01/sec_04/sub_04_06_v1.md)
+  * [4.4 만기 시나리오별(상승 및 하락) 현금 흐름 및 무위험 수익 확정](contents/black_scholes_equation_01/sec_04/sub_04_04_final.md)
+  * [4.5 무위험 동적 복제 거래가 지니는 재무적 가치 규명](contents/black_scholes_equation_01/sec_04/sub_04_05_final.md)
+  * [4.6 조기 행사 여부와 헤징 포트폴리오 정산의 실무적 쟁점](contents/black_scholes_equation_01/sec_04/sub_04_06_final.md)
 
 * **05 연속 시간 모형으로의 확장 (Limiting Cases)**
   * [5.1 이산 시간 무위험이자율과 연속 시간 실효이자율 변환](contents/black_scholes_equation_01/sec_05/sub_05_01_v1.md)
