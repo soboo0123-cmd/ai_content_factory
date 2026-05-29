@@ -33,6 +33,8 @@ $$Z = \frac{J - n \cdot p}{\sqrt{n \cdot p(1 - p)}}$$
 
 이제 이 표준화 공식을 $J$에 대해 역산하여 고립시키면, 이산 변수 $J$를 연속 변수 $Z$로 직접 매핑하는 핵심 치환식을 얻을 수 있습니다.
 
+$$Z = \frac{J - n \cdot p}{\sqrt{n \cdot p(1 - p)}}$$
+
 $$J = n \cdot p + Z \sqrt{n \cdot p(1 - p)}$$
 
 ---
