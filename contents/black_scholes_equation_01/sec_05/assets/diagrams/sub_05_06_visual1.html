@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>실제 확률 p의 테일러 선형 근사 및 왜도 수렴 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              950: '#0b0f19',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans p-6 min-h-screen flex flex-col justify-between">
+
+  <div class="max-w-5xl mx-auto w-full bg-slate-900 rounded-xl p-6 border border-slate-800 shadow-2xl">
+    
+    <!-- Title Section -->
+    <div class="border-b border-slate-800 pb-4 mb-6">
+      <h2 class="text-xl font-bold text-sky-400">실제 확률 p의 테일러 선형 근사 및 왜도 수렴 시뮬레이터</h2>
+      <p class="text-xs text-slate-400 mt-1">
+        미소 시간 격자 $\Delta t \to 0$ 극한 상황에서 실제 비선형 확률식과 우리가 구한 테일러 1차 근사식이 수렴하고, 왜도가 완전히 사라지는 과정을 동적으로 추적합니다.
+      </p>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Panel: Control & Math Stats -->
+      <div class="lg:col-span-5 flex flex-col gap-5 bg-slate-950 p-5 rounded-lg border border-slate-800/80">
+        <h3 class="text-sm font-semibold text-slate-300 border-b border-slate-800 pb-2">변수 미세 조정 (수치 시나리오 연동)</h3>
+        
+        <!-- Parameter Sliders -->
+        <div class="space-y-4">
+          <!-- Drift mu -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400 font-medium">실제 기대수익률 ( Drift, &mu; )</span>
+              <span class="text-sky-400 font-bold" id="mu-val">10% (0.10)</span>
+            </div>
+            <input type="range" id="param-mu" min="-0.20" max="0.50" step="0.01" value="0.10" 
+              class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500">
+          </div>
+
+          <!-- Volatility sigma -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400 font-medium">시장 변동성 ( Volatility, &sigma; )</span>
+              <span class="text-sky-400 font-bold" id="sigma-val">30% (0.30)</span>
+            </div>
+            <input type="range" id="param-sigma" min="0.05" max="0.80" step="0.01" value="0.30" 
+              class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500">
+          </div>
+
+          <!-- Delta t -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400 font-medium">시간 격자 폭 ( &Delta;t )</span>
+              <span class="text-rose-400 font-bold" id="dt-val">0.0100 (약 3.6일)</span>
+            </div>
+            <!-- Logarithmic or fine granular control for dt -->
+            <input type="range" id="param-dt" min="0.0001" max="0.1000" step="0.0005" value="0.0100" 
+              class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500">
+          </div>
+        </div>
+
+        <!-- Calculated Stats Block -->
+        <div class="mt-2 space-y-3 bg-slate-900/50 p-4 rounded border border-slate-800/60">
+          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">실시간 정산 및 정합성 검증</h4>
+          
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-400">원본 비선형 실제 확률 $p$:</span>
+            <span class="font-bold text-sky-400 font-mono" id="p-true">-</span>
+          </div>
+
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-400">테일러 1차 근사 확률 $p \approx$:</span>
+            <span class="font-bold text-rose-400 font-mono" id="p-approx">-</span>
+          </div>
+
+          <div class="flex justify-between text-sm border-t border-slate-800/80 pt-2">
+            <span class="text-slate-400 font-medium">절대적 오차 (Absolute Error):</span>
+            <span class="font-extrabold text-emerald-400 font-mono" id="p-error">-</span>
+          </div>
+
+          <div class="flex justify-between text-sm border-t border-slate-800/80 pt-2">
+            <span class="text-slate-400">이산분포 비대칭도 (Skewness):</span>
+            <span class="font-bold text-yellow-400 font-mono" id="p-skewness">-</span>
+          </div>
+        </div>
+
+        <div class="text-[10px] text-slate-500 leading-relaxed">
+          * 만기 $T=1$로 고정 시 이산 총 시행 횟수 $n = T/\Delta t$가 됩니다. <br>
+          * $\Delta t$가 작아질수록 왜도(Skewness)가 극적으로 0을 향해 선형 붕괴하는 현상을 확인하십시오.
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Interactive Plot Panel -->
+      <div class="lg:col-span-7 flex flex-col bg-slate-950 p-5 rounded-lg border border-slate-800/80">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-sm font-semibold text-slate-300">시간 격자 폭(&Delta;t)에 따른 실제 확률 vs 테일러 근사 곡선</h3>
+          <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 font-mono border border-emerald-800">실시간 연동</span>
+        </div>
+
+        <!-- HTML Canvas Chart -->
+        <div class="relative w-full flex-grow flex items-center justify-center min-h-[280px]">
+          <canvas id="plotCanvas" class="w-full h-full bg-slate-900 rounded border border-slate-800/80"></canvas>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex justify-center gap-6 mt-4 text-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-0.5 bg-sky-400 block"></span>
+            <span class="text-slate-300">실제 비선형 확률 곡선</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-0.5 border-t border-dashed border-rose-500 block"></span>
+            <span class="text-slate-300">테일러 1차 선형 근사</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 block"></span>
+            <span class="text-slate-300">현재 &Delta;t 좌표</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Bottom Footer Status -->
+    <div class="mt-6 pt-4 border-t border-slate-800/60 flex flex-col md:flex-row justify-between items-center text-xs text-slate-400 gap-2">
+      <div>
+        로그 실질 성장률 보정 항: 
+        <span class="font-mono text-emerald-400" id="drag-formula">(&mu; - 0.5&sigma;²) / &sigma; = 0.1833</span>
+      </div>
+      <div class="text-slate-500">
+        테일러 근사 유도: $p \approx \frac{1}{2} + \frac{1}{2}(\text{Drag Factor})\sqrt{\Delta t}$
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Elements
+    const paramMu = document.getElementById('param-mu');
+    const paramSigma = document.getElementById('param-sigma');
+    const paramDt = document.getElementById('param-dt');
+
+    const muVal = document.getElementById('mu-val');
+    const sigmaVal = document.getElementById('sigma-val');
+    const dtVal = document.getElementById('dt-val');
+
+    const pTrueEl = document.getElementById('p-true');
+    const pApproxEl = document.getElementById('p-approx');
+    const pErrorEl = document.getElementById('p-error');
+    const pSkewnessEl = document.getElementById('p-skewness');
+    const dragFormulaEl = document.getElementById('drag-formula');
+
+    const canvas = document.getElementById('plotCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Setup High-DPI Canvas
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    // Core Calculation Logic
+    function calculate(mu, sigma, dt) {
+      // Inputs
+      const u = Math.exp(sigma * Math.sqrt(dt));
+      const d = Math.exp(-sigma * Math.sqrt(dt));
+      
+      // 1. True Probability
+      const pTrue = (Math.exp(mu * dt) - d) / (u - d);
+      
+      // 2. Taylor Linear Approximation
+      const dragFactor = (mu - 0.5 * Math.pow(sigma, 2)) / sigma;
+      const pApprox = 0.5 + 0.5 * dragFactor * Math.sqrt(dt);
+      
+      // 3. Absolute Error
+      const absError = Math.abs(pTrue - pApprox);
+
+      // 4. Skewness
+      const T = 1.0; // Assume 만기 1년 고정
+      const n = Math.max(2, Math.round(T / dt));
+      const skewness = (1 - 2 * pTrue) / Math.sqrt(n * pTrue * (1 - pTrue));
+
+      return { pTrue, pApprox, absError, skewness, dragFactor, n };
+    }
+
+    // Drawing the interactive plot
+    function drawPlot(mu, sigma, currentDt) {
+      const width = canvas.width / window.devicePixelRatio;
+      const height = canvas.height / window.devicePixelRatio;
+      
+      ctx.clearRect(0, 0, width, height);
+
+      // Margins
+      const padding = { top: 20, right: 30, bottom: 40, left: 50 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      // Draw Grid Lines & Axes
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      
+      // Horizontal grids (Probability scale from 0.45 to 0.55 or dynamic)
+      // We will fix probability display range: [0.45, 0.58] for normal scales
+      const pMin = 0.46;
+      const pMax = 0.56;
+
+      function getX(dtVal) {
+        // max dt on X-axis is 0.1
+        return padding.left + (dtVal / 0.1) * chartWidth;
+      }
+
+      function getY(pVal) {
+        const ratio = (pVal - pMin) / (pMax - pMin);
+        return padding.top + chartHeight - ratio * chartHeight;
+      }
+
+      // Draw horizontal grids
+      const gridLevels = [0.46, 0.48, 0.50, 0.52, 0.54, 0.56];
+      gridLevels.forEach(level => {
+        const y = getY(level);
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(padding.left + chartWidth, y);
+        ctx.stroke();
+
+        // Text value
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px monospace';
+        ctx.fillText(level.toFixed(2), padding.left - 35, y + 3);
+      });
+
+      // Draw vertical grids (dt steps)
+      const dtLevels = [0.0, 0.02, 0.04, 0.06, 0.08, 0.10];
+      dtLevels.forEach(level => {
+        const x = getX(level);
+        ctx.beginPath();
+        ctx.moveTo(x, padding.top);
+        ctx.lineTo(x, padding.top + chartHeight);
+        ctx.stroke();
+
+        // Text value
+        ctx.fillStyle = '#64748b';
+        ctx.font = '10px monospace';
+        ctx.fillText(level.toFixed(2), x - 10, padding.top + chartHeight + 18);
+      });
+
+      // Plot curves
+      const steps = 100;
+      
+      // 1. Draw Actual Probability Curve (Blue)
+      ctx.beginPath();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#38bdf8';
+      for (let i = 0; i <= steps; i++) {
+        const xDt = (i / steps) * 0.1;
+        // avoid calculation at exactly dt=0
+        const calcDt = Math.max(0.00001, xDt); 
+        const { pTrue } = calculate(mu, sigma, calcDt);
+        const px = getX(xDt);
+        const py = getY(pTrue);
+        
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      // 2. Draw Taylor Approximation Line (Red dashed)
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#f43f5e';
+      ctx.setLineDash([4, 4]);
+      for (let i = 0; i <= steps; i++) {
+        const xDt = (i / steps) * 0.1;
+        const calcDt = Math.max(0.00001, xDt);
+        const { pApprox } = calculate(mu, sigma, calcDt);
+        const px = getX(xDt);
+        const py = getY(pApprox);
+        
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset line dash
+
+      // Axis borders
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, padding.top + chartHeight);
+      ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
+      ctx.stroke();
+
+      // Plot current cursor intersection dots
+      const currentValues = calculate(mu, sigma, currentDt);
+      const currX = getX(currentDt);
+      const currYTrue = getY(currentValues.pTrue);
+      const currYApprox = getY(currentValues.pApprox);
+
+      // Draw guide vertical line
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(currX, padding.top);
+      ctx.lineTo(currX, padding.top + chartHeight);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // True Point (Blue circle)
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(currX, currYTrue, 6, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Approx Point (Red circle)
+      ctx.fillStyle = '#f43f5e';
+      ctx.beginPath();
+      ctx.arc(currX, currYApprox, 4, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Overlap Indicator if error is extremely small
+      if (currentValues.absError < 0.0001) {
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(currX, currYTrue, 9, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+    }
+
+    // Update values & redraw UI
+    function updateUI() {
+      const mu = parseFloat(paramMu.value);
+      const sigma = parseFloat(paramSigma.value);
+      const dt = parseFloat(paramDt.value);
+
+      // Text update
+      muVal.innerText = `${(mu * 100).toFixed(0)}% (${mu.toFixed(2)})`;
+      sigmaVal.innerText = `${(sigma * 100).toFixed(0)}% (${sigma.toFixed(2)})`;
+      dtVal.innerText = `${dt.toFixed(4)} (약 ${(dt * 365).toFixed(1)}일)`;
+
+      // Math output
+      const res = calculate(mu, sigma, dt);
+      pTrueEl.innerText = res.pTrue.toFixed(7);
+      pApproxEl.innerText = res.pApprox.toFixed(7);
+      
+      // Precision representation
+      pErrorEl.innerText = res.absError.toExponential(4);
+      pSkewnessEl.innerText = res.skewness.toFixed(5);
+      
+      dragFormulaEl.innerText = `(${mu.toFixed(2)} - 0.5×${sigma.toFixed(2)}²) / ${sigma.toFixed(2)} = ${res.dragFactor.toFixed(4)}`;
+
+      // Redraw plot
+      drawPlot(mu, sigma, dt);
+    }
+
+    // Event Listeners
+    paramMu.addEventListener('input', updateUI);
+    paramSigma.addEventListener('input', updateUI);
+    paramDt.addEventListener('input', updateUI);
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      updateUI();
+    });
+
+    // Initial load
+    resizeCanvas();
+    updateUI();
+  </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>q-측도 하 누적 로그수익률 발산 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6 select-none">
+
+  <div class="max-w-5xl mx-auto bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 shadow-2xl">
+    <!-- 헤더 -->
+    <div class="border-b border-slate-800 pb-4 mb-6">
+      <h1 class="text-xl md:text-2xl font-bold text-slate-100 flex items-center gap-2">
+        <span class="text-emerald-500">📈</span> 
+        q-측도 하 누적 로그수익률의 다기간 발산 시뮬레이터
+      </h1>
+      <p class="text-xs md:text-sm text-slate-400 mt-1">
+        시간 단계 수(n)를 무한히 늘릴 때, 매개변수 시간 보정 장치의 유무가 불러오는 총 분산의 폭주와 안정적 제어를 대조합니다.
+      </p>
+    </div>
+
+    <!-- 메인 레이아웃: 컨트롤러 + 그래프 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- 좌측 컨트롤러 (4열) -->
+      <div class="lg:col-span-4 bg-slate-950 border border-slate-800 rounded-lg p-4 space-y-6">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-1.5">
+            <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>
+            시뮬레이션 조절 패널
+          </h2>
+          
+          <!-- 보정 토글 스위치 -->
+          <div class="mb-6 bg-slate-900 border border-slate-800 rounded-lg p-3">
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-xs font-bold text-slate-300">매개변수 시간 보정 (Δt 연동)</span>
+              <div class="relative">
+                <input id="correction-toggle" type="checkbox" class="sr-only" checked>
+                <div class="block bg-slate-700 w-12 h-6 rounded-full transition-colors duration-200" id="toggle-bg"></div>
+                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 transform translate-x-6" id="toggle-dot"></div>
+              </div>
+            </label>
+            <div class="text-[10px] text-slate-400 mt-2" id="status-desc">
+              <strong>보정 ON:</strong> n 증가 시 <span class="text-emerald-400">u = e^{σ√Δt}</span>식에 따라 1단계 폭을 줄여 총 변동성을 보존합니다.
+            </div>
+          </div>
+
+          <!-- 단계 수 슬라이더 -->
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-xs text-slate-300">
+              <span>시간 분할 단계 수 (n)</span>
+              <span class="font-mono text-emerald-400 font-bold" id="n-val">50 단계</span>
+            </div>
+            <input id="n-slider" type="range" min="5" max="200" value="50" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+            <div class="flex justify-between text-[10px] text-slate-500">
+              <span>n = 5</span>
+              <span>n = 200 (연속 수렴 근사)</span>
+            </div>
+          </div>
+
+          <!-- 실제 확률 q 슬라이더 -->
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-xs text-slate-300">
+              <span>상승 확률 (q)</span>
+              <span class="font-mono text-cyan-400 font-bold" id="q-val">0.50</span>
+            </div>
+            <input id="q-slider" type="range" min="0" max="1" step="0.01" value="0.50" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+            <div class="flex justify-between text-[10px] text-slate-500">
+              <span>q = 0.0 (확실한 하락)</span>
+              <span>q = 1.0 (확실한 상승)</span>
+            </div>
+          </div>
+
+          <!-- 연율화 기준 변동성 σ 슬라이더 -->
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs text-slate-300">
+              <span>내재 변동성 (σ)</span>
+              <span class="font-mono text-indigo-400 font-bold" id="vol-val">30%</span>
+            </div>
+            <input id="vol-slider" type="range" min="5" max="80" value="30" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+            <div class="flex justify-between text-[10px] text-slate-500">
+              <span>σ = 5%</span>
+              <span>σ = 80%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 정량 실시간 통계 표 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs space-y-2">
+          <div class="text-[11px] font-bold text-slate-400 border-b border-slate-800 pb-1">실시간 통계량 분석</div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">1기간 상승폭 (u)</span>
+            <span class="font-mono font-bold text-slate-200" id="u-stat">1.100</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">1기간 하락폭 (d)</span>
+            <span class="font-mono font-bold text-slate-200" id="d-stat">0.909</span>
+          </div>
+          <div class="flex justify-between border-t border-slate-800 pt-1.5">
+            <span class="text-slate-400">누적 기댓값 (μ̂_n)</span>
+            <span class="font-mono font-bold text-amber-400" id="mu-stat">0.000</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400 font-bold">누적 분산 (σ̂_n²)</span>
+            <span class="font-mono font-bold text-rose-500" id="var-stat">0.090</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측 그래프 영역 (8열) -->
+      <div class="lg:col-span-8 flex flex-col justify-between space-y-4">
+        
+        <!-- 차트 캔버스 컨테이너 -->
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 md:p-4 flex-1 flex flex-col justify-center min-h-[350px]">
+          <div class="relative w-full h-[320px]">
+            <canvas id="chart-canvas"></canvas>
+          </div>
+        </div>
+        
+        <!-- 설명문 팁 -->
+        <div class="bg-slate-900/50 border border-slate-800/80 rounded-lg p-3 text-xs text-slate-400 leading-relaxed flex items-start gap-2.5">
+          <span class="text-amber-500 text-sm mt-0.5">💡</span>
+          <p>
+            슬라이더를 통해 <span class="text-slate-200 font-semibold">n 단계를 높여보십시오</span>. 
+            보정 스위치가 <span class="text-rose-400 font-semibold">OFF</span>일 때는 단계가 쪼개지더라도 상승폭/하락폭이 고정되므로 만기 주가의 분산 대역(95% 신뢰구간)이 나팔처럼 비정상적으로 찢어집니다. 
+            반면, <span class="text-emerald-400 font-semibold">ON</span>으로 전환하면 시간 간격 Δt가 줄어듦에 따라 변동성이 엄격하게 제한되면서 일정한 변동성 띠를 형성하며 매끄러운 연속 기하 브라운 운동 형태로 안착합니다.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // DOM 요소 캐싱
+    const nSlider = document.getElementById('n-slider');
+    const qSlider = document.getElementById('q-slider');
+    const volSlider = document.getElementById('vol-slider');
+    const nVal = document.getElementById('n-val');
+    const qVal = document.getElementById('q-val');
+    const volVal = document.getElementById('vol-val');
+    const correctionToggle = document.getElementById('correction-toggle');
+    const toggleBg = document.getElementById('toggle-bg');
+    const toggleDot = document.getElementById('toggle-dot');
+    const statusDesc = document.getElementById('status-desc');
+
+    const uStat = document.getElementById('u-stat');
+    const dStat = document.getElementById('d-stat');
+    const muStat = document.getElementById('mu-stat');
+    const varStat = document.getElementById('var-stat');
+
+    const ctx = document.getElementById('chart-canvas').getContext('2d');
+    let chart;
+
+    // 초기 상태 정의
+    let n = parseInt(nSlider.value);
+    let q = parseFloat(qSlider.value);
+    let sigma = parseInt(volSlider.value) / 100;
+    let corrected = correctionToggle.checked;
+    const T = 1.0; // 만기 1년 고정
+
+    // 차트 초기화 함수
+    function initChart() {
+      const config = {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: '기댓값 경로 (μ̂_t)',
+              data: [],
+              borderColor: '#f59e0b',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 0,
+              order: 2
+            },
+            {
+              label: '상위 95% 한계선 (μ̂ + 1.96σ)',
+              data: [],
+              borderColor: '#f43f5e',
+              borderWidth: 1.5,
+              borderDash: [5, 5],
+              backgroundColor: 'rgba(244, 63, 94, 0.05)',
+              fill: '+1', // 아래쪽 차트(하위 한계선) 영역을 채우기 위함
+              pointRadius: 0,
+              order: 1
+            },
+            {
+              label: '하위 95% 한계선 (μ̂ - 1.96σ)',
+              data: [],
+              borderColor: '#ef4444',
+              borderWidth: 1.5,
+              borderDash: [5, 5],
+              backgroundColor: 'transparent',
+              pointRadius: 0,
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: '#94a3b8',
+                font: { size: 11 }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#f8fafc',
+              bodyColor: '#cbd5e1',
+              borderWidth: 1,
+              borderColor: '#334155'
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '단계 경과 (Step t)',
+                color: '#64748b',
+                font: { size: 10 }
+              },
+              ticks: { color: '#64748b', maxTicksLimit: 10 },
+              grid: { color: '#1e293b' }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '누적 로그수익률',
+                color: '#64748b',
+                font: { size: 10 }
+              },
+              ticks: { color: '#64748b' },
+              grid: { color: '#1e293b' }
+            }
+          }
+        }
+      };
+      chart = new Chart(ctx, config);
+    }
+
+    // 통계 계산 및 그래프 업데이트
+    function updateSimulation() {
+      const dt = T / n;
+      let u, d;
+
+      if (corrected) {
+        // Cox-Ross-Rubinstein 형태의 미소 변동성 보정 반영
+        u = Math.exp(sigma * Math.sqrt(dt));
+        d = Math.exp(-sigma * Math.sqrt(dt));
+      } else {
+        // 시간 단계를 무시한 고정된 형태의 상승/하락 비율 (모순 유발 조건)
+        u = 1.0 + sigma;
+        d = 1.0 / (1.0 + sigma);
+      }
+
+      // 1기간 로그수익률
+      const ln_u = Math.log(u);
+      const ln_d = Math.log(d);
+
+      // 1기간 통계량
+      const single_mu = q * ln_u + (1 - q) * ln_d;
+      const single_var = q * (1 - q) * Math.pow(ln_u - ln_d, 2);
+
+      // 데이터셋 빌딩
+      const steps = Array.from({length: n + 1}, (_, i) => i);
+      const mu_path = [];
+      const upper_path = [];
+      const lower_path = [];
+
+      for (let t = 0; t <= n; t++) {
+        const cum_mu = t * single_mu;
+        const cum_var = t * single_var;
+        const cum_sd = Math.sqrt(cum_var);
+
+        mu_path.push(cum_mu);
+        // 95% 신뢰구간 (대략 1.96 표준편차 범위)
+        upper_path.push(cum_mu + 1.96 * cum_sd);
+        lower_path.push(cum_mu - 1.96 * cum_sd);
+      }
+
+      // 최종 통계 반영
+      uStat.innerText = u.toFixed(4);
+      dStat.innerText = d.toFixed(4);
+      muStat.innerText = (n * single_mu).toFixed(4);
+      
+      const totalVar = n * single_var;
+      varStat.innerText = totalVar.toFixed(4);
+      
+      if (!corrected && totalVar > 1.5) {
+        varStat.className = "font-mono font-bold text-rose-500 animate-pulse";
+      } else {
+        varStat.className = "font-mono font-bold text-emerald-400";
+      }
+
+      // 차트 데이터 주입
+      chart.data.labels = steps;
+      chart.data.datasets[0].data = mu_path;
+      chart.data.datasets[1].data = upper_path;
+      chart.data.datasets[2].data = lower_path;
+
+      // 보정 유무에 따른 채우기 및 라인 색상 극적 변화 효과
+      if (corrected) {
+        chart.data.datasets[1].borderColor = '#10b981';
+        chart.data.datasets[1].backgroundColor = 'rgba(16, 185, 129, 0.04)';
+        chart.data.datasets[2].borderColor = '#10b981';
+      } else {
+        chart.data.datasets[1].borderColor = '#ef4444';
+        chart.data.datasets[1].backgroundColor = 'rgba(239, 68, 68, 0.04)';
+        chart.data.datasets[2].borderColor = '#ef4444';
+      }
+
+      chart.update();
+    }
+
+    // 컨트롤러 이벤트 바인딩
+    nSlider.addEventListener('input', (e) => {
+      n = parseInt(e.target.value);
+      nVal.innerText = n + " 단계";
+      updateSimulation();
+    });
+
+    qSlider.addEventListener('input', (e) => {
+      q = parseFloat(e.target.value);
+      qVal.innerText = q.toFixed(2);
+      updateSimulation();
+    });
+
+    volSlider.addEventListener('input', (e) => {
+      const volPct = parseInt(e.target.value);
+      sigma = volPct / 100;
+      volVal.innerText = volPct + "%";
+      updateSimulation();
+    });
+
+    correctionToggle.addEventListener('change', (e) => {
+      corrected = e.target.checked;
+      if (corrected) {
+        toggleBg.className = "block bg-emerald-500 w-12 h-6 rounded-full transition-colors duration-200";
+        toggleDot.className = "dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 transform translate-x-6";
+        statusDesc.innerHTML = "<strong>보정 ON:</strong> n 증가 시 <span class='text-emerald-400 font-bold'>u = e^{σ√Δt}</span>에 따라 변폭이 제어되어 분산이 수렴합니다.";
+      } else {
+        toggleBg.className = "block bg-slate-700 w-12 h-6 rounded-full transition-colors duration-200";
+        toggleDot.className = "dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 transform";
+        statusDesc.innerHTML = "<strong>보정 OFF:</strong> 변수 u와 d가 상수로 격리되어, 단계 n이 커질수록 <span class='text-rose-400 font-bold'>총 분산이 폭주</span>합니다.";
+      }
+      updateSimulation();
+    });
+
+    // 앱 실행
+    window.addEventListener('load', () => {
+      initChart();
+      // 강제 스위치 온 상태 스타일 리셋
+      toggleBg.className = "block bg-emerald-500 w-12 h-6 rounded-full transition-colors duration-200";
+      updateSimulation();
+    });
+  </script>
+</body>
+</html>

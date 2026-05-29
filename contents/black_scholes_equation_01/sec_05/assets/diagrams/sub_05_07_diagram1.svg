@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="800" height="450" fill="#0f172a" rx="12"/>
+  
+  <!-- Grid Lines (Subtle) -->
+  <g stroke="#334155" stroke-width="0.5" stroke-dasharray="4 4" opacity="0.4">
+    <line x1="100" y1="350" x2="700" y2="350" />
+    <line x1="250" y1="100" x2="250" y2="350" />
+    <line x1="550" y1="100" x2="550" y2="350" />
+    <line x1="400" y1="100" x2="400" y2="350" />
+  </g>
+
+  <!-- Title & Subtitle -->
+  <text x="40" y="45" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="bold">p-측도와 q-측도의 형식적 동질성 및 평행 이동</text>
+  <text x="40" y="70" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">Formal Homogeneity and Drift Mapping in Probability Measures</text>
+
+  <!-- Distribution Curves -->
+  <!-- q-Measure Curve (Amber) centered at x = 280 -->
+  <path d="M 100,350 Q 180,350 220,290 T 280,130 T 340,290 Q 380,350 460,350" 
+        fill="none" stroke="#f59e0b" stroke-width="3" opacity="0.85"/>
+  <area d="M 100,350 Q 180,350 220,290 T 280,130 T 340,290 Q 380,350 460,350 Z" 
+        fill="#f59e0b" opacity="0.1"/>
+
+  <!-- p-Measure Curve (Indigo) centered at x = 520 -->
+  <path d="M 340,350 Q 420,350 460,290 T 520,130 T 580,290 Q 620,350 700,350" 
+        fill="none" stroke="#6366f1" stroke-width="3" opacity="0.85"/>
+  <area d="M 340,350 Q 420,350 460,290 T 520,130 T 580,290 Q 620,350 700,350 Z" 
+        fill="#6366f1" opacity="0.1"/>
+
+  <!-- Axes -->
+  <line x1="80" y1="350" x2="720" y2="350" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="715" y="375" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" text-anchor="end">자산 로그 가격 ln(S_T)</text>
+
+  <!-- Peaks / Centers -->
+  <!-- q-measure peak line -->
+  <line x1="280" y1="130" x2="280" y2="350" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <circle cx="280" cy="130" r="4" fill="#f59e0b"/>
+  <!-- p-measure peak line -->
+  <line x1="520" y1="130" x2="520" y2="350" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <circle cx="520" cy="130" r="4" fill="#6366f1"/>
+
+  <!-- Horizontal Shift Arrow -->
+  <path d="M 295,180 L 505,180" fill="none" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrow-blue)" marker-start="url(#arrow-blue-reverse)"/>
+  <rect x="340" y="158" width="120" height="24" fill="#0f172a" rx="4"/>
+  <text x="400" y="174" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="bold" text-anchor="middle">기댓값 평행 이동 (μ ↔ r)</text>
+
+  <!-- Labels for Curves -->
+  <!-- q-Measure Label -->
+  <rect x="150" y="210" width="120" height="45" fill="#1e293b" rx="6" stroke="#f59e0b" stroke-width="1"/>
+  <text x="210" y="228" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">위험중립 측도 (q)</text>
+  <text x="210" y="244" fill="#94a3b8" font-family="Cambria, Georgia, serif" font-size="11" font-style="italic" text-anchor="middle">Drift = r - σ²/2</text>
+
+  <!-- p-Measure Label -->
+  <rect x="530" y="210" width="120" height="45" fill="#1e293b" rx="6" stroke="#6366f1" stroke-width="1"/>
+  <text x="590" y="228" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="bold" text-anchor="middle">실제 확률 측도 (p)</text>
+  <text x="590" y="244" fill="#94a3b8" font-family="Cambria, Georgia, serif" font-size="11" font-style="italic" text-anchor="middle">Drift = μ - σ²/2</text>
+
+  <!-- Shared Shape Indicators (Formal Homogeneity) -->
+  <path d="M 170,290 Q 280,310 400,310 T 630,290" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="400" y="325" fill="#10b981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="bold" text-anchor="middle">형식적 동질성 (Formal Homogeneity)</text>
+  <text x="400" y="340" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" text-anchor="middle">동일한 기하학적 형태, 왜도 소멸(dt → 0), 변동성(σ) 보존</text>
+
+  <!-- Math Formulas (Bottom Left & Right) -->
+  <text x="120" y="405" fill="#94a3b8" font-family="Cambria, Georgia, serif" font-size="12" font-style="italic">
+    q ≈ 1/2 + 1/2[(r - σ²/2)/σ]√Δt
+  </text>
+  <text x="480" y="405" fill="#94a3b8" font-family="Cambria, Georgia, serif" font-size="12" font-style="italic">
+    p ≈ 1/2 + 1/2[(μ - σ²/2)/σ]√Δt
+  </text>
+
+  <!-- Definitions / Markers -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrow-blue-reverse" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+</svg>

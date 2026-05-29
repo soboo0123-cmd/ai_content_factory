@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>이산 격자-연속 표준정규분포 수렴 시뮬레이터</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8fafc;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            background: #4f46e5;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            background: #4f46e5;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <!-- Header -->
+        <div class="border-b border-slate-100 pb-4 mb-6">
+            <h1 class="text-xl font-bold text-slate-800">이산 상승 횟수 격자(J)와 표준정규분포(Z)의 동적 매핑 시뮬레이터</h1>
+            <p class="text-xs text-slate-500 mt-1">블랙-숄즈 모형의 뼈대인 d₂의 유도 과정과 이산 이항분포에서 연속 정규분포로의 확률 수렴을 실시간 시각화합니다.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Side: Interactive Controls -->
+            <div class="lg:col-span-4 bg-slate-50 p-5 rounded-xl border border-slate-100 space-y-5">
+                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">시장 파라미터 제어</h2>
+                
+                <!-- S_0 Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>초기 주가 (S₀)</span>
+                        <span id="s0-val" class="text-indigo-600 font-bold">100</span>
+                    </div>
+                    <input id="s0" type="range" min="50" max="150" value="100" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none">
+                </div>
+
+                <!-- K Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>행사 가격 (K)</span>
+                        <span id="k-val" class="text-indigo-600 font-bold">95</span>
+                    </div>
+                    <input id="k" type="range" min="50" max="150" value="95" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none">
+                </div>
+
+                <!-- T Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>만기 기간 (T)</span>
+                        <span id="t-val" class="text-indigo-600 font-bold">1.0 년</span>
+                    </div>
+                    <input id="t" type="range" min="0.1" max="5.0" step="0.1" value="1.0" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none">
+                </div>
+
+                <!-- r Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>무위험 수익률 (r)</span>
+                        <span id="r-val" class="text-indigo-600 font-bold">5.0 %</span>
+                    </div>
+                    <input id="r" type="range" min="0" max="20" step="1" value="5" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none">
+                </div>
+
+                <!-- Volatility Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>변동성 (σ)</span>
+                        <span id="sigma-val" class="text-indigo-600 font-bold">20.0 %</span>
+                    </div>
+                    <input id="sigma" type="range" min="5" max="50" step="1" value="20" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none">
+                </div>
+
+                <!-- n Slider -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
+                        <span>이항 트리 단계 수 (n)</span>
+                        <span id="n-val" class="text-indigo-600 font-bold">10</span>
+                    </div>
+                    <input id="n" type="range" min="4" max="100" step="1" value="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none">
+                </div>
+            </div>
+
+            <!-- Right Side: Visualization and Stat Cards -->
+            <div class="lg:col-span-8 flex flex-col justify-between space-y-6">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="bg-indigo-50 border border-indigo-100 p-3.5 rounded-lg text-center">
+                        <span class="block text-[10px] uppercase font-bold text-indigo-500 tracking-wider">이산 임계 상승 (J*)</span>
+                        <span id="stat-j-star" class="text-lg font-extrabold text-indigo-900">-</span>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-100 p-3.5 rounded-lg text-center">
+                        <span class="block text-[10px] uppercase font-bold text-indigo-500 tracking-wider">이산 경계치 (d₂⁽ⁿ⁾)</span>
+                        <span id="stat-d2-discrete" class="text-lg font-extrabold text-indigo-900">-</span>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-lg text-center">
+                        <span class="block text-[10px] uppercase font-bold text-emerald-600 tracking-wider">연속 경계치 (d₂)</span>
+                        <span id="stat-d2-continuous" class="text-lg font-extrabold text-emerald-900">-</span>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-lg text-center">
+                        <span class="block text-[10px] uppercase font-bold text-emerald-600 tracking-wider">연속 행사확률 N(d₂)</span>
+                        <span id="stat-prob-continuous" class="text-lg font-extrabold text-emerald-900">-</span>
+                    </div>
+                </div>
+
+                <!-- SVG Graphics Container -->
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-inner flex items-center justify-center">
+                    <svg id="chart-svg" viewBox="0 0 800 380" class="w-full h-auto"></svg>
+                </div>
+
+                <!-- Footnotes / Comparison Info -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-100 flex flex-col sm:flex-row justify-between text-xs text-slate-500 space-y-2 sm:space-y-0">
+                    <div>
+                        <span class="font-bold text-slate-700">이산 모형 행사 누적 확률:</span>
+                        <span id="prob-discrete-text" class="font-mono text-indigo-600 ml-1">-</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-slate-700">수렴 오차 (|d₂⁽ⁿ⁾ - d₂|):</span>
+                        <span id="error-text" class="font-mono text-rose-500 ml-1">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Area -->
+    <script>
+        // DOM Elements
+        const s0Input = document.getElementById('s0');
+        const kInput = document.getElementById('k');
+        const tInput = document.getElementById('t');
+        const rInput = document.getElementById('r');
+        const sigmaInput = document.getElementById('sigma');
+        const nInput = document.getElementById('n');
+
+        const s0Val = document.getElementById('s0-val');
+        const kVal = document.getElementById('k-val');
+        const tVal = document.getElementById('t-val');
+        const rVal = document.getElementById('r-val');
+        const sigmaVal = document.getElementById('sigma-val');
+        const nVal = document.getElementById('n-val');
+
+        const statJStar = document.getElementById('stat-j-star');
+        const statD2Discrete = document.getElementById('stat-d2-discrete');
+        const statD2Continuous = document.getElementById('stat-d2-continuous');
+        const statProbContinuous = document.getElementById('stat-prob-continuous');
+
+        const probDiscreteText = document.getElementById('prob-discrete-text');
+        const errorText = document.getElementById('error-text');
+
+        const svgEl = document.getElementById('chart-svg');
+
+        // Normal distribution helpers
+        function cdf(x) {
+            if (x < 0) return 1 - cdf(-x);
+            const t = 1 / (1 + 0.2316419 * x);
+            const d = 0.39894228;
+            const prob = 1 - d * Math.exp(-x * x / 2) * t * (0.31938153 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+            return prob;
+        }
+
+        // Stirling/Log Factorial for Combinations
+        function logFact(num) {
+            let r = 0;
+            for (let i = 1; i <= num; i++) r += Math.log(i);
+            return r;
+        }
+
+        function binomProb(n, j, q) {
+            if (q <= 0 || q >= 1) return 0;
+            const logP = logFact(n) - logFact(j) - logFact(n-j) + j * Math.log(q) + (n-j) * Math.log(1-q);
+            return Math.exp(logP);
+        }
+
+        function calculate() {
+            const S0 = parseFloat(s0Input.value);
+            const K = parseFloat(kInput.value);
+            const T = parseFloat(tInput.value);
+            const r = parseFloat(rInput.value) / 100;
+            const sigma = parseFloat(sigmaInput.value) / 100;
+            const n = parseInt(nInput.value);
+
+            // Update Labels
+            s0Val.innerText = S0;
+            kVal.innerText = K;
+            tVal.innerText = T.toFixed(1) + " 년";
+            rVal.innerText = (r * 100).toFixed(0) + " %";
+            sigmaVal.innerText = (sigma * 100).toFixed(0) + " %";
+            nVal.innerText = n;
+
+            // CRR Parameters
+            const dt = T / n;
+            const u = Math.exp(sigma * Math.sqrt(dt));
+            const d = Math.exp(-sigma * Math.sqrt(dt));
+            const R = Math.exp(r * dt);
+            const q = (R - d) / (u - d);
+
+            if (q <= 0 || q >= 1) {
+                // Arbitrage Warning
+                statJStar.innerText = "N/A";
+                statD2Discrete.innerText = "차익거래발생";
+                statD2Continuous.innerText = "N/A";
+                statProbContinuous.innerText = "N/A";
+                return;
+            }
+
+            // Minimum J* such that S0 * u^J * d^(n-J) > K
+            // J * ln(u/d) > ln(K/S0) - n*ln(d)
+            const logRatio = Math.log(K / S0);
+            const jStarExact = (logRatio - n * Math.log(d)) / Math.log(u / d);
+            let jStar = Math.ceil(jStarExact);
+            if (jStar < 0) jStar = 0;
+            
+            // d2 discrete
+            const meanJ = n * q;
+            const stdJ = Math.sqrt(n * q * (1 - q));
+            const d2Discrete = (n * q * Math.log(u / d) + n * Math.log(d) + Math.log(S0 / K)) / (stdJ * Math.log(u / d));
+
+            // d2 continuous
+            const d2Continuous = (Math.log(S0 / K) + (r - 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+            const probCont = cdf(d2Continuous);
+
+            // Calculate Discrete probability (sum over J >= jStar)
+            let probDiscrete = 0;
+            if (jStar <= n) {
+                for (let j = jStar; j <= n; j++) {
+                    probDiscrete += binomProb(n, j, q);
+                }
+            }
+
+            // Update Stats Card
+            statJStar.innerText = jStar > n ? `불가능` : `${jStar} 회`;
+            statD2Discrete.innerText = d2Discrete.toFixed(4);
+            statD2Continuous.innerText = d2Continuous.toFixed(4);
+            statProbContinuous.innerText = (probCont * 100).toFixed(2) + "%";
+
+            probDiscreteText.innerText = (probDiscrete * 100).toFixed(2) + "%";
+            errorText.innerText = Math.abs(d2Discrete - d2Continuous).toFixed(5);
+
+            renderCharts(n, q, jStar, d2Discrete);
+        }
+
+        function renderCharts(n, q, jStar, d2) {
+            svgEl.innerHTML = ''; // Reset SVG contents
+
+            const width = 800;
+            const height = 380;
+            const upperY = 130;  // Baseline of Upper Chart (Discrete)
+            const lowerY = 320;  // Baseline of Lower Chart (Continuous)
+            const marginX = 100;
+            const chartW = 600;
+
+            // X scale mapper: we align standard normal Z range [-3.5, 3.5] to [marginX, marginX + chartW]
+            function zToX(z) {
+                return marginX + chartW * (z + 3.5) / 7.0;
+            }
+
+            // Standardize J to Z
+            const meanJ = n * q;
+            const stdJ = Math.sqrt(n * q * (1 - q));
+            function jToZ(j) {
+                return (j - meanJ) / stdJ;
+            }
+
+            // Draw Backgrounds / Axis
+            const discreteAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            discreteAxis.setAttribute("x1", marginX);
+            discreteAxis.setAttribute("y1", upperY);
+            discreteAxis.setAttribute("x2", marginX + chartW);
+            discreteAxis.setAttribute("y2", upperY);
+            discreteAxis.setAttribute("stroke", "#cbd5e1");
+            discreteAxis.setAttribute("stroke-width", "2");
+            svgEl.appendChild(discreteAxis);
+
+            const continuousAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            continuousAxis.setAttribute("x1", marginX);
+            continuousAxis.setAttribute("y1", lowerY);
+            continuousAxis.setAttribute("x2", marginX + chartW);
+            continuousAxis.setAttribute("y2", lowerY);
+            continuousAxis.setAttribute("stroke", "#cbd5e1");
+            continuousAxis.setAttribute("stroke-width", "2");
+            svgEl.appendChild(continuousAxis);
+
+            // Label Axis
+            const jName = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            jName.setAttribute("x", marginX + chartW + 15);
+            jName.setAttribute("y", upperY + 5);
+            jName.setAttribute("fill", "#64748b");
+            jName.setAttribute("font-size", "12");
+            jName.setAttribute("font-weight", "bold");
+            jName.textContent = "J (상승 횟수)";
+            svgEl.appendChild(jName);
+
+            const zName = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            zName.setAttribute("x", marginX + chartW + 15);
+            zName.setAttribute("y", lowerY + 5);
+            zName.setAttribute("fill", "#64748b");
+            zName.setAttribute("font-size", "12");
+            zName.setAttribute("font-weight", "bold");
+            zName.textContent = "Z (표준화 공간)";
+            svgEl.appendChild(zName);
+
+            // Calculate Max Prob of Binomial for Scaling
+            let maxP = 0;
+            for (let j = 0; j <= n; j++) {
+                maxP = Math.max(maxP, binomProb(n, j, q));
+            }
+            if (maxP === 0) maxP = 1;
+
+            // Draw Discrete Bars
+            const barMaxH = 100;
+            const barW = Math.max(2, Math.min(30, (chartW / n) * 0.5));
+            for (let j = 0; j <= n; j++) {
+                const pJ = binomProb(n, j, q);
+                const barH = (pJ / maxP) * barMaxH;
+                const z = jToZ(j);
+                const x = zToX(z);
+
+                if (x < marginX || x > marginX + chartW) continue;
+
+                const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", x - barW / 2);
+                rect.setAttribute("y", upperY - barH);
+                rect.setAttribute("width", barW);
+                rect.setAttribute("height", barH);
+                rect.setAttribute("rx", "2");
+
+                // Highlight Color based on option exercise
+                if (j >= jStar) {
+                    rect.setAttribute("fill", "#0D9488"); // Teal: ITM
+                } else {
+                    rect.setAttribute("fill", "#94A3B8"); // Slate: OTM
+                }
+                svgEl.appendChild(rect);
+
+                // Add text on top of bar for small 'n'
+                if (n <= 15) {
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("x", x);
+                    text.setAttribute("y", upperY - barH - 5);
+                    text.setAttribute("text-anchor", "middle");
+                    text.setAttribute("font-size", "9");
+                    text.setAttribute("fill", j >= jStar ? "#0D9488" : "#475569");
+                    text.textContent = (pJ * 100).toFixed(0) + "%";
+                    svgEl.appendChild(text);
+
+                    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    label.setAttribute("x", x);
+                    label.setAttribute("y", upperY + 16);
+                    label.setAttribute("text-anchor", "middle");
+                    label.setAttribute("font-size", "10");
+                    label.setAttribute("font-weight", "bold");
+                    label.setAttribute("fill", "#334155");
+                    label.textContent = j;
+                    svgEl.appendChild(label);
+                }
+            }
+
+            // Draw Standard Normal Curve on the bottom
+            const normMaxH = 90;
+            const step = 2;
+            let pathD = "";
+            let shadeD = "";
+            let shadeStarted = false;
+
+            const zBoundary = -d2;
+            const xBoundary = zToX(zBoundary);
+
+            for (let px = marginX; px <= marginX + chartW; px += step) {
+                const z = -3.5 + 7.0 * (px - marginX) / chartW;
+                const pdfVal = Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+                const py = lowerY - (pdfVal / 0.4) * normMaxH; // normalized to standard normal max (0.3989)
+
+                if (px === marginX) {
+                    pathD += `M ${px} ${py}`;
+                } else {
+                    pathD += ` L ${px} ${py}`;
+                }
+
+                // Handle the shaded area for Z > -d2
+                if (z >= zBoundary) {
+                    if (!shadeStarted) {
+                        shadeD += `M ${px} ${lowerY} L ${px} ${py}`;
+                        shadeStarted = true;
+                    } else {
+                        shadeD += ` L ${px} ${py}`;
+                    }
+                }
+            }
+            if (shadeStarted) {
+                shadeD += ` L ${marginX + chartW} ${lowerY} Z`;
+            }
+
+            // Render Shaded Area
+            if (shadeD) {
+                const shadePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                shadePath.setAttribute("d", shadeD);
+                shadePath.setAttribute("fill", "#0D9488");
+                shadePath.setAttribute("fill-opacity", "0.15");
+                svgEl.appendChild(shadePath);
+            }
+
+            // Render normal curve outline
+            const curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            curvePath.setAttribute("d", pathD);
+            curvePath.setAttribute("fill", "none");
+            curvePath.setAttribute("stroke", "#4F46E5");
+            curvePath.setAttribute("stroke-width", "2");
+            svgEl.appendChild(curvePath);
+
+            // Draw d2 boundary line on the lower chart and connection to J*
+            if (xBoundary >= marginX && xBoundary <= marginX + chartW) {
+                // Connection line
+                const connLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                connLine.setAttribute("x1", xBoundary);
+                connLine.setAttribute("y1", upperY - 110);
+                connLine.setAttribute("x2", xBoundary);
+                connLine.setAttribute("y2", lowerY + 25);
+                connLine.setAttribute("stroke", "#EF4444");
+                connLine.setAttribute("stroke-width", "1.5");
+                connLine.setAttribute("stroke-dasharray", "4,4");
+                svgEl.appendChild(connLine);
+
+                // Indicator circle on standard normal baseline
+                const pin = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                pin.setAttribute("cx", xBoundary);
+                pin.setAttribute("cy", lowerY);
+                pin.setAttribute("r", "4");
+                pin.setAttribute("fill", "#EF4444");
+                svgEl.appendChild(pin);
+
+                // Boundary text label
+                const labelText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                labelText.setAttribute("x", xBoundary);
+                labelText.setAttribute("y", lowerY + 16);
+                labelText.setAttribute("text-anchor", "middle");
+                labelText.setAttribute("fill", "#EF4444");
+                labelText.setAttribute("font-size", "10");
+                labelText.setAttribute("font-weight", "bold");
+                labelText.textContent = `-d₂ = ${zBoundary.toFixed(3)}`;
+                svgEl.appendChild(labelText);
+            }
+
+            // Draw Mean Z=0 line
+            const xMean = zToX(0);
+            const meanLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            meanLine.setAttribute("x1", xMean);
+            meanLine.setAttribute("y1", lowerY - 95);
+            meanLine.setAttribute("x2", xMean);
+            meanLine.setAttribute("y2", lowerY);
+            meanLine.setAttribute("stroke", "#64748b");
+            meanLine.setAttribute("stroke-width", "1");
+            meanLine.setAttribute("stroke-dasharray", "2,2");
+            svgEl.appendChild(meanLine);
+
+            const meanText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            meanText.setAttribute("x", xMean);
+            meanText.setAttribute("y", lowerY + 30);
+            meanText.setAttribute("text-anchor", "middle");
+            meanText.setAttribute("fill", "#64748b");
+            meanText.setAttribute("font-size", "10");
+            meanText.textContent = "Z = 0 (평균)";
+            svgEl.appendChild(meanText);
+        }
+
+        // Event Listeners
+        [s0Input, kInput, tInput, rInput, sigmaInput, nInput].forEach(elem => {
+            elem.addEventListener('input', calculate);
+        });
+
+        // Initialize
+        calculate();
+    </script>
+</body>
+</html>

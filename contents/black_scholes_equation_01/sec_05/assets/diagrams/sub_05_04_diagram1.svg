@@ -1,0 +1,100 @@
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="100%" height="100%">
+  <defs>
+    <!-- 그라디언트 정의 -->
+    <linearGradient id="gradBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="gradIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#4338ca" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="gradArrow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+    
+    <!-- 필터 정의 (그림자 효과) -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- 배경 판 -->
+  <rect width="800" height="320" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- SECTION 1: 초기 비대칭 이항분포 (n이 작을 때) -->
+  <g transform="translate(10, 10)">
+    <!-- 테두리 카드 -->
+    <rect width="230" height="260" rx="12" fill="#ffffff" filter="url(#dropShadow)" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="115" y="30" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">성긴 단계 (n = 4)</text>
+    <text x="115" y="48" font-family="'Inter', system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">태생적 비대칭 (p = 0.40)</text>
+    
+    <!-- 축 선 -->
+    <line x1="30" y1="210" x2="200" y2="210" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="30" y1="90" x2="30" y2="210" stroke="#94a3b8" stroke-width="1"/>
+    
+    <!-- 비대칭 이항분포 막대 (p=0.4, n=4) -->
+    <!-- k=0: 0.1296, k=1: 0.3456, k=2: 0.3456, k=3: 0.1536, k=4: 0.0256 -->
+    <!-- 스케일: y=210 - (값 * 250) -->
+    <rect x="45" y="177.6" width="16" height="32.4" rx="2" fill="url(#gradBlue)"/>
+    <rect x="77" y="123.6" width="16" height="86.4" rx="2" fill="url(#gradBlue)"/>
+    <rect x="109" y="123.6" width="16" height="86.4" rx="2" fill="url(#gradBlue)"/>
+    <rect x="141" y="171.6" width="16" height="38.4" rx="2" fill="url(#gradBlue)"/>
+    <rect x="173" y="203.6" width="16" height="6.4" rx="2" fill="url(#gradBlue)"/>
+
+    <!-- 치우침 가이드 곡선 (왜도 시각화) -->
+    <path d="M 40,205 Q 90,100 130,140 T 195,208" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,3"/>
+    
+    <text x="115" y="240" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#ef4444" text-anchor="middle">왜도 (γ) ≈ 0.204 (우측 편향)</text>
+  </g>
+
+  <!-- SECTION 2: 동적 감쇄 장치 작동 (중간 영역) -->
+  <g transform="translate(255, 10)">
+    <!-- 가이드 텍스트 및 압착 메커니즘 표현 -->
+    <path d="M 10,130 L 70,130" fill="none" stroke="url(#gradArrow)" stroke-width="4" marker-end="url(#arrow)"/>
+    
+    <rect x="10" y="65" width="260" height="130" rx="12" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="140" y="90" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">동적 감쇄 장치 (Dynamic Damper)</text>
+    
+    <!-- 수식 기호 강조 -->
+    <rect x="60" y="105" width="160" height="40" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+    <text x="140" y="130" font-family="'Courier New', monospace" font-size="18" font-weight="bold" fill="#0f172a" text-anchor="middle">1 / √n → 0</text>
+    
+    <text x="140" y="165" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#475569" text-anchor="middle">시행 횟수(n)의 기하급수적 증가</text>
+    <text x="140" y="180" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500" fill="#64748b" text-anchor="middle">태생적 비대칭성을 중심부로 압착</text>
+
+    <path d="M 210,130 L 270,130" fill="none" stroke="url(#gradArrow)" stroke-width="4"/>
+  </g>
+
+  <!-- SECTION 3: 연속 시간 대칭 정규분포 (n -> 무한대) -->
+  <g transform="translate(560, 10)">
+    <!-- 테두리 카드 -->
+    <rect width="230" height="260" rx="12" fill="#ffffff" filter="url(#dropShadow)" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="115" y="30" font-family="'Inter', system-ui, sans-serif" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">연속 극한 (n → ∞)</text>
+    <text x="115" y="48" font-family="'Inter', system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">대칭성 회복 (p = 0.40)</text>
+    
+    <!-- 축 선 -->
+    <line x1="30" y1="210" x2="200" y2="210" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="30" y1="90" x2="30" y2="210" stroke="#94a3b8" stroke-width="1"/>
+    
+    <!-- 촘촘한 세분화 막대 및 정규분포 곡선 오버레이 -->
+    <!-- 배경에 얇은 수많은 막대기 효과 -->
+    <path d="M 45,210 L 45,208 M 55,210 L 55,204 M 65,210 L 65,195 M 75,210 L 75,180 M 85,210 L 85,155 M 95,210 L 95,130 M 105,210 L 105,110 M 115,210 L 115,100 M 125,210 L 125,110 M 135,210 L 135,130 M 145,210 L 145,155 M 155,210 L 155,180 M 165,210 L 165,195 M 175,210 L 175,204 M 185,210 L 185,208" stroke="#cbd5e1" stroke-width="3"/>
+    
+    <!-- 완벽한 좌우대칭 종 모양 곡선 (정규분포) -->
+    <path d="M 35,210 C 65,210 85,100 115,100 C 145,100 165,210 195,210" fill="none" stroke="url(#gradIndigo)" stroke-width="3"/>
+    
+    <text x="115" y="240" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#10b981" text-anchor="middle">왜도 (γ) → 0.000 (완벽 대칭)</text>
+  </g>
+
+  <!-- 화살표 정의 머리 기호 -->
+  <g transform="translate(245, 136)">
+    <path d="M 0,0 L 10,4 L 0,8 Z" fill="#475569"/>
+  </g>
+  <g transform="translate(545, 136)">
+    <path d="M 0,0 L 10,4 L 0,8 Z" fill="#475569"/>
+  </g>
+</svg>
+```

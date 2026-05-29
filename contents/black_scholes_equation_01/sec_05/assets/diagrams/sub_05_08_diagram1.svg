@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+  <!-- Definitions of styles and markers -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#f1f5f9" />
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+    <linearGradient id="barHighlightGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="areaGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.6" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <style>
+    .title { font-family: 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 16px; fill: #1e293b; }
+    .subtitle { font-family: 'Inter', system-ui, sans-serif; font-weight: 500; font-size: 12px; fill: #64748b; }
+    .formula { font-family: 'Cambria Math', 'Times New Roman', serif; font-size: 13px; fill: #0f172a; }
+    .math-label { font-family: 'Cambria Math', 'Times New Roman', serif; font-size: 14px; font-style: italic; }
+    .axis-label { font-family: 'Inter', system-ui, sans-serif; font-size: 10px; fill: #94a3b8; }
+    .arrow-text { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 11px; fill: #d97706; }
+  </style>
+
+  <!-- Background Card -->
+  <rect width="800" height="400" rx="16" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Left Side: Discrete Binomial Distribution -->
+  <g transform="translate(10, 10)">
+    <text x="40" y="35" class="title">이산 확률 공간 (이항분포)</text>
+    <text x="40" y="55" class="subtitle">시시각각 격자 형태의 이산 합산</text>
+    
+    <!-- Formula -->
+    <rect x="40" y="75" width="280" height="40" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="50" y="99" class="formula">P(X = k) = ⎛n⎞ pᵏ (1-p)ⁿ⁻ᵏ</text>
+    <text x="100" y="99" class="formula" font-size="9" fill="#64748b" transform="translate(45,-6)">⎝k⎠</text>
+
+    <!-- Chart Frame -->
+    <g transform="translate(40, 140)">
+      <!-- Gridlines -->
+      <line x1="0" y1="180" x2="280" y2="180" stroke="#cbd5e1" stroke-width="1.5"/>
+      <line x1="0" y1="0" x2="0" y2="180" stroke="#cbd5e1" stroke-width="1"/>
+      
+      <!-- Bars -->
+      <!-- x=0 to 12. Width=16. spacing=4. Total 14 bars -->
+      <!-- Left side (Grey) -->
+      <rect x="10" y="170" width="14" height="10" rx="2" fill="url(#barGrad)" />
+      <rect x="28" y="155" width="14" height="25" rx="2" fill="url(#barGrad)" />
+      <rect x="46" y="130" width="14" height="50" rx="2" fill="url(#barGrad)" />
+      <rect x="64" y="95" width="14" height="85" rx="2" fill="url(#barGrad)" />
+      <rect x="82" y="60" width="14" height="120" rx="2" fill="url(#barGrad)" />
+      <rect x="100" y="35" width="14" height="145" rx="2" fill="url(#barGrad)" />
+      <rect x="118" y="25" width="14" height="155" rx="2" fill="url(#barGrad)" />
+      
+      <!-- Right side (Blue / Shaded success region >= k_min) -->
+      <rect x="136" y="30" width="14" height="150" rx="2" fill="url(#barHighlightGrad)" />
+      <rect x="154" y="48" width="14" height="132" rx="2" fill="url(#barHighlightGrad)" />
+      <rect x="172" y="75" width="14" height="105" rx="2" fill="url(#barHighlightGrad)" />
+      <rect x="190" y="110" width="14" height="70" rx="2" fill="url(#barHighlightGrad)" />
+      <rect x="208" y="140" width="14" height="40" rx="2" fill="url(#barHighlightGrad)" />
+      <rect x="226" y="160" width="14" height="20" rx="2" fill="url(#barHighlightGrad)" />
+      <rect x="244" y="172" width="14" height="8" rx="2" fill="url(#barHighlightGrad)" />
+
+      <!-- Labels -->
+      <text x="136" y="195" class="axis-label" font-weight="bold" fill="#1d4ed8">k_min</text>
+      <text x="250" y="195" class="axis-label">n</text>
+      <text x="10" y="195" class="axis-label">0</text>
+      <text x="260" y="130" class="math-label" font-size="16" fill="#1d4ed8">∑</text>
+    </g>
+  </g>
+
+  <!-- Center Arrow: Convergence mechanism -->
+  <g transform="translate(350, 180)">
+    <!-- Elegant transition path -->
+    <path d="M 0 20 L 100 20" stroke="#d97706" stroke-width="3" stroke-dasharray="4 2" />
+    <polygon points="100,20 90,14 90,26" fill="#d97706" />
+    <text x="50" y="-15" text-anchor="middle" class="arrow-text">n → ∞</text>
+    <text x="50" y="2" text-anchor="middle" class="arrow-text" font-size="9" fill="#b45309">De Moivre-Laplace</text>
+    <text x="50" y="42" text-anchor="middle" class="arrow-text" font-size="10" fill="#059669">Δz → dz</text>
+  </g>
+
+  <!-- Right Side: Continuous Normal Distribution -->
+  <g transform="translate(430, 10)">
+    <text x="40" y="35" class="title">연속 확률 공간 (표준정규분포)</text>
+    <text x="40" y="55" class="subtitle">매끄러운 곡선 아래 누적 면적</text>
+
+    <!-- Formula -->
+    <rect x="40" y="75" width="280" height="40" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="65" y="100" class="formula">N(z) = ∫_(-∞)ᶻ  (1/√(2π)) e^(-u²/2) du</text>
+
+    <!-- Chart Frame -->
+    <g transform="translate(40, 140)">
+      <!-- Gridlines -->
+      <line x1="0" y1="180" x2="280" y2="180" stroke="#cbd5e1" stroke-width="1.5"/>
+      <line x1="140" y1="0" x2="140" y2="180" stroke="#e2e8f0" stroke-dasharray="2 2"/>
+
+      <!-- Shaded Success Area (Integral) -->
+      <!-- z_min corresponds to x=150. Integrates to right -->
+      <path d="M 150 180 
+               L 150 45 
+               Q 170 85, 190 125
+               Q 210 155, 230 170
+               Q 250 178, 270 180 
+               Z" fill="url(#areaGrad)" />
+
+      <!-- Smooth normal curve -->
+      <!-- Standard bell curve path -->
+      <path d="M 10 179 
+               Q 40 175, 70 145 
+               Q 100 100, 120 40
+               Q 140 15, 160 40
+               Q 180 100, 210 145
+               Q 240 175, 270 179" 
+            fill="none" stroke="#2563eb" stroke-width="2.5" />
+
+      <!-- Vertical line at z_min -->
+      <line x1="150" y1="40" x2="150" y2="180" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="3 3"/>
+      
+      <!-- Labels -->
+      <text x="140" y="195" class="axis-label" fill="#1e293b">z = 0</text>
+      <text x="150" y="210" class="axis-label" font-weight="bold" fill="#1d4ed8">z_min</text>
+      <text x="240" y="115" class="math-label" font-size="18" fill="#1d4ed8">∫</text>
+      <text x="210" y="95" class="title" font-size="13" fill="#1d4ed8">N(-z_min)</text>
+    </g>
+  </g>
+</svg>

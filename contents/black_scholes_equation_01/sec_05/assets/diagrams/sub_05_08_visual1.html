@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>드무아브르-라플라스 정리 & CLT 표준정규분포 수렴 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- MathJax for rendering math formulas beautifully -->
+  <script opacity="0" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6 flex flex-col items-center justify-center min-h-screen">
+
+  <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-4xl border border-slate-100">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-xl font-extrabold text-slate-800">이산 이항분포의 연속 정규분포 수렴 제어기</h1>
+      <p class="text-xs text-slate-500 mt-1">시행 횟수 n을 극대화하며 드무아브르-라플라스 정리가 이산 확률을 곡선의 면적으로 매핑하는 현상을 검증하세요.</p>
+    </div>
+
+    <!-- Interface Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Controls Column (Left) -->
+      <div class="space-y-5 bg-slate-50 p-4 rounded-xl border border-slate-100">
+        <div>
+          <label class="flex justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>시행 횟수 (n)</span>
+            <span id="n-val" class="text-blue-600 font-mono">100</span>
+          </label>
+          <input id="n-slider" type="range" min="10" max="300" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>10 (거친 이산)</span>
+            <span>300 (연속 수렴)</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="flex justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>성공 확률 (p)</span>
+            <span id="p-val" class="text-blue-600 font-mono">0.509</span>
+          </label>
+          <input id="p-slider" type="range" min="0.10" max="0.90" step="0.001" value="0.509" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>0.1 (좌편향)</span>
+            <span>0.9 (우편향)</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="flex justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>성공 기준 임계치 (k_min)</span>
+            <span id="k-val" class="text-emerald-600 font-mono">52</span>
+          </label>
+          <input id="k-slider" type="range" min="1" max="99" value="52" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>0 (좌측 끝)</span>
+            <span>n (우측 끝)</span>
+          </div>
+        </div>
+
+        <hr class="border-slate-200 my-2" />
+
+        <!-- Metrics display -->
+        <div class="space-y-2 text-xs text-slate-600">
+          <div class="flex justify-between">
+            <span>이항분포 평균 (np):</span>
+            <span id="mean-display" class="font-mono font-bold">50.92</span>
+          </div>
+          <div class="flex justify-between">
+            <span>이항분포 분산 (npq):</span>
+            <span id="var-display" class="font-mono font-bold">24.99</span>
+          </div>
+          <div class="flex justify-between">
+            <span>표준편차 (√npq):</span>
+            <span id="sd-display" class="font-mono font-bold">5.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Display Column (Right & Center) -->
+      <div class="md:col-span-2 flex flex-col justify-between">
+        <div class="relative h-64 w-full">
+          <canvas id="distributionChart"></canvas>
+        </div>
+
+        <!-- Real-time Comparison Tables -->
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+          <div class="p-2 bg-blue-50 rounded-lg border border-blue-100">
+            <span class="block text-[10px] text-blue-500 font-bold uppercase tracking-wider">이산 정밀 합산</span>
+            <span id="discrete-prob" class="text-base font-extrabold text-blue-800 font-mono">0.4180</span>
+            <span class="block text-[8px] text-blue-400 mt-0.5">∑ P(X ≥ k)</span>
+          </div>
+          
+          <div class="p-2 bg-amber-50 rounded-lg border border-amber-100">
+            <span class="block text-[10px] text-amber-600 font-bold uppercase tracking-wider">연속 근사 (무보정)</span>
+            <span id="norm-raw-prob" class="text-base font-extrabold text-amber-800 font-mono">0.4143</span>
+            <span id="raw-err" class="block text-[8px] text-amber-500 mt-0.5">오차: 0.37%</span>
+          </div>
+
+          <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+            <span class="block text-[10px] text-emerald-600 font-bold uppercase tracking-wider">연속성 수정 근사</span>
+            <span id="norm-adj-prob" class="text-base font-extrabold text-emerald-800 font-mono">0.4536</span>
+            <span id="adj-err" class="block text-[8px] text-emerald-500 mt-0.5">오차: 3.56%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Factorial Cache & BigInt Calculations to avoid overflow on big n
+    function binomialPMF(n, k, p) {
+      if (k < 0 || k > n) return 0;
+      // Use Log-Gamma method to calculate combination to handle up to n=300 safely
+      const logComb = logFactorial(n) - logFactorial(k) - logFactorial(n - k);
+      const logProb = logComb + k * Math.log(p) + (n - k) * Math.log(1 - p);
+      return Math.exp(logProb);
+    }
+
+    function logFactorial(x) {
+      let sum = 0;
+      for (let i = 1; i <= x; i++) {
+        sum += Math.log(i);
+      }
+      return sum;
+    }
+
+    // Normal PDF
+    function normalPDF(x, mean, sd) {
+      const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(sd, 2));
+      return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+    }
+
+    // Error Function approximation for Standard Normal CDF
+    function normalCDF(z) {
+      const t = 1 / (1 + 0.2316419 * Math.abs(z));
+      const d = 0.3989423 * Math.exp(-z * z / 2);
+      const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + 1.330274 * t))));
+      if (z > 0) return 1 - p;
+      return p;
+    }
+
+    // Dom elements
+    const nSlider = document.getElementById('n-slider');
+    const pSlider = document.getElementById('p-slider');
+    const kSlider = document.getElementById('k-slider');
+
+    const nValText = document.getElementById('n-val');
+    const pValText = document.getElementById('p-val');
+    const kValText = document.getElementById('k-val');
+
+    const meanDisplay = document.getElementById('mean-display');
+    const varDisplay = document.getElementById('var-display');
+    const sdDisplay = document.getElementById('sd-display');
+
+    const discreteProbText = document.getElementById('discrete-prob');
+    const normRawProbText = document.getElementById('norm-raw-prob');
+    const normAdjProbText = document.getElementById('norm-adj-prob');
+    const rawErrText = document.getElementById('raw-err');
+    const adjErrText = document.getElementById('adj-err');
+
+    let chartInstance = null;
+
+    function updateSimulation() {
+      const n = parseInt(nSlider.value);
+      const p = parseFloat(pSlider.value);
+      
+      // Keep k slider bounds aligned with n
+      kSlider.max = n;
+      let k = parseInt(kSlider.value);
+      if (k > n) {
+        k = n;
+        kSlider.value = n;
+      }
+
+      // Display numeric inputs
+      nValText.innerText = n;
+      pValText.innerText = p.toFixed(3);
+      kValText.innerText = k;
+
+      // Stats
+      const q = 1 - p;
+      const mean = n * p;
+      const variance = n * p * q;
+      const sd = Math.sqrt(variance);
+
+      meanDisplay.innerText = mean.toFixed(2);
+      varDisplay.innerText = variance.toFixed(2);
+      sdDisplay.innerText = sd.toFixed(2);
+
+      // Calculations
+      // 1. Exact Discrete Sum P(X >= k)
+      let sumDiscrete = 0;
+      for (let i = k; i <= n; i++) {
+        sumDiscrete += binomialPMF(n, i, p);
+      }
+
+      // 2. Continuous raw z
+      const zRaw = (k - mean) / sd;
+      const probRaw = 1 - normalCDF(zRaw);
+
+      // 3. Continuous adjusted z
+      const zAdj = (k - 0.5 - mean) / sd;
+      const probAdj = 1 - normalCDF(zAdj);
+
+      // Display results
+      discreteProbText.innerText = sumDiscrete.toFixed(6);
+      normRawProbText.innerText = probRaw.toFixed(6);
+      normAdjProbText.innerText = probAdj.toFixed(6);
+
+      // Errors
+      const rawError = Math.abs(sumDiscrete - probRaw);
+      const adjError = Math.abs(sumDiscrete - probAdj);
+
+      rawErrText.innerText = `절대 오차: ${rawError.toFixed(6)}`;
+      adjErrText.innerText = `절대 오차: ${adjError.toFixed(6)}`;
+
+      // Update Chart Data
+      const labels = [];
+      const binomialData = [];
+      const normalData = [];
+      const bgColors = [];
+
+      // Sampling rate for graph: to make rendering fast and neat
+      const step = Math.max(1, Math.floor(n / 100));
+      for (let i = 0; i <= n; i += step) {
+        labels.push(i);
+        const bPMF = binomialPMF(n, i, p);
+        binomialData.push(bPMF);
+        normalData.push(normalPDF(i, mean, sd));
+        
+        // Highlight bars >= k
+        if (i >= k) {
+          bgColors.push('rgba(59, 130, 246, 0.85)'); // Vibrant Blue
+        } else {
+          bgColors.push('rgba(203, 213, 225, 0.6)'); // Light Gray
+        }
+      }
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      const ctx = document.getElementById('distributionChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '이산 이항분포 PMF',
+              data: binomialData,
+              backgroundColor: bgColors,
+              borderColor: 'transparent',
+              borderWidth: 1,
+              barPercentage: 1.0,
+              categoryPercentage: 1.0,
+              order: 2
+            },
+            {
+              label: '연속 정규분포 PDF',
+              data: normalData,
+              type: 'line',
+              borderColor: '#ef4444',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0,
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { size: 10 }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { maxTicksLimit: 10, font: { size: 9 } }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { font: { size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Set up listeners
+    nSlider.addEventListener('input', updateSimulation);
+    pSlider.addEventListener('input', updateSimulation);
+    kSlider.addEventListener('input', updateSimulation);
+
+    // Initial render
+    updateSimulation();
+  </script>
+</body>
+</html>

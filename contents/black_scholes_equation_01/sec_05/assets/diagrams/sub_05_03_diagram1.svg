@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="grad-discrete" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171" />
+      <stop offset="100%" stop-color="#EF4444" />
+    </linearGradient>
+    <linearGradient id="grad-control" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+    <linearGradient id="grad-continuous" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="arrow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#94A3B8" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+    
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="400" fill="#0F172A" rx="12" />
+  <g opacity="0.05">
+    <circle cx="100" cy="100" r="200" fill="none" stroke="#FFFFFF" stroke-width="1" />
+    <circle cx="700" cy="300" r="150" fill="none" stroke="#FFFFFF" stroke-width="1" />
+  </g>
+
+  <!-- 1. Discrete Column (Left) -->
+  <g transform="translate(40, 40)" filter="url(#shadow)">
+    <rect width="210" height="320" rx="10" fill="#1E293B" stroke="#334155" stroke-width="2" />
+    <rect width="210" height="40" rx="10" fill="#EF4444" opacity="0.2" />
+    <text x="105" y="26" fill="#F87171" font-size="14" font-weight="bold" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">이산적 도약 (고정 상수)</text>
+    
+    <!-- Path Graphic: Exploding -->
+    <g transform="translate(15, 60)" stroke="#EF4444" stroke-width="2" fill="none" opacity="0.8">
+      <!-- Exploding step tree -->
+      <path d="M 90 40 L 40 80 L 10 130" stroke-dasharray="2,2"/>
+      <path d="M 90 40 L 140 80 L 170 130" stroke-dasharray="2,2"/>
+      <circle cx="90" cy="40" r="5" fill="#EF4444" />
+      <circle cx="40" cy="80" r="5" fill="#EF4444" />
+      <circle cx="140" cy="80" r="5" fill="#EF4444" />
+      <!-- Exploding arrows -->
+      <path d="M 10 130 L -5 160" marker-end="url(#arrow)" stroke-width="3" />
+      <path d="M 170 130 L 185 160" marker-end="url(#arrow)" stroke-width="3" />
+    </g>
+    <text x="105" y="265" fill="#F87171" font-size="12" font-weight="600" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">매개변수 고정 (u, d, q)</text>
+    <text x="105" y="285" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">단계를 나눌수록</text>
+    <text x="105" y="302" fill="#FDA4AF" font-size="12" font-weight="bold" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">분산 무한 발산 (σ² → ∞)</text>
+  </g>
+
+  <!-- Connection Arrow 1 -->
+  <g transform="translate(260, 180)" fill="none" stroke="url(#arrow-grad)" stroke-width="3">
+    <path d="M 0 0 L 25 0" />
+    <path d="M 20 -5 L 25 0 L 20 5" fill="none" stroke-linecap="round" />
+  </g>
+
+  <!-- 2. Time-Scaling Column (Middle) -->
+  <g transform="translate(295, 40)" filter="url(#shadow)">
+    <rect width="210" height="320" rx="10" fill="#1E293B" stroke="#334155" stroke-width="2" />
+    <rect width="210" height="40" rx="10" fill="#3B82F6" opacity="0.2" />
+    <text x="105" y="26" fill="#60A5FA" font-size="14" font-weight="bold" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">시간 스케일링 (완충)</text>
+    
+    <!-- Mathematical Symbol Core -->
+    <g transform="translate(105, 120)" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">
+      <rect x="-80" y="-30" width="160" height="60" rx="8" fill="#0F172A" stroke="#3B82F6" stroke-width="1.5" />
+      <text x="0" y="5" fill="#60A5FA" font-size="14" font-weight="bold">u = e^(σ√Δt)</text>
+      <text x="0" y="22" fill="#93C5FD" font-size="10">d = e^(-σ√Δt)</text>
+      <!-- Circular Gears or clock icon representing time dt -->
+      <circle cx="0" cy="-45" r="14" fill="#1E293B" stroke="#3B82F6" stroke-width="1.5" />
+      <line x1="0" y1="-45" x2="0" y2="-53" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="0" y1="-45" x2="6" y2="-45" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round" />
+    </g>
+    
+    <text x="105" y="255" fill="#60A5FA" font-size="12" font-weight="600" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">동적 보폭 제어 (n·Δt = t)</text>
+    <text x="105" y="275" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">보폭이 Δt에 비례해 수축</text>
+    <text x="105" y="295" fill="#93C5FD" font-size="12" font-weight="bold" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">발산 요소 완벽 상쇄</text>
+  </g>
+
+  <!-- Connection Arrow 2 -->
+  <g transform="translate(515, 180)" fill="none" stroke="url(#arrow-grad)" stroke-width="3">
+    <path d="M 0 0 L 25 0" />
+    <path d="M 20 -5 L 25 0 L 20 5" fill="none" stroke-linecap="round" />
+  </g>
+
+  <!-- 3. Continuous Convergence Column (Right) -->
+  <g transform="translate(550, 40)" filter="url(#shadow)">
+    <rect width="210" height="320" rx="10" fill="#1E293B" stroke="#334155" stroke-width="2" />
+    <rect width="210" height="40" rx="10" fill="#10B981" opacity="0.2" />
+    <text x="105" y="26" fill="#34D399" font-size="14" font-weight="bold" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">연속 시간 수렴</text>
+    
+    <!-- Beautiful Normal Distribution curve -->
+    <g transform="translate(25, 70)">
+      <!-- Axis -->
+      <line x1="10" y1="110" x2="150" y2="110" stroke="#475569" stroke-width="1.5" />
+      <path d="M 10 110 Q 55 110 80 30 Q 105 110 150 110" fill="none" stroke="#10B981" stroke-width="2.5" />
+      <!-- Shading area under curve -->
+      <path d="M 10 110 Q 55 110 80 30 Q 105 110 150 110 Z" fill="#10B981" opacity="0.15" />
+      <!-- Center line -->
+      <line x1="80" y1="110" x2="80" y2="30" stroke="#34D399" stroke-dasharray="2,2" stroke-width="1" />
+    </g>
+    
+    <text x="105" y="255" fill="#34D399" font-size="12" font-weight="600" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">중심극한정리 수렴</text>
+    <text x="105" y="275" fill="#94A3B8" font-size="11" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">유한한 정규분포 안착</text>
+    <text x="105" y="295" fill="#A7F3D0" font-size="12" font-weight="bold" text-anchor="middle" font-family="'Inter', system-ui, sans-serif">총 분산 = σ²t</text>
+  </g>
+</svg>

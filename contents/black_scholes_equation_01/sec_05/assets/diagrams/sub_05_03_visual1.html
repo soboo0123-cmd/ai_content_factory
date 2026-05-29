@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>시간 세분화에 따른 수익률 분포 수렴 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+    body {
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 p-4 min-h-screen flex flex-col justify-center items-center">
+
+  <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-xl font-bold text-slate-100">시간 세분화($n$ 증가)와 변동성 수렴 제어</h1>
+        <p class="text-xs text-slate-400 mt-1">시간 매개변수 $\Delta t$의 보정 유무에 따른 총분산 수렴/발산 차이 실시간 체험</p>
+      </div>
+      <div class="bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-xs text-emerald-400 font-semibold">
+        실시간 시뮬레이션
+      </div>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Control Panel (Left Column) -->
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-5 flex flex-col justify-between">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-300 mb-3 border-b border-slate-800 pb-2">제어판 (Controls)</h2>
+          
+          <!-- Slider 1: Steps (n) -->
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-400 font-medium">이항 트리 단계 수 (n)</span>
+              <span class="text-blue-400 font-bold" id="val-n">50</span>
+            </div>
+            <input id="slide-n" type="range" min="4" max="250" value="50" 
+              class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          </div>
+
+          <!-- Slider 2: Volatility (sigma) -->
+          <div class="space-y-2 mt-4">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-400 font-medium">연율화 변동성 (σ)</span>
+              <span class="text-blue-400 font-bold" id="val-vol">20%</span>
+            </div>
+            <input id="slide-vol" type="range" min="5" max="50" value="20" 
+              class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+          </div>
+
+          <!-- Toggle: Scaling ON/OFF -->
+          <div class="mt-6 p-3 bg-slate-900 border border-slate-800 rounded-lg">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-300">시간 보정 장치 (dt 스케일링)</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input id="toggle-scale" type="checkbox" checked class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2 leading-relaxed" id="status-desc">
+              ON: u = e^(σ√dt), d = e^(-σ√dt) 작동 (발산 차단)
+            </p>
+          </div>
+        </div>
+
+        <!-- Parameters readout -->
+        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg space-y-1.5 text-xs">
+          <div class="flex justify-between">
+            <span class="text-slate-500">미소 시간 (dt)</span>
+            <span class="font-mono text-slate-300" id="read-dt">0.0200</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">상승 배수 (u)</span>
+            <span class="font-mono text-slate-300" id="read-u">1.0286</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">하락 배수 (d)</span>
+            <span class="font-mono text-slate-300" id="read-d">0.9722</span>
+          </div>
+          <div class="flex justify-between pt-1 border-t border-slate-800">
+            <span class="text-slate-400 font-semibold">예상 총 분산 (Var)</span>
+            <span class="font-mono font-bold text-slate-200" id="read-var">0.0400</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visualization Chart Area (Right 2 Columns) -->
+      <div class="col-span-1 md:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+        <div class="relative w-full h-80">
+          <canvas id="distChart"></canvas>
+        </div>
+        <div class="mt-2 text-center text-xs text-slate-500">
+          ※ 주가가 상승할 확률 q = 0.5 하에서의 누적 로그수익률의 분포
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('distChart').getContext('2d');
+    let chart;
+
+    // UI elements
+    const slideN = document.getElementById('slide-n');
+    const slideVol = document.getElementById('slide-vol');
+    const toggleScale = document.getElementById('toggle-scale');
+
+    const valN = document.getElementById('val-n');
+    const valVol = document.getElementById('val-vol');
+    const statusDesc = document.getElementById('status-desc');
+
+    const readDt = document.getElementById('read-dt');
+    const readU = document.getElementById('read-u');
+    const readD = document.getElementById('read-d');
+    const readVar = document.getElementById('read-var');
+
+    // Combinations (nCr) calculated dynamically with scaling log-probabilities
+    function binomialProbability(n, k, p) {
+      // Use log scale to avoid floating overflow/underflow for large n
+      let logBinom = 0;
+      for (let i = 1; i <= k; i++) {
+        logBinom += Math.log(n - i + 1) - Math.log(i);
+      }
+      const logProb = logBinom + k * Math.log(p) + (n - k) * Math.log(1 - p);
+      return Math.exp(logProb);
+    }
+
+    function calculateDistribution() {
+      const n = parseInt(slideN.value);
+      const vol = parseInt(slideVol.value) / 100.0;
+      const isScaled = toggleScale.checked;
+
+      const t = 1.0; // Assume 1-year horizon
+      const dt = t / n;
+      
+      let u, d;
+      let variance;
+
+      if (isScaled) {
+        // Time scaled CRR parameters
+        u = Math.exp(vol * Math.sqrt(dt));
+        d = Math.exp(-vol * Math.sqrt(dt));
+        // Under q=0.5, total variance is σ²*t
+        variance = 4 * vol*vol * 0.25 * t; 
+        statusDesc.innerText = "ON: u = e^(σ√dt), d = e^(-σ√dt) 작동 (발산 차단)";
+        statusDesc.className = "text-[10px] text-emerald-400 mt-2 leading-relaxed";
+      } else {
+        // Unscaled - fixed steps regardless of subdivision
+        u = Math.exp(vol); 
+        d = Math.exp(-vol);
+        // Variance blows up linearly with n
+        variance = n * 4 * vol*vol * 0.25;
+        statusDesc.innerText = "OFF: 고정 상수 (u, d) 체계. n에 비례해 분산이 사방으로 발산합니다.";
+        statusDesc.className = "text-[10px] text-rose-400 mt-2 leading-relaxed";
+      }
+
+      // Readouts
+      readDt.innerText = dt.toFixed(4);
+      readU.innerText = u.toFixed(4);
+      readD.innerText = d.toFixed(4);
+      readVar.innerText = variance.toFixed(4);
+
+      // Generating Data for chart
+      const labels = [];
+      const probs = [];
+      const q = 0.5;
+
+      for (let k = 0; k <= n; k++) {
+        // Log return of k ups and n-k downs
+        const logReturn = k * Math.log(u) + (n - k) * Math.log(d);
+        const prob = binomialProbability(n, k, q);
+
+        labels.push(logReturn);
+        probs.push(prob);
+      }
+
+      return { labels, probs, isScaled };
+    }
+
+    function updateChart() {
+      const { labels, probs, isScaled } = calculateDistribution();
+
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = probs;
+      chart.data.datasets[0].label = isScaled ? '시간 스케일링 보정 적용 (안정된 수렴)' : '보정 없음 (분산 기하급수적 발산)';
+      chart.data.datasets[0].backgroundColor = isScaled ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+      chart.data.datasets[0].borderColor = isScaled ? '#10b981' : '#ef4444';
+
+      // Adjust X-axis scale limit behavior
+      chart.options.scales.x.min = isScaled ? -0.8 : undefined;
+      chart.options.scales.x.max = isScaled ? 0.8 : undefined;
+
+      chart.update();
+    }
+
+    // Chart.js Setup
+    chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{
+          label: '',
+          data: [],
+          backgroundColor: 'rgba(59, 130, 246, 0.4)',
+          borderColor: '#3b82f6',
+          borderWidth: 1.5,
+          barPercentage: 0.9,
+          categoryPercentage: 1.0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: { color: '#94a3b8', font: { size: 11, family: 'Inter' } }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `로그수익률: ${context.label}, 확률: ${(context.raw * 100).toFixed(2)}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            grid: { color: '#334155', opacity: 0.2 },
+            ticks: {
+              color: '#94a3b8',
+              font: { size: 9 },
+              callback: function(value) { return value.toFixed(2); }
+            },
+            title: { display: true, text: '누적 로그수익률 (Log Return)', color: '#94a3b8', font: { size: 11 } }
+          },
+          y: {
+            grid: { color: '#334155', opacity: 0.2 },
+            ticks: { color: '#94a3b8', font: { size: 9 } },
+            title: { display: true, text: '확률 질량 (Probability)', color: '#94a3b8', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // Interaction Hookups
+    slideN.addEventListener('input', () => {
+      valN.innerText = slideN.value;
+      updateChart();
+    });
+
+    slideVol.addEventListener('input', () => {
+      valVol.innerText = `${slideVol.value}%`;
+      updateChart();
+    });
+
+    toggleScale.addEventListener('change', () => {
+      updateChart();
+    });
+
+    // Initial run
+    updateChart();
+  </script>
+</body>
+</html>

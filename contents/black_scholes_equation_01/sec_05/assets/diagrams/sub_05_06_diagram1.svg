@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <!-- Definitions for styling and markers -->
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .text-title { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; font-size: 20px; font-weight: bold; fill: #f8fafc; }
+      .text-subtitle { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; font-size: 13px; fill: #94a3b8; }
+      .text-bold { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; font-size: 14px; font-weight: bold; }
+      .text-regular { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; font-size: 12px; fill: #cbd5e1; }
+      .axis { stroke: #475569; stroke-width: 1.5; stroke-dasharray: none; }
+      .grid { stroke: #334155; stroke-width: 1; stroke-dasharray: 4,4; }
+      .curve-actual { stroke: #38bdf8; stroke-width: 3; fill: none; }
+      .curve-taylor { stroke: #f43f5e; stroke-width: 2.5; stroke-dasharray: 6,4; fill: none; }
+      .glass-rim { stroke: #10b981; stroke-width: 3; fill: none; }
+      .glass-bg { fill: #1e293b; fill-opacity: 0.85; stroke: #334155; stroke-dasharray: 3,3; }
+      .marker-line { stroke: #e2e8f0; stroke-dasharray: 2,2; stroke-width: 1; }
+    </style>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
+
+  <!-- Title block -->
+  <text x="30" y="45" class="text-title">미소 현미경으로 관찰하는 확률 p의 기하학적 직선화</text>
+  <text x="30" y="68" class="text-subtitle">시간 간격 Δt → 0 극한에서 실제 비선형 곡선과 테일러 1차 근사 접선의 완전 동치화</text>
+
+  <!-- Left Panel: Global View (Non-linear) -->
+  <g transform="translate(0, 30)">
+    <!-- Border & Grid background -->
+    <rect x="50" y="80" width="280" height="240" fill="#1e293b" fill-opacity="0.3" rx="8" />
+    <path d="M 50,260 L 330,260 M 50,140 L 330,140" class="grid" />
+    <path d="M 190,80 L 190,320 M 330,80 L 330,320" class="grid" />
+
+    <!-- Axes -->
+    <line x1="50" y1="320" x2="330" y2="320" class="axis" />
+    <line x1="50" y1="80" x2="50" y2="320" class="axis" />
+    
+    <!-- Axis Labels -->
+    <text x="310" y="340" class="text-regular">시간 간격 Δt</text>
+    <text x="25" y="85" class="text-regular">확률 p</text>
+    
+    <!-- Curves -->
+    <!-- Curved actual p -->
+    <path d="M 50,260 Q 150,250 310,120" class="curve-actual" />
+    <!-- Straight line (Taylor) -->
+    <path d="M 50,260 L 310,185" class="curve-taylor" />
+
+    <!-- Label Global -->
+    <text x="60" y="105" class="text-bold" fill="#f8fafc">거시적 관점 (Δt 범위가 클 때)</text>
+    <text x="200" y="135" class="text-regular" fill="#38bdf8">비선형 곡선 p(Δt)</text>
+    <text x="180" y="215" class="text-regular" fill="#f43f5e">테일러 1차 근사식</text>
+    <text x="55" y="280" class="text-regular" fill="#94a3b8">시작점 p = 0.5</text>
+
+    <!-- Interactive Scope Circle -->
+    <circle cx="110" cy="254" r="35" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3" fill="none" />
+    <text x="135" y="235" class="text-bold" fill="#10b981">미세 관찰 영역</text>
+  </g>
+
+  <!-- Connective Dotted lines to zoom area -->
+  <path d="M 145,249 L 450,120 M 135,319 L 450,380" stroke="#10b981" stroke-dasharray="3,3" stroke-width="1.5" />
+
+  <!-- Right Panel: Zoomed Microscopic View -->
+  <g transform="translate(400, 30)">
+    <!-- Zoom circle background container -->
+    <circle cx="220" cy="190" r="140" class="glass-bg" filter="url(#glow)" />
+    <circle cx="220" cy="190" r="140" class="glass-rim" />
+
+    <!-- Magnifying glass Grid -->
+    <line x1="100" y1="190" x2="340" y2="190" class="grid" />
+    <line x1="220" y1="70" x2="220" y2="310" class="grid" />
+
+    <!-- Curve and Taylor line aligned in zoom (almost overlapping) -->
+    <!-- Blue Actual curve - very slightly curved -->
+    <path d="M 100,230 Q 220,192 340,150" class="curve-actual" stroke-width="4.5" />
+    <!-- Red Taylor line - straight -->
+    <line x1="100" y1="230" x2="340" y2="150" class="curve-taylor" stroke-width="2.5" />
+
+    <!-- Perfect alignment marker -->
+    <circle cx="220" cy="190" r="6" fill="#10b981" />
+    <circle cx="220" cy="190" r="12" stroke="#10b981" stroke-width="1.5" fill="none" />
+
+    <!-- Explanations in zoom -->
+    <text x="140" y="55" class="text-bold" fill="#10b981">초미소 세계 (Δt → 0)</text>
+    <text x="130" y="315" class="text-bold" fill="#f8fafc">두 식의 기하학적 접합 완료</text>
+    <text x="235" y="180" class="text-regular" fill="#10b981" font-weight="bold">오차 → 0</text>
+    <text x="110" y="150" class="text-regular" fill="#38bdf8">p (실제식)</text>
+    <text x="260" y="230" class="text-regular" fill="#f43f5e">p (테일러근사)</text>
+  </g>
+
+  <!-- Bottom Stats Block -->
+  <rect x="50" y="385" width="700" height="45" fill="#1e293b" rx="6" stroke="#475569" stroke-width="1" />
+  <text x="70" y="412" class="text-regular" fill="#e2e8f0">
+    <tspan font-weight="bold" fill="#10b981">수학적 귀결 : </tspan>
+    <tspan>왜도(Skewness)는 시간 간격 </tspan>
+    <tspan fill="#f43f5e" font-weight="bold">Δt에 정비례</tspan>
+    <tspan>하여 감소하며, 이산형 이항 트리는 연속적인 </tspan>
+    <tspan fill="#38bdf8" font-weight="bold">완벽 대칭 정규분포</tspan>
+    <tspan>로 질서 있게 수렴합니다.</tspan>
+  </text>
+</svg>

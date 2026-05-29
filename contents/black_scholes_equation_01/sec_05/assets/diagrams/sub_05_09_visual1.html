@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>블랙-숄즈 시뮬레이터 (Black-Scholes Interactive Simulator)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #10b981;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      appearance: none;
+    }
+    input[type="range"] {
+      background: #334155;
+      height: 6px;
+      border-radius: 4px;
+      outline: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 p-4 md:p-6 min-h-screen flex flex-col justify-center items-center">
+
+  <div class="max-w-6xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+    <!-- Header -->
+    <div class="border-b border-slate-800 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-emerald-400 tracking-tight flex items-center gap-2">
+          Black-Scholes Model Interactive Terminal
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">
+          실시간 5대 변수 제어 및 한계 상황(Limit Cases) 수학적 수렴성 시뮬레이션
+        </p>
+      </div>
+      <!-- Preset Buttons -->
+      <div class="flex flex-wrap gap-2">
+        <button onclick="setPreset('default')" class="px-3 y-1.5 text-xs bg-slate-800 hover:bg-slate-700 transition rounded-md border border-slate-700 font-medium">기본값</button>
+        <button onclick="setPreset('itm_expiry')" class="px-3 y-1.5 text-xs bg-emerald-950 hover:bg-emerald-900 text-emerald-400 transition rounded-md border border-emerald-800 font-medium">만기 직전 (내가격)</button>
+        <button onclick="setPreset('otm_expiry')" class="px-3 y-1.5 text-xs bg-rose-950 hover:bg-rose-900 text-rose-400 transition rounded-md border border-rose-800 font-medium">만기 직전 (외가격)</button>
+        <button onclick="setPreset('zero_vol')" class="px-3 y-1.5 text-xs bg-sky-950 hover:bg-sky-900 text-sky-400 transition rounded-md border border-sky-800 font-medium">변동성 제로(σ→0)</button>
+        <button onclick="setPreset('deep_itm')" class="px-3 y-1.5 text-xs bg-indigo-950 hover:bg-indigo-900 text-indigo-400 transition rounded-md border border-indigo-800 font-medium">주가 대폭등(S₀→∞)</button>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Sliders / Controls (Left) -->
+      <div class="lg:col-span-5 space-y-5">
+        <h2 class="text-sm font-bold uppercase text-slate-400 tracking-wider mb-2">시장 파라미터 입력 제어판</h2>
+        
+        <!-- S_0 -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-semibold flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>기초 자산 가격 (<span class="mono italic">S₀</span>)
+            </span>
+            <span id="val_s0" class="mono font-bold text-emerald-400 text-sm">100.00</span>
+          </div>
+          <input id="slider_s0" type="range" min="10" max="200" step="1" value="100" class="w-full cursor-pointer accent-emerald-500" oninput="calculate()">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>$10</span>
+            <span>$100 (평균)</span>
+            <span>$200</span>
+          </div>
+        </div>
+
+        <!-- K -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-semibold flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>행사 가격 (<span class="mono italic">K</span>)
+            </span>
+            <span id="val_k" class="mono font-bold text-orange-400 text-sm">100.00</span>
+          </div>
+          <input id="slider_k" type="range" min="10" max="200" step="1" value="100" class="w-full cursor-pointer accent-emerald-500" oninput="calculate()">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>$10</span>
+            <span>$100</span>
+            <span>$200</span>
+          </div>
+        </div>
+
+        <!-- T -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-semibold flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>만기 잔존 기간 (<span class="mono italic">T</span>)
+            </span>
+            <span id="val_t" class="mono font-bold text-indigo-400 text-sm">1.00 년</span>
+          </div>
+          <input id="slider_t" type="range" min="0.01" max="5.0" step="0.01" value="1.0" class="w-full cursor-pointer accent-emerald-500" oninput="calculate()">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>0.01년 (만기 직전)</span>
+            <span>1.0년</span>
+            <span>5.0년</span>
+          </div>
+        </div>
+
+        <!-- Sigma -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-semibold flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>자산 연변동성 (<span class="mono italic">σ</span>)
+            </span>
+            <span id="val_sigma" class="mono font-bold text-sky-400 text-sm">30.0%</span>
+          </div>
+          <input id="slider_sigma" type="range" min="0.01" max="1.50" step="0.01" value="0.30" class="w-full cursor-pointer accent-emerald-500" oninput="calculate()">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>1% (변동성 극소)</span>
+            <span>30%</span>
+            <span>150% (극단적 불확실성)</span>
+          </div>
+        </div>
+
+        <!-- r -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-semibold flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>연 연속 복리 이자율 (<span class="mono italic">r</span>)
+            </span>
+            <span id="val_r" class="mono font-bold text-rose-400 text-sm">5.0%</span>
+          </div>
+          <input id="slider_r" type="range" min="0.00" max="0.25" step="0.005" value="0.05" class="w-full cursor-pointer accent-emerald-500" oninput="calculate()">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>0.0%</span>
+            <span>5.0%</span>
+            <span>25.0%</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Graph & Mathematical Breakdowns (Right) -->
+      <div class="lg:col-span-7 flex flex-col space-y-6">
+        
+        <!-- Display Curve Card -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center">
+          <div class="w-full flex justify-between items-center mb-2 px-1">
+            <span class="text-xs font-semibold text-slate-400">주가변동에 따른 콜옵션 곡선 모델링</span>
+            <span class="text-[10px] text-slate-500">하늘색: 콜옵션 가치 | 보라색: 만기 페이오프(내재가치)</span>
+          </div>
+          <!-- Custom Canvas Drawing Area -->
+          <div class="relative w-full h-[220px] bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
+            <canvas id="bsCanvas" class="absolute inset-0 w-full h-full"></canvas>
+          </div>
+        </div>
+
+        <!-- Black-Scholes Breakdown Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Left Component card (Asset Side) -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-sky-500/50 transition">
+            <div class="text-xs font-bold uppercase text-sky-400 tracking-wider mb-2">기초자산 주식 복제 요소 (Asset Side)</div>
+            <div class="text-2xl font-mono font-bold text-slate-100 flex items-baseline gap-1" id="out_asset_part">
+              $48.01 <span class="text-xs text-slate-500 font-sans font-normal">($S₀·N(d₁))</span>
+            </div>
+            <div class="mt-3 space-y-1.5 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>표준 변수 d₁:</span>
+                <span id="out_d1" class="mono font-semibold">-0.0500</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>델타 N(d₁) [주식 보유량]:</span>
+                <span id="out_nd1" class="mono font-semibold text-sky-400">0.4801</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Component card (Debt Side) -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-rose-500/50 transition">
+            <div class="text-xs font-bold uppercase text-rose-400 tracking-wider mb-2">부채 자금 차입 요소 (Debt Side)</div>
+            <div class="text-2xl font-mono font-bold text-slate-100 flex items-baseline gap-1" id="out_debt_part">
+              -$38.57 <span class="text-xs text-slate-500 font-sans font-normal">(-K·e⁻ʳᵀ·N(d₂))</span>
+            </div>
+            <div class="mt-3 space-y-1.5 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>표준 변수 d₂:</span>
+                <span id="out_d2" class="mono font-semibold">-0.3500</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>행사확률 N(d₂) [가중치]:</span>
+                <span id="out_nd2" class="mono font-semibold text-rose-400">0.3632</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Pricing Results Board -->
+        <div class="bg-gradient-to-r from-emerald-950/40 via-emerald-900/20 to-slate-950 p-5 rounded-xl border border-emerald-500/30 flex justify-between items-center shadow-lg">
+          <div>
+            <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Black-Scholes Theoretical Call Value</div>
+            <div class="text-4xl font-mono font-black text-emerald-400 mt-1 flex items-baseline gap-1" id="out_price">
+              $9.44 <span class="text-xs font-sans font-normal text-slate-400">Theoretical Price</span>
+            </div>
+          </div>
+          <!-- Real-time formula visualization -->
+          <div class="hidden sm:block text-right">
+            <div class="text-[10px] text-slate-500 font-mono">C = S₀N(d₁) - Ke⁻ʳᵀN(d₂)</div>
+            <div class="text-xs text-slate-300 font-mono mt-1" id="out_formula_numbers">
+              100×0.48 - 111.63×e⁻⁰·⁰⁵×0.36
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Calculation Logic -->
+  <script>
+    // Standard normal cumulative distribution function (approximation)
+    function cdfNormal(x) {
+      if (x < -6.0) return 0.0;
+      if (x > 6.0) return 1.0;
+      
+      const b1 = 0.319381530;
+      const b2 = -0.356563782;
+      const b3 = 1.781477937;
+      const b4 = -1.821255978;
+      const b5 = 1.330274429;
+      const p  = 0.2316419;
+      const c  = 0.39894228;
+
+      const t = 1.0 / (1.0 + p * Math.abs(x));
+      const fact = c * Math.exp(-x * x / 2.0);
+      let b = ((((b5 * t + b4) * t + b3) * t + b2) * t + b1) * t;
+      let prob = 1.0 - fact * b;
+      if (x < 0) prob = 1.0 - prob;
+      return prob;
+    }
+
+    // Mathematical Engine for Black-Scholes Formula
+    function blackScholes(s, k, t, sigma, r) {
+      if (sigma <= 0) sigma = 0.0001; // Avoid divide by zero
+      const d1 = (Math.log(s / k) + (r + 0.5 * sigma * sigma) * t) / (sigma * Math.sqrt(t));
+      const d2 = d1 - sigma * Math.sqrt(t);
+      const nd1 = cdfNormal(d1);
+      const nd2 = cdfNormal(d2);
+      
+      const assetPart = s * nd1;
+      const discountFactor = Math.exp(-r * t);
+      const debtPart = k * discountFactor * nd2;
+      const price = assetPart - debtPart;
+
+      return { d1, d2, nd1, nd2, assetPart, discountFactor, debtPart, price };
+    }
+
+    // Presets definitions
+    function setPreset(type) {
+      const sliders = {
+        s0: document.getElementById('slider_s0'),
+        k: document.getElementById('slider_k'),
+        t: document.getElementById('slider_t'),
+        sigma: document.getElementById('slider_sigma'),
+        r: document.getElementById('slider_r')
+      };
+
+      if (type === 'default') {
+        sliders.s0.value = 100;
+        sliders.k.value = 112; // K = 100 * e^0.11 as described in section 5.8 / 5.9
+        sliders.t.value = 1.0;
+        sliders.sigma.value = 0.30;
+        sliders.r.value = 0.05;
+      } else if (type === 'itm_expiry') {
+        sliders.s0.value = 120;
+        sliders.k.value = 100;
+        sliders.t.value = 0.02; // Very close to expiry
+        sliders.sigma.value = 0.25;
+        sliders.r.value = 0.05;
+      } else if (type === 'otm_expiry') {
+        sliders.s0.value = 85;
+        sliders.k.value = 100;
+        sliders.t.value = 0.02;
+        sliders.sigma.value = 0.25;
+        sliders.r.value = 0.05;
+      } else if (type === 'zero_vol') {
+        sliders.s0.value = 100;
+        sliders.k.value = 95;
+        sliders.t.value = 1.5;
+        sliders.sigma.value = 0.01; // almost 0
+        sliders.r.value = 0.06;
+      } else if (type === 'deep_itm') {
+        sliders.s0.value = 180;
+        sliders.k.value = 60;
+        sliders.t.value = 1.0;
+        sliders.sigma.value = 0.30;
+        sliders.r.value = 0.05;
+      }
+      calculate();
+    }
+
+    // Core Calculation and UI Updates
+    function calculate() {
+      // Inputs
+      const s0 = parseFloat(document.getElementById('slider_s0').value);
+      const k = parseFloat(document.getElementById('slider_k').value);
+      const t = parseFloat(document.getElementById('slider_t').value);
+      const sigma = parseFloat(document.getElementById('slider_sigma').value);
+      const r = parseFloat(document.getElementById('slider_r').value);
+
+      // Display inputs values
+      document.getElementById('val_s0').innerText = s0.toFixed(2);
+      document.getElementById('val_k').innerText = k.toFixed(2);
+      document.getElementById('val_t').innerText = t.toFixed(2) + " 년";
+      document.getElementById('val_sigma').innerText = (sigma * 100).toFixed(1) + "%";
+      document.getElementById('val_r').innerText = (r * 100).toFixed(1) + "%";
+
+      // Black-Scholes Engine Execution
+      const res = blackScholes(s0, k, t, sigma, r);
+
+      // Update Outputs
+      document.getElementById('out_d1').innerText = res.d1.toFixed(4);
+      document.getElementById('out_d2').innerText = res.d2.toFixed(4);
+      document.getElementById('out_nd1').innerText = res.nd1.toFixed(4);
+      document.getElementById('out_nd2').innerText = res.nd2.toFixed(4);
+      document.getElementById('out_asset_part').innerHTML = `$${res.assetPart.toFixed(2)} <span class="text-xs text-slate-500 font-sans font-normal">($S₀·N(d₁))</span>`;
+      document.getElementById('out_debt_part').innerHTML = `-$${res.debtPart.toFixed(2)} <span class="text-xs text-slate-500 font-sans font-normal">(-K·e⁻ʳᵀ·N(d₂))</span>`;
+      document.getElementById('out_price').innerHTML = `$${res.price.toFixed(2)} <span class="text-xs font-sans font-normal text-slate-400">Theoretical Price</span>`;
+      
+      // Update Formula display string
+      document.getElementById('out_formula_numbers').innerText = 
+        `${s0.toFixed(0)}×${res.nd1.toFixed(2)} - ${k.toFixed(0)}×e⁻${(r*t).toFixed(2)}×${res.nd2.toFixed(2)}`;
+
+      // Draw Chart
+      drawBSChart(s0, k, t, sigma, r);
+    }
+
+    // HTML5 Canvas Drawing function for BS curve
+    function drawBSChart(activeS0, k, t, sigma, r) {
+      const canvas = document.getElementById('bsCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Auto-resize matching container resolution
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      canvas.width = w * window.devicePixelRatio;
+      canvas.height = h * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Range settings
+      const minS = 10;
+      const maxS = 200;
+      
+      // Mapping functions (Data -> Pixels)
+      function mapX(s) {
+        return ((s - minS) / (maxS - minS)) * (w - 60) + 40;
+      }
+      function mapY(y) {
+        const maxYVal = 130; // Max option pricing coordinate ceiling limit
+        return h - 30 - (y / maxYVal) * (h - 50);
+      }
+
+      // Draw Grid lines & labels
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      // Horizontal zero baseline
+      ctx.moveTo(40, mapY(0));
+      ctx.lineTo(w - 20, mapY(0));
+      ctx.stroke();
+
+      // Strike Price vertical markers
+      ctx.strokeStyle = 'rgba(249, 115, 22, 0.4)';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(mapX(k), mapY(0));
+      ctx.lineTo(mapX(k), mapY(130));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#f97316';
+      ctx.font = '10px Inter';
+      ctx.fillText(`행사가(K) ${k.toFixed(0)}`, mapX(k) - 25, mapY(115));
+
+      // 1. Draw Expiration Intrinsic Line (Payoff: Max(S_T - K, 0))
+      ctx.strokeStyle = '#a855f7';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(mapX(minS), mapY(0));
+      ctx.lineTo(mapX(k), mapY(0));
+      ctx.lineTo(mapX(maxS), mapY(maxS - k));
+      ctx.stroke();
+
+      // 2. Draw Black-Scholes Theoretical Curve
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let s = minS; s <= maxS; s += 2) {
+        const tempRes = blackScholes(s, k, t, sigma, r);
+        const yVal = Math.max(0, tempRes.price);
+        if (s === minS) {
+          ctx.moveTo(mapX(s), mapY(yVal));
+        } else {
+          ctx.lineTo(mapX(s), mapY(yVal));
+        }
+      }
+      ctx.stroke();
+
+      // 3. Highlight current active coordinate dot
+      const activeRes = blackScholes(activeS0, k, t, sigma, r);
+      const activeY = Math.max(0, activeRes.price);
+      
+      // Draw indicator lines connecting active dot
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(mapX(activeS0), mapY(0));
+      ctx.lineTo(mapX(activeS0), mapY(activeY));
+      ctx.lineTo(40, mapY(activeY));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Point Dot
+      ctx.fillStyle = '#10b981';
+      ctx.shadowColor = 'rgba(16, 185, 129, 0.8)';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(mapX(activeS0), mapY(activeY), 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.shadowBlur = 0; // reset shadow
+
+      // Outer ring for active dot
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(mapX(activeS0), mapY(activeY), 6, 0, 2 * Math.PI);
+      ctx.stroke();
+
+      // Print price tag next to point
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillText(`$${activeY.toFixed(2)}`, mapX(activeS0) + 10, mapY(activeY) - 5);
+      
+      // Print active Stock Price label on X-axis
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.fillText(`S₀=$${activeS0.toFixed(0)}`, mapX(activeS0) - 20, mapY(0) + 15);
+    }
+
+    // First load trigger
+    setPreset('default');
+  </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>p-측도 vs q-측도 형식적 동질성 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    input[type="range"] {
+      accent-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="p-6">
+  <div class="max-w-6xl mx-auto bg-slate-900 rounded-xl p-6 border border-slate-800 shadow-2xl">
+    
+    <!-- Title Section -->
+    <div class="mb-6">
+      <h1 class="text-xl font-bold text-white flex items-center gap-2">
+        <span class="w-3 h-6 bg-blue-500 rounded-sm inline-block"></span>
+        p-측도와 q-측도의 형식적 동질성 및 Drift 평행 이동 저울
+      </h1>
+      <p class="text-sm text-slate-400 mt-1">
+        시간 간격(&Delta;t)이 작아질 때 두 세계의 분포 왜도 소멸 양상과 기댓값 평행 이동 구조를 실시간 확인하세요.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left Panel: Controls & Metrics -->
+      <div class="lg:col-span-5 bg-slate-950 p-5 rounded-lg border border-slate-800 flex flex-col justify-between space-y-6">
+        
+        <!-- Controls -->
+        <div class="space-y-4">
+          <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">시뮬레이션 변수 제어</h2>
+          
+          <!-- Slider: mu -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-indigo-400 font-medium">실제 기대수익률 (&mu;)</span>
+              <span class="text-slate-300" id="mu-val">10.0%</span>
+            </div>
+            <input type="range" id="param-mu" min="0.0" max="0.30" step="0.01" value="0.10" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- Slider: r -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-amber-400 font-medium">무위험 이자율 (r)</span>
+              <span class="text-slate-300" id="r-val">5.0%</span>
+            </div>
+            <input type="range" id="param-r" min="0.0" max="0.15" step="0.005" value="0.05" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- Slider: sigma -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-emerald-400 font-medium font-semibold">변동성 (&sigma;)</span>
+              <span class="text-slate-300" id="sigma-val">30.0%</span>
+            </div>
+            <input type="range" id="param-sigma" min="0.10" max="0.60" step="0.01" value="0.30" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- Slider: dt -->
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-sky-400 font-medium font-bold">시간 간격 (&Delta;t)</span>
+              <span class="text-slate-300 font-bold" id="dt-val">0.010 (약 3.6일)</span>
+            </div>
+            <input type="range" id="param-dt" min="0.002" max="0.08" step="0.001" value="0.01" class="w-full h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Metrics Display Grid -->
+        <div class="space-y-3 pt-4 border-t border-slate-800">
+          <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">정량적 분석 결과 (T = 1.0 기준)</h2>
+          
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <!-- p-measure Column -->
+            <div class="bg-indigo-950/40 p-3 rounded border border-indigo-900/40">
+              <div class="text-indigo-400 font-bold text-center mb-2">실제 확률 (p-측도)</div>
+              <div class="space-y-1.5">
+                <div class="flex justify-between"><span class="text-slate-400">정밀 p:</span> <span id="p-exact" class="text-white font-mono">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">근사 p:</span> <span id="p-approx" class="text-white font-mono">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">오차 (p):</span> <span id="p-error" class="text-red-400 font-mono font-bold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">왜도 (p):</span> <span id="p-skew" class="text-slate-300 font-mono">-</span></div>
+              </div>
+            </div>
+
+            <!-- q-measure Column -->
+            <div class="bg-amber-950/40 p-3 rounded border border-amber-900/40">
+              <div class="text-amber-400 font-bold text-center mb-2">위험중립 (q-측도)</div>
+              <div class="space-y-1.5">
+                <div class="flex justify-between"><span class="text-slate-400">정밀 q:</span> <span id="q-exact" class="text-white font-mono">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">근사 q:</span> <span id="q-approx" class="text-white font-mono">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">오차 (q):</span> <span id="q-error" class="text-red-400 font-mono font-bold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">왜도 (q):</span> <span id="q-skew" class="text-slate-300 font-mono">-</span></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-[10px] text-slate-500 text-center italic mt-2">
+            ※ 오차 = |정밀 원형식 값 - 테일러 1차 선형 근사값|
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Panel: Canvas Plot -->
+      <div class="lg:col-span-7 flex flex-col justify-between">
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex-1 flex flex-col justify-between">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-sm font-semibold text-slate-300">이항 트리 분포 매핑 (S₀ = 100)</span>
+            <div class="flex gap-4 text-xs">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-indigo-500 rounded-full inline-block"></span> p-측도 (실제)</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-amber-500 rounded-full inline-block"></span> q-측도 (위험중립)</span>
+            </div>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="relative w-full h-[320px] bg-slate-900/50 rounded border border-slate-800 overflow-hidden flex items-center justify-center">
+            <canvas id="chart-canvas" class="absolute inset-0 w-full h-full"></canvas>
+          </div>
+
+          <!-- Description overlay bottom of canvas -->
+          <div class="mt-3 text-xs text-slate-400 leading-relaxed bg-slate-900 p-3 rounded border border-slate-800">
+            <strong>형식적 동질성 관찰 포인트:</strong> <br>
+            1. <strong>&Delta;t를 작게 조절</strong>해 보십시오. 두 분포가 점차 거친 계단식 이산 격자에서 완벽한 <strong>종 모양의 대칭 정규분포</strong>로 동시에 다듬어집니다(왜도 제로 수렴). <br>
+            2. <strong>&mu;와 r을 다르게 설정</strong>하면 분포의 전체적인 형태는 똑같게 유지된 채, 두 분포의 <strong>무게중심(Drift)만 평행하게 좌우로 이동</strong>하는 것을 볼 수 있습니다.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const muSlider = document.getElementById('param-mu');
+    const rSlider = document.getElementById('param-r');
+    const sigmaSlider = document.getElementById('param-sigma');
+    const dtSlider = document.getElementById('param-dt');
+
+    const muVal = document.getElementById('mu-val');
+    const rVal = document.getElementById('r-val');
+    const sigmaVal = document.getElementById('sigma-val');
+    const dtVal = document.getElementById('dt-val');
+
+    // Metrics elements
+    const pExactEl = document.getElementById('p-exact');
+    const pApproxEl = document.getElementById('p-approx');
+    const pErrorEl = document.getElementById('p-error');
+    const pSkewEl = document.getElementById('p-skew');
+
+    const qExactEl = document.getElementById('q-exact');
+    const qApproxEl = document.getElementById('q-approx');
+    const qErrorEl = document.getElementById('q-error');
+    const qSkewEl = document.getElementById('q-skew');
+
+    const canvas = document.getElementById('chart-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Handle canvas resizing for sharp rendering
+    function resizeCanvas() {
+      const rect = canvas.parentNode.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    // Mathematical calculations
+    function calculate() {
+      const mu = parseFloat(muSlider.value);
+      const r = parseFloat(rSlider.value);
+      const sigma = parseFloat(sigmaSlider.value);
+      const dt = parseFloat(dtSlider.value);
+
+      // S0 and parameters
+      const u = Math.exp(sigma * Math.sqrt(dt));
+      const d = Math.exp(-sigma * Math.sqrt(dt));
+
+      // 1. Precise Nonlinear Probabilities
+      const pExact = (Math.exp(mu * dt) - d) / (u - d);
+      const qExact = (Math.exp(r * dt) - d) / (u - d);
+
+      // 2. Taylor 1st order approximations
+      const pApprox = 0.5 + 0.5 * ((mu - 0.5 * sigma * sigma) / sigma) * Math.sqrt(dt);
+      const qApprox = 0.5 + 0.5 * ((r - 0.5 * sigma * sigma) / sigma) * Math.sqrt(dt);
+
+      // 3. Absolute Errors
+      const pError = Math.abs(pExact - pApprox);
+      const qError = Math.abs(qExact - qApprox);
+
+      // 4. Skewness (for T=1.0)
+      const T = 1.0;
+      const n = Math.max(2, Math.round(T / dt));
+      const pSkew = (1 - 2 * pExact) / Math.sqrt(n * pExact * (1 - pExact));
+      const qSkew = (1 - 2 * qExact) / Math.sqrt(n * qExact * (1 - qExact));
+
+      // Update Slider value displays
+      muVal.innerText = `${(mu * 100).toFixed(1)}%`;
+      rVal.innerText = `${(r * 100).toFixed(1)}%`;
+      sigmaVal.innerText = `${(sigma * 100).toFixed(1)}%`;
+      dtVal.innerText = `${dt.toFixed(3)} (약 ${(dt * 365).toFixed(1)}일, n=${n}단계)`;
+
+      // Update metric displays
+      pExactEl.innerText = pExact.toFixed(7);
+      pApproxEl.innerText = pApprox.toFixed(7);
+      pErrorEl.innerText = pError.toFixed(8);
+      pSkewEl.innerText = pSkew.toFixed(4);
+
+      qExactEl.innerText = qExact.toFixed(7);
+      qApproxEl.innerText = qApprox.toFixed(7);
+      qErrorEl.innerText = qError.toFixed(8);
+      qSkewEl.innerText = qSkew.toFixed(4);
+
+      // Render the Distributions
+      drawChart(mu, r, sigma, dt, pExact, qExact, n);
+    }
+
+    // Draw distributions on HTML5 Canvas
+    function drawChart(mu, r, sigma, dt, p, q, n) {
+      const width = canvas.width / window.devicePixelRatio;
+      const height = canvas.height / window.devicePixelRatio;
+
+      // Clear Canvas
+      ctx.clearRect(0, 0, width, height);
+
+      // Chart Padding
+      const paddingLeft = 50;
+      const paddingRight = 40;
+      const paddingTop = 30;
+      const paddingBottom = 40;
+
+      const chartWidth = width - paddingLeft - paddingRight;
+      const chartHeight = height - paddingTop - paddingBottom;
+
+      // Calculate x axis limits in Log-Price Space: Ln(S_T/S_0)
+      // Max possible steps up/down is n. But standard deviation is sigma * sqrt(T)
+      const T = 1.0;
+      const stdDev = sigma * Math.sqrt(T);
+      const xMin = -3 * stdDev;
+      const xMax = 3 * stdDev;
+
+      // Draw Grid & Axes
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      for (let i = 0; i <= 6; i++) {
+        const x = paddingLeft + (i / 6) * chartWidth;
+        ctx.moveTo(x, paddingTop);
+        ctx.lineTo(x, height - paddingBottom);
+      }
+      ctx.stroke();
+
+      // Axis label x
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      for (let i = 0; i <= 6; i++) {
+        const xVal = xMin + (i / 6) * (xMax - xMin);
+        const x = paddingLeft + (i / 6) * chartWidth;
+        ctx.fillText(xVal.toFixed(2), x, height - paddingBottom + 15);
+      }
+      ctx.fillText("로그 자산 가격 ln(S_T / S₀)", paddingLeft + chartWidth / 2, height - paddingBottom + 32);
+
+      // Axis label y
+      ctx.save();
+      ctx.translate(15, paddingTop + chartHeight / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("확률 질량 (PMF)", 0, 0);
+      ctx.restore();
+
+      // Binomial Distribution Generator
+      function getBinomialPMF(prob, numSteps) {
+        let pmf = [];
+        // Log-Factorial method for stability
+        const logFactorial = (num) => {
+          let res = 0;
+          for (let i = 2; i <= num; i++) res += Math.log(i);
+          return res;
+        };
+
+        const nCr = (N, K) => {
+          return Math.exp(logFactorial(N) - logFactorial(K) - logFactorial(N - K));
+        };
+
+        const uVal = Math.exp(sigma * Math.sqrt(dt));
+        const dVal = Math.exp(-sigma * Math.sqrt(dt));
+
+        for (let k = 0; k <= numSteps; k++) {
+          const probVal = nCr(numSteps, k) * Math.pow(prob, k) * Math.pow(1 - prob, numSteps - k);
+          // Log price node location
+          const lnPrice = (2 * k - numSteps) * sigma * Math.sqrt(dt);
+          pmf.push({ x: lnPrice, y: probVal });
+        }
+        return pmf;
+      }
+
+      const pPMF = getBinomialPMF(p, n);
+      const qPMF = getBinomialPMF(q, n);
+
+      // Find max Y across both distributions to scale chart dynamically
+      let maxY = 0;
+      pPMF.forEach(pt => { if (pt.y > maxY) maxY = pt.y; });
+      qPMF.forEach(pt => { if (pt.y > maxY) maxY = pt.y; });
+
+      // Apply some headroom
+      maxY *= 1.1;
+
+      // Plot helper functions
+      function getCanvasCoords(lnPrice, prob) {
+        const cx = paddingLeft + ((lnPrice - xMin) / (xMax - xMin)) * chartWidth;
+        const cy = height - paddingBottom - (prob / maxY) * chartHeight;
+        return { x: cx, y: cy };
+      }
+
+      // Draw distributions
+      function drawDistribution(pmf, color, label) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.fillStyle = color;
+
+        // Draw Bars/Dots for discrete nature
+        pmf.forEach(pt => {
+          const coords = getCanvasCoords(pt.x, pt.y);
+          if (coords.x >= paddingLeft && coords.x <= paddingLeft + chartWidth) {
+            // Draw discrete vertical bar
+            ctx.beginPath();
+            ctx.moveTo(coords.x, height - paddingBottom);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.strokeStyle = color + "40"; // semi-transparent
+            ctx.lineWidth = n > 40 ? 1 : 2;
+            ctx.stroke();
+
+            // Draw top dot
+            ctx.beginPath();
+            ctx.arc(coords.x, coords.y, n > 40 ? 1.5 : 3, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+          }
+        });
+
+        // Connect peaks with a smooth curve to show continuous approximation trend
+        ctx.beginPath();
+        let started = false;
+        pmf.forEach(pt => {
+          const coords = getCanvasCoords(pt.x, pt.y);
+          if (coords.x >= paddingLeft && coords.x <= paddingLeft + chartWidth) {
+            if (!started) {
+              ctx.moveTo(coords.x, coords.y);
+              started = true;
+            } else {
+              ctx.lineTo(coords.x, coords.y);
+            }
+          }
+        });
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Render actual distributions
+      drawDistribution(pPMF, '#6366f1', 'p-measure');
+      drawDistribution(qPMF, '#f59e0b', 'q-measure');
+
+      // Draw baseline axis
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(paddingLeft, height - paddingBottom);
+      ctx.lineTo(paddingLeft + chartWidth, height - paddingBottom);
+      ctx.stroke();
+    }
+
+    // Set up listeners
+    [muSlider, rSlider, sigmaSlider, dtSlider].forEach(slider => {
+      slider.addEventListener('input', calculate);
+    });
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      calculate();
+    });
+
+    // Initial Setup
+    resizeCanvas();
+    calculate();
+  </script>
+</body>
+</html>

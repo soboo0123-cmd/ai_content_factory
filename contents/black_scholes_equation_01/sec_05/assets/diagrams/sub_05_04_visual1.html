@@ -1,0 +1,292 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CRR 모형 왜도 소멸 및 정규분포 수렴 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-4 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 max-w-4xl w-full">
+    <!-- 타이틀 영역 -->
+    <div class="border-b border-slate-100 pb-4 mb-6">
+      <h2 class="text-xl font-bold text-slate-800">이항분포 왜도(Skewness) 소멸 및 정규분포 수렴 시뮬레이터</h2>
+      <p class="text-xs text-slate-500 mt-1">단계 수 $n$이 증가함에 따라 본질적인 비대칭성($p \neq 0.5$)이 어떻게 압착되고 대칭성을 회복하는지 관찰하세요.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <!-- 좌측 컨트롤러 (4열) -->
+      <div class="md:col-span-4 space-y-5 bg-slate-50 p-4 rounded-xl border border-slate-100">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">변수 제어 패널</span>
+          
+          <!-- 상승 확률 p 슬라이더 -->
+          <div class="mb-5">
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="probP" class="text-xs font-bold text-slate-700">상승 확률 (p)</label>
+              <span id="probPVal" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded mono">0.40</span>
+            </div>
+            <input type="range" id="probP" min="0.10" max="0.90" step="0.05" value="0.40" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>0.10 (극단적 우비대칭)</span>
+              <span>0.90</span>
+            </div>
+          </div>
+
+          <!-- 단계 수 n 슬라이더 -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="stepN" class="text-xs font-bold text-slate-700">단계 수 (n)</label>
+              <span id="stepNVal" class="text-xs font-bold id text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded mono">10</span>
+            </div>
+            <input type="range" id="stepN" min="4" max="150" step="1" value="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>n = 4 (이산)</span>
+              <span>n = 150 (연속 수렴)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 실시간 수학적 수치 지표 출력 -->
+        <div class="border-t border-slate-200 pt-4 space-y-3">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">실시간 통계 인디케이터</span>
+          
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex justify-between items-center">
+            <span class="text-xs text-slate-500 font-medium">왜도 결정 분자 <span class="mono text-[10px] text-slate-400">(1-2p)</span></span>
+            <span id="skewNumerator" class="text-xs font-bold text-slate-700 mono">0.200</span>
+          </div>
+
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200 flex justify-between items-center">
+            <span class="text-xs text-slate-500 font-medium">감쇄 분모 <span class="mono text-[10px] text-slate-400">√(n·p(1-p))</span></span>
+            <span id="skewDenominator" class="text-xs font-bold text-slate-700 mono">1.549</span>
+          </div>
+
+          <div id="skewContainer" class="p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all duration-300">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">최종 왜도 (γ)</span>
+            <span id="skewValue" class="text-xl font-black mono mt-0.5">0.129</span>
+            <span id="skewStatus" class="text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측 차트 및 시뮬레이션 창 (8열) -->
+      <div class="md:col-span-8 flex flex-col justify-between">
+        <div class="relative w-full h-[280px] bg-slate-50 rounded-xl p-2 border border-slate-100">
+          <canvas id="distributionChart"></canvas>
+        </div>
+        
+        <div class="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+          <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            동적 감쇄 분석 및 학습 팁
+          </h4>
+          <p id="learningTip" class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+            확률 $p$가 $0.5$가 아닐 때 이항분포는 초기 왜도를 가집니다. 그러나 단계 수 $n$이 점차 커지면, 분모의 감쇄 인자 $\sqrt{n}$이 왜도 크기를 강력하게 억제하기 시작하여 분포가 완벽한 대칭 종 모양 곡선(정규분포)으로 회복되는 것을 위 그래프에서 시각적으로 확인할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 팩토리얼 계산 (이항계수용)
+    function logFactorial(num) {
+      let rval = 0;
+      for (let i = 2; i <= num; i++) rval += Math.log(i);
+      return rval;
+    }
+
+    // 조합 nCr 계산 (로그 활용 오버플로우 방지)
+    function combination(n, r) {
+      if (r < 0 || r > n) return 0;
+      if (r === 0 || r === n) return 1;
+      return Math.exp(logFactorial(n) - logFactorial(r) - logFactorial(n - r));
+    }
+
+    // 이항분포 확률질량함수(PMF) 값 계산
+    function binomialPMF(k, n, p) {
+      return combination(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+    }
+
+    // 정규분포 확률밀도함수(PDF) 값 계산
+    function normalPDF(x, mean, stdDev) {
+      return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+    }
+
+    // 전역 차트 인스턴스
+    let chartInstance = null;
+
+    function updateSimulation() {
+      const p = parseFloat(document.getElementById('probP').value);
+      const n = parseInt(document.getElementById('stepN').value);
+
+      // 값 업데이트
+      document.getElementById('probPVal').textContent = p.toFixed(2);
+      document.getElementById('stepNVal').textContent = n;
+
+      // 수학적 지표 계산
+      const numerator = 1 - 2 * p;
+      const variance = n * p * (1 - p);
+      const denominator = Math.sqrt(variance);
+      const skewness = numerator / denominator;
+
+      document.getElementById('skewNumerator').textContent = numerator.toFixed(3);
+      document.getElementById('skewDenominator').textContent = denominator.toFixed(3);
+      document.getElementById('skewValue').textContent = skewness.toFixed(3);
+
+      // 왜도 크기에 따른 색상 매칭 및 코멘트 가이드
+      const skewContainer = document.getElementById('skewContainer');
+      const skewStatus = document.getElementById('skewStatus');
+      const absSkew = Math.abs(skewness);
+
+      if (absSkew < 0.01) {
+        skewContainer.className = "p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all bg-emerald-50 border border-emerald-100 text-emerald-800";
+        skewStatus.textContent = "완벽한 대칭 수준 (정규성 만족)";
+        skewStatus.className = "text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+      } else if (absSkew < 0.1) {
+        skewContainer.className = "p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all bg-blue-50 border border-blue-100 text-blue-800";
+        skewStatus.textContent = "안정적인 준대칭 수렴 완료";
+        skewStatus.className = "text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800";
+      } else if (absSkew < 0.25) {
+        skewContainer.className = "p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all bg-amber-50 border border-amber-100 text-amber-800";
+        skewStatus.textContent = "약간의 비대칭 잔존 (감쇄 진행중)";
+        skewStatus.className = "text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
+      } else {
+        skewContainer.className = "p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all bg-red-50 border border-red-100 text-red-800";
+        skewStatus.textContent = "강한 비대칭성 격자";
+        skewStatus.className = "text-[10px] font-semibold mt-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800";
+      }
+
+      // 학습 팁 동적 업데이트
+      const learningTip = document.getElementById('learningTip');
+      if (absSkew > 0.25) {
+        learningTip.innerHTML = `현재 <strong class="text-red-600">왜도가 ${skewness.toFixed(3)}</strong>로 상당히 높은 비대칭 상태입니다. 이항 트리의 단계가 촘촘하지 않아 정규분포(검은선)와 큰 오차를 보입니다. <strong>'단계 수 n' 슬라이더를 오른쪽으로 밀어서</strong> 분모의 강력한 수축 압착 효과를 시험해 보세요.`;
+      } else if (absSkew <= 0.05) {
+        learningTip.innerHTML = `성공확률이 $p = ${p.toFixed(2)}$의 비대칭임에도 단계 수 $n = ${n}$에 의해 <strong>왜도가 ${skewness.toFixed(3)}</strong>까지 급격히 소멸했습니다. 이항분포의 개별 기둥 높이가 완벽하게 중심극한정리의 대칭 종 모양 곡선에 달라붙는 경이로운 대칭성 수렴을 직접 확인하실 수 있습니다.`;
+      } else {
+        learningTip.innerHTML = `상승확률의 비대칭성이 점차 통제되어 가고 있는 수렴 과정입니다. $n$이 증가함에 따라 확률 기둥들의 포락선이 검은 정규분포 밀도 함수 곡선과 거의 일치하는 매끄러운 형태로 변화하고 있습니다.`;
+      }
+
+      // 데이터셋 생성
+      const labels = [];
+      const binData = [];
+      const normData = [];
+
+      const mean = n * p;
+      const stdDev = Math.sqrt(variance);
+
+      // 범위 설정
+      const startK = Math.max(0, Math.floor(mean - 4 * stdDev));
+      const endK = Math.min(n, Math.ceil(mean + 4 * stdDev));
+
+      for (let k = startK; k <= endK; k++) {
+        labels.push(k);
+        binData.push(binomialPMF(k, n, p));
+        normData.push(normalPDF(k, mean, stdDev));
+      }
+
+      // 차트 그리기
+      const ctx = document.getElementById('distributionChart').getContext('2d');
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: `이항분포 PMF (n=${n}, p=${p.toFixed(2)})`,
+              data: binData,
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(29, 78, 216, 0.9)',
+              borderWidth: 1.5,
+              borderRadius: 4,
+              barPercentage: 0.85,
+              order: 2
+            },
+            {
+              label: '정규분포 근사 PDF (동일 평균 & 분산)',
+              data: normData,
+              type: 'line',
+              borderColor: 'rgba(15, 23, 42, 0.95)',
+              borderWidth: 2.5,
+              fill: false,
+              pointRadius: n > 50 ? 0 : 2,
+              tension: 0.4,
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: {
+                  size: 10,
+                  weight: '600'
+                }
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              title: {
+                display: true,
+                text: '성공(상승) 횟수 (k)',
+                font: { size: 10, weight: 'bold' }
+              },
+              ticks: {
+                font: { size: 9, family: 'JetBrains Mono' },
+                maxTicksLimit: 15
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '발생 확률 P(X = k)',
+                font: { size: 10, weight: 'bold' }
+              },
+              ticks: {
+                font: { size: 9, family: 'JetBrains Mono' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 슬라이더 이벤트 바인딩
+    document.getElementById('probP').addEventListener('input', updateSimulation);
+    document.getElementById('stepN').addEventListener('input', updateSimulation);
+
+    // 초기 실행
+    updateSimulation();
+  </script>
+</body>
+</html>
+```
