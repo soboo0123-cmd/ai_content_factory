@@ -135,7 +135,7 @@ $$\hat{\sigma}^2 = q(1-q) (\ln u - \ln d)^2 = q(1-q) \left[ \ln\left(\frac{u}{d}
 
 $$\hat{\mu}_n = E[R_{total}] = n \cdot \hat{\mu} = n \cdot \left[ q \ln u + (1-q) \ln d \right]$$
 
-$$\hat{\sigma}_n^2 = \text{Var}(R_{total}) = n \cdot \hat{\sigma}^2 = n \cdot \left\{ q(1-q) \left[ \ln\left(\frac{u}{d}\right) \right]^2 \right\}$$
+$$\hat{\sigma}_n^2 = \text{Var}(R_{total}) = n \cdot \hat{\sigma}^2 = n \cdot \left\\{ q(1-q) \left[ \ln\left(\frac{u}{d}\right) \right]^2 \right\\}$$
 
 ---
 
@@ -147,7 +147,7 @@ $$\hat{\sigma}_n^2 = \text{Var}(R_{total}) = n \cdot \hat{\sigma}^2 = n \cdot \l
 
 총 분산 공식의 전면에 곱해진 시행 횟수 $n$이 지배적인 영향력을 행사하기 시작합니다.
 
-$$\lim_{n \to \infty} \hat{\sigma}_n^2 = \lim_{n \to \infty} n \cdot \left\{ q(1-q) \left[ \ln\left(\frac{u}{d}\right) \right]^2 \right\} = \infty$$
+$$\lim_{n \to \infty} \hat{\sigma}_n^2 = \lim_{n \to \infty} n \cdot \left\\{ q(1-q) \left[ \ln\left(\frac{u}{d}\right) \right]^2 \right\\} = \infty$$
 
 상승폭과 하락폭, 확률이 고정된 상태에서 시간 단계만 촘촘하게 쪼개버리면, 1년 뒤 주가가 도달할 수 있는 범위의 불확실성(누적 분산)이 제어되지 못하고 우주 끝까지 무한대($\infty$)로 대폭발해 버리는 수학적 파국이 일어납니다. 
 
