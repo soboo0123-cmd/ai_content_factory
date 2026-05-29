@@ -115,6 +115,9 @@ $$f(x, y) = \frac{1+x}{1+y} \approx 1 + 1 \cdot x + (-1) \cdot y = 1 + x - y$$
 본문 전개 과정에서 비선형 구조를 한순간에 평탄화시켰던 $\frac{1+x}{1+y} \approx 1 + x - y$라는 강력한 선형화 공식은 바로 이 대수적 다변수 테일러 전개를 통해 유도된 수학적 필연의 결과물입니다.
 
 ---
+p를 다시 적어보면 다음과 같다.
+
+$$p = \frac{1}{2} \cdot \left[ \frac{1 + \left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t} + \frac{1}{6}\sigma^2 \Delta t + O((\Delta t)^{3/2})}{1 + \frac{1}{6}\sigma^2 \Delta t + O((\Delta t)^2)} \right]$$
 
 이제 이 규칙을 위 식에 대입해 보겠습니다. 여기서 분자의 미소 변동 성분을 $x$, 분모의 미소 변동 성분을 $y$라고 설정합니다.
 - $x = \left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t} + \frac{1}{6}\sigma^2 \Delta t$
