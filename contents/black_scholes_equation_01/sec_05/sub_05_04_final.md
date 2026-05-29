@@ -103,8 +103,6 @@ $$\lim_{n \to \infty} \gamma = C \times 0 = 0$$
 - **정규분포로의 기하학적 수렴 (완벽 대칭)**:
   세분화된 단층수가 무한히 커지면, 한쪽 방향으로 뒤틀려 흉하게 쏠려 있던 모래 언덕은 비로소 인류가 발견한 자연 최고의 균형적 기하 구조물인 종 모양(Bell Curve)의 '대칭 정규분포 곡선' 속으로 완벽하게 수렴하여 동화됩니다.
 
-![비대칭 이항분포에서 대칭 정규분포로의 왜도 소멸 흐름도](assets/diagrams/sub_05_04_diagram1.svg)
-
 수식의 극한이 현실 세계에서 작동하는 경이로운 역동성을 직접 제어하고 확인하기 위해 아래의 인터랙티브 시뮬레이터를 활용해 보세요. 상승 확률($p$)과 단계 수($n$)를 조절하며, 찌그러진 이항 막대들이 $\sqrt{n}$의 제어를 통해 정규분포의 곡선 속으로 매끄럽게 포개어 수렴하는 변화 과정을 실시간으로 확인하실 수 있습니다.
 
 <iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_04_visual1.html" width="100%" height="480px" frameborder="0" scrolling="no"></iframe>
