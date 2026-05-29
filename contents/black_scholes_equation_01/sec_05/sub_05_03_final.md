@@ -96,7 +96,8 @@ $$-1 \le \frac{\mu}{\sigma}\sqrt{\Delta t} \le 1$$
 
 이제 단계를 무한히 쪼개는 극한($\Delta t \to 0$)을 적용해 봅니다. 두 번째 항의 $\sqrt{\Delta t}$가 정확히 $0$으로 수축하므로, 상승 확률 $q$는 완벽한 동전 던지기의 평형점으로 수렴하게 됩니다. (
 
-$$\lim_{\Delta t \to 0} q = \lim_{\Delta t \to 0} \frac{1}{2} + \frac{\mu}{2\sigma}\sqrt{\Delta t} = \frac{1}{2}$$
+$$\lim_{\Delta t \to 0} q = \lim_{\Delta t \to 0} \left( \frac{1}{2} + \frac{\mu}{2\sigma}\sqrt{\Delta t} \right) = \frac{1}{2}$$
+
 (의미) 시간이 무한소의 세계로 진입할 때, 자산이 위로 갈지 아래로 갈지에 대한 실제 확률 $q$는 극단적인 쏠림 없이 반반의 균형 상태로 수렴
 
 이를 위에서 유도한 총 분산식 $\hat{\sigma}_n^2 = 4\sigma^2 q(1-q) t$에 최종 대입합니다.
