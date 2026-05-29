@@ -73,7 +73,49 @@ $$p = \frac{\sigma \sqrt{\Delta t} + \left( \mu - \frac{1}{2}\sigma^2 \right) \D
 $$p = \frac{1}{2} \cdot \left[ \frac{1 + \left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t} + \frac{1}{6}\sigma^2 \Delta t + O((\Delta t)^{3/2})}{1 + \frac{1}{6}\sigma^2 \Delta t + O((\Delta t)^2)} \right]$$
 
 여기서 수학적 계산을 단순화하기 위해 다음과 같은 대수적 근사식을 도입합니다. 아주 작은 임의의 수 $x$와 $y$에 대하여, 일차 근사식 $(1+x)/(1+y) \approx (1+x)(1-y) \approx 1 + x - y$가 성립합니다.
-이 규칙을 위 식에 대입해 보겠습니다. 여기서 분자의 미소 변동 성분을 $x$, 분모의 미소 변동 성분을 $y$라고 설정합니다.
+
+```
+※ 다변수 테일러 1차 선형 근사식의 대수적 유도
+
+그렇다면 위에서 정의한 2변수 함수 $f(x, y) = \frac{1+x}{1+y}$를 가지고 어떻게 테일러 1차 선형 근사식을 도출하는지 미분을 통해 직접 규명해 보겠습니다.
+
+우리의 목적은 미소 시간 환경($x \to 0, y \to 0$)에서의 근사적 거동을 관찰하는 것이므로, $(0,0)$ 지점에서의 **2변수 테일러 1차 전개(Multivariate Taylor Expansion) 공식**을 적용합니다.
+
+$$f(x, y) \approx f(0,0) + \frac{\partial f}{\partial x}(0,0)x + \frac{\partial f}{\partial y}(0,0)y$$
+
+#### Step 1. 각 독립변수에 대한 편미분(Partial Derivative) 도출
+
+먼저 함수 $f(x,y)$를 구성하는 두 변수 $x$와 $y$에 대해 각각 편미분을 수행합니다.
+
+* **$x$에 대한 편미분** ($y$를 상수로 취급):
+  $$\frac{\partial f}{\partial x} = \frac{1}{1+y}$$
+
+* **$y$에 대한 편미분** ($x$를 상수로 취급하여 몫의 미분법 또는 합성함수 미분 적용):
+  $$\frac{\partial f}{\partial y} = (1+x) \cdot \left(-(1+y)^{-2}\right) = -\frac{1+x}{(1+y)^2}$$
+
+#### Step 2. 기준점 $(0,0)$ 대입을 통한 선형 계수 확정
+
+미소 변화의 출발점인 $(0,0)$을 위에서 구한 원함수와 편미분 함수에 각각 대입하여 수렴 지점의 고정값과 기울기 계수를 산출합니다.
+
+* **기준점에서의 고정값**:
+  $$f(0,0) = \frac{1+0}{1+0} = 1$$
+
+* **$x$축 방향의 선형 기울기 계수**:
+  $$\frac{\partial f}{\partial x}(0,0) = \frac{1}{1+0} = 1$$
+
+* **$y$축 방향의 선형 기울기 계수**:
+  $$\frac{\partial f}{\partial y}(0,0) = -\frac{1+0}{(1+0)^2} = -1$$
+
+#### Step 3. 다변수 테일러 선형 근사식의 최종 조립
+
+구한 계수들을 2변수 테일러 1차 전개 공식에 그대로 대입하여 식을 완성합니다.
+
+$$f(x, y) = \frac{1+x}{1+y} \approx 1 + 1 \cdot x + (-1) \cdot y = 1 + x - y$$
+
+본문 전개 과정에서 비선형 구조를 한순간에 평탄화시켰던 $\frac{1+x}{1+y} \approx 1 + x - y$라는 강력한 선형화 공식은 바로 이 대수적 다변수 테일러 전개를 통해 유도된 수학적 필연의 결과물입니다.
+```
+
+이제 이 규칙을 위 식에 대입해 보겠습니다. 여기서 분자의 미소 변동 성분을 $x$, 분모의 미소 변동 성분을 $y$라고 설정합니다.
 - $x = \left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t} + \frac{1}{6}\sigma^2 \Delta t$
 - $y = \frac{1}{6}\sigma^2 \Delta t$
 
