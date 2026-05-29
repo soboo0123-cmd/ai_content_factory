@@ -108,7 +108,7 @@ $$Z\sqrt{n\cdot p(1-p)} > \frac{\ln(K/S_0) - n \ln d}{\ln(u/d)} - n\cdot p$$
 
 $$Z > \frac{\ln(K/S_0) - n \ln d - n\cdot p \ln(u/d)}{\sqrt{n\cdot p(1-p)}\ln(u/d)}$$
 
-우변의 분자에서 마이너스($-$) 부호를 앞으로 공통으로 묶어내어 분수 전체의 부호를 반전시켜 보겠습니다.
+우변의 분자에서 마이너스($-$) 부호를 앞으로 공통으로 묶어냅니다. 양변에 마이너스를 곱한 것이 아니므로 부등호 방향이 바뀌지 않습니다. 예시: -3-2 = -(3+2)
 
 $$Z > -\left[ \frac{\ln(S_0/K) + n \ln d + n\cdot p \ln(u/d)}{\sqrt{n\cdot p(1-p)}\ln(u/d)} \right]$$
 
