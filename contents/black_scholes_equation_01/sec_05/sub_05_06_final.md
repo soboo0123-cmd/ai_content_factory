@@ -129,12 +129,13 @@ $$x - y = \left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t
 $$p = \frac{1}{2} \cdot \left[ \frac{1 + \left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t} + \frac{1}{6}\sigma^2 \Delta t + O((\Delta t)^{3/2})}{1 + \frac{1}{6}\sigma^2 \Delta t + O((\Delta t)^2)} \right]$$
 
 
-이 결과를 대괄호 안에 대입(대괄호 분자가 $1+x$꼴이다.하고 고차항을 정리하면, 비선형적인 실제 확률 $p$의 거동을 낱낱이 밝혀내는 경이로운 **'최종 탐색 근사식'**이 도출됩니다. 
+이 결과를 대괄호 안에 대입(대괄호 분자가 $1+x$꼴이다.)하고 고차항을 정리하면, 비선형적인 실제 확률 $p$의 거동을 낱낱이 밝혀내는 경이로운 **'최종 탐색 근사식'**이 도출됩니다. 
 
 > ### 실제 확률 $p$의 테일러 1차 선형 근사식
 > $$p \approx \frac{1}{2} + \frac{1}{2}\left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t}$$
 
 (왜냐면 $\frac{1}{2}(1+ x-y)$에 $x-y$를 대입하니까)
+
 ---
 
 ### 2.4 도출된 근사식의 물리적 범위와 경제학적 의미 분석
