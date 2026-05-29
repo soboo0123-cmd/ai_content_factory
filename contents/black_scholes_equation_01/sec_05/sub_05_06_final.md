@@ -134,7 +134,7 @@ $$p = \frac{1}{2} \cdot \left[ \frac{1 + \left( \frac{\mu - \frac{1}{2}\sigma^2}
 > ### 실제 확률 $p$의 테일러 1차 선형 근사식
 > $$p \approx \frac{1}{2} + \frac{1}{2}\left( \frac{\mu - \frac{1}{2}\sigma^2}{\sigma} \right) \sqrt{\Delta t}$$
 
-(왜냐면 $\frac{1}{2}(1+ x-y)$에 $x-y$를 대입하니까)
+(왜냐면 $\frac{1}{2}[1+ x-y]$에 $x-y$를 대입하니까)
 
 ---
 
