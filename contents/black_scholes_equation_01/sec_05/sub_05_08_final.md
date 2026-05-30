@@ -50,7 +50,7 @@ $$\lim_{n \to \infty} \Delta z = dz = 0$$
 
 $$n! \approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n$$
 
-이 정밀한 근사식을 이항계수 $\binom{n}{k} = \frac{n!}{k!(n-k)!}$에 대입하여 로그를 취하고 테일러 전개를 수행하면, 놀랍게도 이항분포의 확률 질량 함수는 다음과 같이 표준정규분포의 확률밀도함수(PDF)인 $\phi(z)$의 형태로 완벽하게 수렴하게 됩니다.
+이 정밀한 근사식을 이항계수 $\binom{n}{k} = \frac{n!}{k!(n-k)!}$에 대입하여 로그를 취하고 테일러 전개를 수행하면, 놀랍게도 이항분포의 확률 질량 함수는 다음과 같이 표준정규분포의 확률밀도함수(PDF)인 $\phi(z)$의 형태로 완벽하게 수렴하게 됩니다. (하단 부록 참조)
 
 $$\lim_{n \to \infty} \binom{n}{k} p^k (1-p)^{n-k} = \frac{1}{\sqrt{2\pi}} e^{-\frac{z_k^2}{2}} \Delta z$$
 
@@ -185,4 +185,148 @@ $$P(S_{100} \ge S_0 e^{0.11}) \approx \mathbf{0.418041}$$
 다음 **6장**에서는 마침내 이 연속 시간 한계 모델들을 총결합하여, 금융공학 역사상 가장 아름다운 방정식이자 금자탑인 **블랙-숄즈(Black-Scholes) 연속 시간 지배 미분 방정식**을 이항 모델의 극한으로부터 유도하는 대장정의 종착역으로 힘차게 나아가겠습니다.
 
 ---
+
+## [부록] 드무아브르-라플라스 정리: 스털링 근사와 로그 테일러 전개를 통한 정규분포 수렴 증명
+
+이항분포의 확률질량함수(PMF)가 시행 횟수 $n$이 무한대로 커질 때($n \to \infty$) 어떻게 연속적인 표준정규분포의 확률밀도함수(PDF)로 변모하는지 스털링 근사 대입과 테일러 전개를 통해 단계별로 유도합니다.
+
+---
+
+### 1. 1단계: 스털링 근사(Stirling's Approximation) 대입
+
+이항분포의 확률질량함수는 다음과 같이 정의됩니다.
+
+
+$$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k} = \frac{n!}{k!(n-k)!} p^k (1-p)^{n-k}$$
+
+여기서 팩토리얼($!$)의 극한을 다루기 위해 **스털링 근사 공식**을 호출합니다.
+
+
+$$x! \approx \sqrt{2\pi x} \left(\frac{x}{e}\right)^x$$
+
+이 근사식을 분자의 $n!$, 분모의 $k!$와 $(n-k)!$에 각각 대입합니다.
+
+$$\binom{n}{k} \approx \frac{\sqrt{2\pi n} \left(\frac{n}{e}\right)^n}{\sqrt{2\pi k} \left(\frac{k}{e}\right)^k \cdot \sqrt{2\pi (n-k)} \left(\frac{n-k}{e}\right)^{n-k}}$$
+
+분모와 분자에 공통으로 존재하는 자연상수 거듭제곱 항($e^n$ 및 $e^k \cdot e^{n-k} = e^n$)과 $\sqrt{2\pi}$를 약분하여 정리하면 이항계수의 근사 형태를 얻습니다.
+
+
+$$\binom{n}{k} \approx \sqrt{\frac{n}{2\pi k(n-k)}} \cdot \frac{n^n}{k^k (n-k)^{n-k}}$$
+
+이 식을 이항분포 확률 질량 함수 전체에 대입하고, 구조가 같은 거듭제곱 항끼리 분모로 묶어 정렬합니다.
+
+
+$$P(X=k) \approx \sqrt{\frac{n}{2\pi k(n-k)}} \cdot \left( \frac{np}{k} \right)^k \left( \frac{n(1-p)}{n-k} \right)^{n-k}$$
+
+---
+
+### 2. 2단계: 자연로그($\ln$) 변환 및 대수적 전개
+
+지수에 위치한 변수들을 선형화하기 위해 식 양변에 자연로그($\ln$)를 취합니다. 로그의 성질($\ln(AB) = \ln A + \ln B$, $\ln(X^Y) = Y\ln X$)에 의해 곱셈 구조가 다음과 같이 덧셈 구조로 완전히 분해됩니다.
+
+$$\ln P(X=k) \approx \frac{1}{2}\ln\left(\frac{n}{2\pi k(n-k)}\right) + k \ln\left(\frac{np}{k}\right) + (n-k) \ln\left(\frac{n(1-p)}{n-k}\right) \quad \cdots \text{(식 1)}$$
+
+---
+
+### 3. 3단계: 표준화 변수 $z$ 도입과 로그 항 변형
+
+이항분포의 기대값 $E[X] = np$와 표준편차 $\text{SD}(X) = \sqrt{np(1-p)}$를 기준으로, 성공 횟수 $k$를 다음과 같이 **표준화 변수 $z$** 공간으로 치환(대입)합니다.
+
+
+$$k = np + z\sqrt{np(1-p)}$$
+
+이 관계식을 (식 1)의 두 로그 항 내부 알맹이에 대입하기 위해 분수 형태를 정렬합니다.
+
+#### ① 첫 번째 로그 알맹이 변형
+
+$$\frac{k}{np} = \frac{np + z\sqrt{np(1-p)}}{np} = 1 + z\sqrt{\frac{1-p}{np}}$$
+
+
+역수를 취해 로그 앞으로 마이너스($-$) 부호를 추출합니다.
+
+
+$$\ln\left(\frac{np}{k}\right) = -\ln\left( 1 + z\sqrt{\frac{1-p}{np}} \right)$$
+
+#### ② 두 번째 로그 알맹이 변형
+
+실패 횟수 $n-k$는 다음과 같습니다.
+
+
+$$n-k = n(1-p) - z\sqrt{np(1-p)}$$
+
+$$\frac{n-k}{n(1-p)} = \frac{n(1-p) - z\sqrt{np(1-p)}}{n(1-p)} = 1 - z\sqrt{\frac{p}{n(1-p)}}$$
+
+
+마찬가지로 역수를 취해 부호를 반전시킵니다.
+
+
+$$\ln\left(\frac{n(1-p)}{n-k}\right) = -\ln\left( 1 - z\sqrt{\frac{p}{n(1-p)}} \right)$$
+
+---
+
+### 4. 4단계: 로그 함수의 테일러 2차 전개(Taylor Expansion) 적용
+
+$n \to \infty$ 극한 상황에서 각 로그 항의 우측 성분들은 $0$으로 수렴하므로, 로그 함수의 Maclaurin 전개 공식 $\ln(1+x) = x - \frac{x^2}{2} + O(x^3)$을 적용하여 비선형 곡선을 평탄화합니다.
+
+#### ① $k \ln\left(\frac{np}{k}\right)$ 항의 전개
+
+$x = z\sqrt{\frac{1-p}{np}}$ 라 두고 2차 항까지 테일러 전개를 가합니다.
+
+
+$$\ln\left( 1 + z\sqrt{\frac{1-p}{np}} \right) \approx z\sqrt{\frac{1-p}{np}} - \frac{z^2(1-p)}{2np}$$
+
+
+여기에 원래의 계수 $-k = -\left(np + z\sqrt{np(1-p)}\right)$를 곱해 전개합니다. ($n \to \infty$ 시 $0$으로 소멸하는 $O(n^{-1/2})$차수 이상의 항은 생략합니다.)
+
+
+$$k \ln\left(\frac{np}{k}\right) \approx -np\left( z\sqrt{\frac{1-p}{np}} \right) + np\left( \frac{z^2(1-p)}{2np} \right) - z\sqrt{np(1-p)}\left( z\sqrt{\frac{1-p}{np}} \right)$$
+
+$$\quad = -z\sqrt{np(1-p)} - \frac{z^2(1-p)}{2} \quad \cdots \text{(A)}$$
+
+#### ② $(n-k) \ln\left(\frac{n(1-p)}{n-k}\right)$ 항의 전개
+
+$x = -z\sqrt{\frac{p}{n(1-p)}}$ 를 대입하여 전개합니다.
+
+
+$$\ln\left( 1 - z\sqrt{\frac{p}{n(1-p)}} \right) \approx -z\sqrt{\frac{p}{n(1-p)}} - \frac{z^2 p}{2n(1-p)}$$
+
+
+앞의 계수 $-(n-k) = -\left(n(1-p) - z\sqrt{np(1-p)}\right)$를 분배법칙으로 곱해 정리합니다.
+
+
+$$(n-k) \ln\left(\frac{n(1-p)}{n-k}\right) \approx z\sqrt{np(1-p)} - \frac{z^2 p}{2} \quad \cdots \text{(B)}$$
+
+---
+
+### 5. 5단계: 대칭적 상쇄 및 표준정규분포 구조 도출
+
+전개된 두 핵심 파트 (A)와 (B)를 최종 합산합니다.
+
+$$\text{(A)} + \text{(B)} = \left[ -z\sqrt{np(1-p)} - \frac{z^2(1-p)}{2} \right] + \left[ z\sqrt{np(1-p)} - \frac{z^2 p}{2} \right]$$
+
+이 과정에서 1차 오차를 유도하던 편차 성분($\mp z\sqrt{np(1-p)}$)이 부호 대칭성에 의해 **완벽하게 소멸**합니다. 남은 2차 항을 정리하면 다음과 같은 대칭형 포물선 핵심 뼈대만 생존합니다.
+
+$$- \frac{z^2(1-p)}{2} - \frac{z^2 p}{2} = -\frac{z^2}{2}(1-p+p) = -\frac{z^2}{2}$$
+
+(식 1)의 맨 앞단에 있던 루트 항 역시 $n \to \infty$ 극한에서 $k \approx np$로 수렴하므로 다음과 같이 치환됩니다.
+
+
+$$\frac{1}{2}\ln\left(\frac{n}{2\pi k(n-k)}\right) \to \ln\left(\frac{1}{\sqrt{2\pi np(1-p)}}\right)$$
+
+로그 공간 상에서 모든 성분을 최종 조립합니다.
+
+
+$$\ln P(X=k) \approx \ln\left(\frac{1}{\sqrt{2\pi np(1-p)}}\right) - \frac{z^2}{2}$$
+
+양변에 지수함수($e$)를 취해 로그를 제거하면 정규분포의 형태가 도출됩니다.
+
+
+$$P(X=k) \approx \frac{1}{\sqrt{2\pi np(1-p)}} e^{-\frac{z^2}{2}}$$
+
+여기서 연속 변수의 미소 보폭을 $\Delta z = \frac{1}{\sqrt{np(1-p)}}$로 정의하면, 이항확률의 이산적 막대 높이가 연속 스케일 하에서 완벽한 표준정규분포의 확률밀도함수로 수렴함이 증명됩니다.
+
+$$\lim_{n \to \infty} \binom{n}{k} p^k (1-p)^{n-k} = \frac{1}{\sqrt{2\pi}} e^{-\frac{z^2}{2}} \Delta z$$
+
+---
+
 *[2026-05-31 업데이트 노트: 유한 단계 $n=100$에서 연속성 수정(Continuity Correction)을 적용한 근사 경로와 미적용한 근사 경로의 정밀 대조 데이터를 추가하였으며, $n \to \infty$ 극한 상황에서 수정항 $0.5 / \sqrt{n}$이 소멸하는 수학적 필연성을 상세히 증명하여 텍스트의 학술적 깊이를 보강함.]*
