@@ -89,7 +89,7 @@ $$Var(X) = 0.6 \times 0.4 = 0.24$$
 
 최대 불확실성인 $0.25$보다는 살짝 아래에 위치해 있습니다. 이는 상승 확률이 $60\%$로 약간 치우쳐져 있기 때문에, 완벽한 반반($50\%$) 상태보다 결과 예측이 미세하게나마 쉬워졌음을 정량적으로 보여주는 증거입니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_06_visual2.html" width="100%" height="480px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_06_visual2.html" width="100%" height="510px" frameborder="0" scrolling="no"></iframe>
 
 ---
 
