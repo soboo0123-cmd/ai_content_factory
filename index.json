@@ -985,9 +985,9 @@
             {
               "sub_id": "sub_01_02",
               "sub_title": "순열",
-              "status": "Review_Pending",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1000,10 +1000,10 @@
                   "created_at": "2026-05-22T23:24:27.607972"
                 },
                 "v3": {
-                  "status": "Pending",
+                  "status": "Completed",
                   "user_feedback": "v1을 채택하되, [시각화: Manim을 활용하여 4명의 인형 중 2명이 선택되어 의자에 앉고, 나머지 인형들이 사라지는 애니메이션(직전 섹션의 PermutationStepByStep 논리 활용)]라는 시각화는 manim, permutationstepbystep을 무시하고 html로 작성해줘.",
-                  "file_path": null,
-                  "created_at": null
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_02_v3.md",
+                  "created_at": "2026-05-31T02:23:52.846022"
                 }
               },
               "metadata": {
@@ -1013,9 +1013,9 @@
             {
               "sub_id": "sub_01_03",
               "sub_title": "조합",
-              "status": "Review_Pending",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_03_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1028,9 +1028,9 @@
                   "created_at": "2026-05-22T23:25:40.058423"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_03_v3.md",
+                  "created_at": "2026-05-31T02:24:55.488818",
                   "user_feedback": "v1을 채택해줘"
                 }
               },
@@ -1041,9 +1041,9 @@
             {
               "sub_id": "sub_01_04",
               "sub_title": "1.4 이항분포의 개념과 확률 트리 모델링",
-              "status": "Review_Pending",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_04_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1056,9 +1056,9 @@
                   "created_at": "2026-05-24T09:51:35.624917"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_04_v3.md",
+                  "created_at": "2026-05-31T02:25:57.694981",
                   "user_feedback": "v1을 채택해줘"
                 }
               },
@@ -1069,9 +1069,9 @@
             {
               "sub_id": "sub_01_05",
               "sub_title": "1.5 이항분포의 대수적 일반화 및 확률 계산 공식",
-              "status": "Review_Pending",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_05_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1084,9 +1084,9 @@
                   "created_at": "2026-05-24T09:52:49.249455"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_05_v3.md",
+                  "created_at": "2026-05-31T02:27:07.369593",
                   "user_feedback": "v1을 채택해줘"
                 }
               },
@@ -1097,9 +1097,9 @@
             {
               "sub_id": "sub_01_06",
               "sub_title": "1.6 베르누이 시행과 평균/분산 정의",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_06_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1112,9 +1112,9 @@
                   "created_at": "2026-05-24T09:54:04.887130"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_06_v3.md",
+                  "created_at": "2026-05-31T02:28:09.647701",
                   "user_feedback": "v1을 채택해줘"
                 }
               },
@@ -1125,8 +1125,8 @@
             {
               "sub_id": "sub_01_07",
               "sub_title": "1.7 이항분포의 평균 및 분산 수식 유도",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1140,9 +1140,9 @@
                   "created_at": "2026-05-24T09:55:17.266229"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_07_v3.md",
+                  "created_at": "2026-05-31T02:29:18.779741",
                   "user_feedback": "v1을 채택하되, 분산에서는 공분산이 추가되는 이유를 부록에서 수학적으로 더 자세히 설명해줘."
                 }
               },
@@ -1153,8 +1153,8 @@
             {
               "sub_id": "sub_01_08",
               "sub_title": "1.8 선형 결합 변수의 기댓값과 분산의 수학적 성질",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1168,9 +1168,9 @@
                   "created_at": "2026-05-24T09:56:31.198006"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_08_v3.md",
+                  "created_at": "2026-05-31T02:30:33.935276",
                   "user_feedback": "v1을 채택하되, 다음과 같은 수치적 예제를 먼저 보여주고 대수적으로 일반화해줘. --- 1, 2, 3은 평균이 2, 1을 더해 2,3,4가 되면 평균도 2에서 1이 커진 3이됨  2배를 해 2,4,6이 되면 평균도 2에서 2배커진 4가됨  분산은 Var(aX+b) = a^2Var(X)가 됨  더해진 상수 b는 불확실성을 의미하는 분산과는 관련이 없어 무시  곱해진 a는 제곱이 되어 나옴. 이유는 분산은 편차 제곱의 기대값인데  앞에서 1,2,3을 2배해 2,4,6이 되면 편차도 -1,0,1에서 -2,0,2로 2배가 됨  분산은 편차의 제곱을 포함하므로 편차가 2배가 되면,   편차의 제곱은 4배(2배^2)가 되므로 상수배는 제곱이 되어 나옴  실제 예제의 분산도 2에서 8로 4배가 됨"
                 }
               },
@@ -1181,8 +1181,8 @@
             {
               "sub_id": "sub_01_09",
               "sub_title": "1.9 지수와 로그의 기본 성질",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1196,9 +1196,9 @@
                   "created_at": "2026-05-24T09:57:45.436447"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_09_v3.md",
+                  "created_at": "2026-05-31T02:31:49.215706",
                   "user_feedback": "v1을 채택해줘."
                 }
               },
@@ -1209,8 +1209,8 @@
             {
               "sub_id": "sub_01_10",
               "sub_title": "1.10 로그 곱 연산 법칙의 증명",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1224,9 +1224,9 @@
                   "created_at": "2026-05-24T09:58:57.136937"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_10_v3.md",
+                  "created_at": "2026-05-31T02:32:57.426265",
                   "user_feedback": "v1을 채택하되, log_a b^c = c log_a b라는 로그 성질이 왜 그렇게 되는지 설명을 추가해줘"
                 }
               },
@@ -1237,8 +1237,8 @@
             {
               "sub_id": "sub_01_11",
               "sub_title": "1.11 이산 수익률과 복리 계산 및 실효 이자율",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1252,9 +1252,9 @@
                   "created_at": "2026-05-24T10:00:18.055727"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_11_v3.md",
+                  "created_at": "2026-05-31T02:34:04.037720",
                   "user_feedback": "v1을 채택해줘."
                 }
               },

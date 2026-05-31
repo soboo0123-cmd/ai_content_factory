@@ -1,0 +1,222 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>이항분포 대수적 일반화 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #f0f6fc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      background: #58a6ff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-[500px]">
+  <div class="w-full max-w-4xl bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-2xl">
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-[#58a6ff] mb-1">📊 이항분포 대수적 일반화 인터랙티브 분포 시뮬레이터</h2>
+      <p class="text-xs text-[#8b949e]">시행 횟수(n)와 성공 확률(q)을 조절하여 수학적으로 엄밀하게 계산된 이항분포의 확률 질량 함수(PMF) 구조가 어떻게 수렴해 가는지 확인해 보세요.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- 슬라이더 컨트롤 패널 -->
+      <div class="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 space-y-5 flex flex-col justify-center">
+        <!-- n 슬라이더 -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-[#e1e4e8]">총 시행 횟수 (n)</span>
+            <span class="text-[#58a6ff]" id="n-val">40</span>
+          </div>
+          <input type="range" id="input-n" min="5" max="150" value="40" class="w-full accent-[#58a6ff] bg-[#30363d] h-1.5 rounded-lg appearance-none">
+          <p class="text-[10px] text-[#8b949e] mt-1">대규모 우주적 경로(2^n)를 즉시 통제합니다.</p>
+        </div>
+
+        <!-- q 슬라이더 -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-[#e1e4e8]">상승 확률 (q)</span>
+            <span class="text-[#58a6ff]" id="q-val">0.60</span>
+          </div>
+          <input type="range" id="input-q" min="0.05" max="0.95" step="0.01" value="0.60" class="w-full accent-[#58a6ff] bg-[#30363d] h-1.5 rounded-lg appearance-none">
+          <p class="text-[10px] text-[#8b949e] mt-1">상호보완적 하락 확률 (1-q): <span id="q-comp-val">0.40</span></p>
+        </div>
+
+        <!-- 정량 정보 디스플레이 -->
+        <div class="border-t border-[#30363d] pt-4 space-y-2">
+          <div class="flex justify-between text-xs text-[#8b949e]">
+            <span>경로의 기수:</span>
+            <span class="text-[#e1e4e8] font-mono" id="path-exponent">2^40</span>
+          </div>
+          <div class="flex justify-between text-xs text-[#8b949e]">
+            <span>시스템 기댓값 (n * q):</span>
+            <span class="text-[#3fb950] font-bold" id="stats-mean">24.00</span>
+          </div>
+          <div class="flex justify-between text-xs text-[#8b949e]">
+            <span>시스템 분산 (n*q*(1-q)):</span>
+            <span class="text-[#ff7b72] font-bold" id="stats-var">9.60</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 차트 렌더링 영역 -->
+      <div class="md:col-span-2 bg-[#0d1117] border border-[#30363d] rounded-lg p-3 relative h-[300px] flex items-center justify-center">
+        <canvas id="binomialChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 조합(Combination)을 계산하는 함수 (안정적인 오버플로우 방지 로직 적용)
+    function logFactorial(n) {
+      let r = 0;
+      for (let i = 2; i <= n; i++) r += Math.log(i);
+      return r;
+    }
+
+    function nCr(n, r) {
+      if (r < 0 || r > n) return 0;
+      if (r === 0 || r === n) return 1;
+      // 대형 n 연산에서의 메모리/정밀도 손실 방지를 위한 로그 계산 환산법 사용
+      return Math.round(Math.exp(logFactorial(n) - logFactorial(r) - logFactorial(n - r)));
+    }
+
+    function getBinomialProb(n, r, q) {
+      const lnComb = logFactorial(n) - logFactorial(r) - logFactorial(n - r);
+      const lnProb = lnComb + r * Math.log(q) + (n - r) * Math.log(1 - q);
+      return Math.exp(lnProb);
+    }
+
+    // 초기 상태 정의
+    const ctx = document.getElementById('binomialChart').getContext('2d');
+    let binomialChart;
+
+    const inputN = document.getElementById('input-n');
+    const inputQ = document.getElementById('input-q');
+
+    const nValText = document.getElementById('n-val');
+    const qValText = document.getElementById('q-val');
+    const qCompValText = document.getElementById('q-comp-val');
+    const pathExponentText = document.getElementById('path-exponent');
+    const statsMeanText = document.getElementById('stats-mean');
+    const statsVarText = document.getElementById('stats-var');
+
+    function updateDashboard() {
+      const n = parseInt(inputN.value);
+      const q = parseFloat(inputQ.value);
+      const p = 1 - q;
+
+      nValText.textContent = n;
+      qValText.textContent = q.toFixed(2);
+      qCompValText.textContent = p.toFixed(2);
+
+      // 경로 지수값 포맷팅
+      if (n > 20) {
+        pathExponentText.textContent = `2^${n} (약 ${(Math.pow(2, n)).toExponential(2)})`;
+      } else {
+        pathExponentText.textContent = `2^${n} (${(Math.pow(2, n)).toLocaleString()})`;
+      }
+
+      // 기댓값 및 분산
+      const mean = n * q;
+      const variance = n * q * p;
+      statsMeanText.textContent = mean.toFixed(2);
+      statsVarText.textContent = variance.toFixed(2);
+
+      // 데이터셋 생성
+      const labels = [];
+      const data = [];
+      for (let j = 0; j <= n; j++) {
+        labels.push(j);
+        data.push(getBinomialProb(n, j, q));
+      }
+
+      // 차트 재생성 또는 업데이트
+      if (binomialChart) {
+        binomialChart.destroy();
+      }
+
+      binomialChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '상태 확률 P(X=j)',
+            data: data,
+            backgroundColor: 'rgba(88, 166, 255, 0.7)',
+            borderColor: '#58a6ff',
+            borderWidth: 1,
+            hoverBackgroundColor: 'rgba(255, 123, 114, 0.8)',
+            hoverBorderColor: '#ff7b72',
+            barPercentage: 0.85
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: '#161b22',
+              borderColor: '#30363d',
+              borderWidth: 1,
+              titleColor: '#58a6ff',
+              bodyColor: '#f0f6fc',
+              callbacks: {
+                title: function(context) {
+                  return `상승 횟수 j = ${context[0].label}회`;
+                },
+                label: function(context) {
+                  return ` 확률: ${context.parsed.y.toFixed(6)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(48, 54, 61, 0.5)'
+              },
+              ticks: {
+                color: '#8b949e',
+                maxTicksLimit: 20,
+                font: {
+                  size: 10
+                }
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(48, 54, 61, 0.5)'
+              },
+              ticks: {
+                color: '#8b949e',
+                font: {
+                  size: 10
+                }
+              },
+              suggestedMax: Math.max(...data) * 1.15
+            }
+          }
+        }
+      });
+    }
+
+    // 이벤트 리스너 바인딩
+    inputN.addEventListener('input', updateDashboard);
+    inputQ.addEventListener('input', updateDashboard);
+
+    // 최초 로드 실행
+    updateDashboard();
+  </script>
+</body>
+</html>
+```

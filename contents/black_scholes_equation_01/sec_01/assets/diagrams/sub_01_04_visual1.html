@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>이항분포 확률 트리 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        }
+        .node-circle {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .edge-line {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .text-value {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 p-6 select-none h-[520px] flex flex-col justify-between overflow-hidden">
+    
+    <!-- Top Bar: Title & Controller -->
+    <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+        <div>
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="inline-block w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+                2기간 확률 트리 시뮬레이터
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">상승 확률 q의 변화에 따른 미시 경로 및 거시 상태의 실시간 연동</p>
+        </div>
+        
+        <!-- Controller inside the top bar for compact layout -->
+        <div class="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700/50">
+            <span class="text-sm font-semibold text-emerald-400">상승 확률 q = <span id="q-val-text" class="text-white">0.60</span></span>
+            <input type="range" id="q-slider" min="0.10" max="0.90" step="0.05" value="0.60" 
+                   class="w-32 accent-emerald-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg appearance-none">
+            <span class="text-sm font-semibold text-rose-400">하락 확률 1-q = <span id="dq-val-text" class="text-white">0.40</span></span>
+        </div>
+    </div>
+
+    <!-- Main Content Area: Split Tree and Table -->
+    <div class="grid grid-cols-12 gap-6 my-auto items-center">
+        
+        <!-- Left: Interactive SVG Tree Diagram -->
+        <div class="col-span-7 bg-slate-950/40 rounded-2xl border border-slate-800 p-4 flex justify-center items-center">
+            <svg id="tree-svg" width="460" height="280" viewBox="0 0 460 280" class="overflow-visible">
+                <!-- Defs for arrow markers, gradients -->
+                <defs>
+                    <linearGradient id="up-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#10b981" />
+                        <stop offset="100%" stop-color="#059669" />
+                    </linearGradient>
+                    <linearGradient id="down-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f43f5e" />
+                        <stop offset="100%" stop-color="#e11d48" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Edges (Paths) -->
+                <!-- Root to Step 1 Up -->
+                <line x1="40" y1="140" x2="180" y2="70" stroke="#475569" stroke-width="3" class="edge-line" id="edge-r-u" />
+                <!-- Root to Step 1 Down -->
+                <line x1="40" y1="140" x2="180" y2="210" stroke="#475569" stroke-width="3" class="edge-line" id="edge-r-d" />
+                
+                <!-- Step 1 Up to Step 2 UU -->
+                <line x1="180" y1="70" x2="320" y2="35" stroke="#475569" stroke-width="2" class="edge-line" id="edge-u-uu" />
+                <!-- Step 1 Up to Step 2 UD -->
+                <line x1="180" y1="70" x2="320" y2="105" stroke="#475569" stroke-width="2" class="edge-line" id="edge-u-ud" />
+                
+                <!-- Step 1 Down to Step 2 DU -->
+                <line x1="180" y1="210" x2="320" y2="175" stroke="#475569" stroke-width="2" class="edge-line" id="edge-d-du" />
+                <!-- Step 1 Down to Step 2 DD -->
+                <line x1="180" y1="210" x2="320" y2="245" stroke="#475569" stroke-width="2" class="edge-line" id="edge-d-dd" />
+
+                <!-- Nodes -->
+                <!-- Root -->
+                <circle cx="40" cy="140" r="16" fill="#334155" class="node-circle stroke-slate-400 stroke-2" />
+                <text x="40" y="144" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">S</text>
+
+                <!-- Step 1 Up -->
+                <circle cx="180" cy="70" r="16" fill="url(#up-grad)" class="node-circle" />
+                <text x="180" y="74" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">U</text>
+                
+                <!-- Step 1 Down -->
+                <circle cx="180" cy="210" r="16" fill="url(#down-grad)" class="node-circle" />
+                <text x="180" y="214" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">D</text>
+
+                <!-- Step 2 Terminal Nodes -->
+                <circle cx="320" cy="35" r="14" fill="url(#up-grad)" class="node-circle" />
+                <text x="320" y="39" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">UU</text>
+                
+                <circle cx="320" cy="105" r="14" fill="#64748b" class="node-circle" />
+                <text x="320" y="109" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">UD</text>
+
+                <circle cx="320" cy="175" r="14" fill="#64748b" class="node-circle" />
+                <text x="320" y="179" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">DU</text>
+
+                <circle cx="320" cy="245" r="14" fill="url(#down-grad)" class="node-circle" />
+                <text x="320" y="249" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">DD</text>
+
+                <!-- Dynamic Labels: Edge Probabilities -->
+                <text x="100" y="95" fill="#10b981" font-size="12" font-weight="bold" text-anchor="middle" class="text-value" id="label-r-u">q=0.60</text>
+                <text x="100" y="195" fill="#f43f5e" font-size="12" font-weight="bold" text-anchor="middle" class="text-value" id="label-r-d">1-q=0.40</text>
+
+                <text x="250" y="45" fill="#10b981" font-size="11" font-weight="semibold" text-anchor="middle" class="text-value" id="label-u-uu">0.60</text>
+                <text x="250" y="98" fill="#f43f5e" font-size="11" font-weight="semibold" text-anchor="middle" class="text-value" id="label-u-ud">0.40</text>
+                <text x="250" y="185" fill="#10b981" font-size="11" font-weight="semibold" text-anchor="middle" class="text-value" id="label-d-du">0.60</text>
+                <text x="250" y="238" fill="#f43f5e" font-size="11" font-weight="semibold" text-anchor="middle" class="text-value" id="label-d-dd">0.40</text>
+
+                <!-- Dynamic Terminal Probabilities -->
+                <text x="345" y="39" fill="#34d399" font-size="12" font-weight="bold" text-anchor="start" class="text-value" id="p-uu">0.360</text>
+                <text x="345" y="109" fill="#cbd5e1" font-size="12" font-weight="bold" text-anchor="start" class="text-value" id="p-ud">0.240</text>
+                <text x="345" y="179" fill="#cbd5e1" font-size="12" font-weight="bold" text-anchor="start" class="text-value" id="p-du">0.240</text>
+                <text x="345" y="249" fill="#fb7185" font-size="12" font-weight="bold" text-anchor="start" class="text-value" id="p-dd">0.160</text>
+            </svg>
+        </div>
+
+        <!-- Right: Dynamic Summary Table -->
+        <div class="col-span-5 space-y-3">
+            <!-- Micro Paths Table -->
+            <div class="bg-slate-950/60 rounded-xl p-3 border border-slate-800">
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">미시적 경로 확률</h2>
+                <div class="space-y-1.5 text-xs">
+                    <div class="flex justify-between items-center bg-emerald-950/20 px-2 py-1 rounded">
+                        <span class="text-emerald-400 font-mono">UU (상승-상승)</span>
+                        <span class="text-slate-400">q × q</span>
+                        <span id="tbl-uu" class="font-bold text-emerald-300">0.360</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-800/20 px-2 py-1 rounded">
+                        <span class="text-slate-300 font-mono">UD (상승-하락)</span>
+                        <span class="text-slate-400">q × (1-q)</span>
+                        <span id="tbl-ud" class="font-bold text-slate-200">0.240</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-800/20 px-2 py-1 rounded">
+                        <span class="text-slate-300 font-mono">DU (하락-상승)</span>
+                        <span class="text-slate-400">(1-q) × q</span>
+                        <span id="tbl-du" class="font-bold text-slate-200">0.240</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-rose-950/20 px-2 py-1 rounded">
+                        <span class="text-rose-400 font-mono">DD (하락-하락)</span>
+                        <span class="text-slate-400">(1-q) × (1-q)</span>
+                        <span id="tbl-dd" class="font-bold text-rose-300">0.160</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Macro States Table -->
+            <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-700/80">
+                <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">거시적 상태 응집 (이항분포)</h2>
+                <div class="space-y-1.5 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-300">상승 2회 (j=2)</span>
+                        <span class="text-slate-400 font-mono"><sub>2</sub>C<sub>2</sub> q²</span>
+                        <span id="state-2" class="font-bold text-emerald-400 text-sm">0.36</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-emerald-500/10 px-1 py-0.5 rounded">
+                        <span class="text-white font-medium">상승 1회 (j=1) <span class="text-[10px] text-slate-400">(UD + DU)</span></span>
+                        <span class="text-slate-300 font-mono"><sub>2</sub>C<sub>1</sub> q(1-q)</span>
+                        <span id="state-1" class="font-bold text-emerald-300 text-sm">0.48</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-300">상승 0회 (j=0)</span>
+                        <span class="text-slate-400 font-mono"><sub>2</sub>C<sub>0</sub> (1-q)²</span>
+                        <span id="state-0" class="font-bold text-rose-400 text-sm">0.16</span>
+                    </div>
+                    <div class="border-t border-slate-700 pt-1.5 mt-2 flex justify-between items-center text-white font-bold">
+                        <span>확률계 총합 (Σ P)</span>
+                        <span class="text-emerald-400 text-sm">1.00 (100%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Indicator -->
+    <div class="text-center text-[11px] text-slate-500 border-t border-slate-800 pt-2.5">
+        미시적 경로의 순서에 무관하게, 동일한 원인 요소들의 거시적 묶음은 곱셈의 교환법칙과 조합을 통해 완결성 있는 이항분포를 구성합니다.
+    </div>
+
+    <script>
+        const slider = document.getElementById('q-slider');
+        const qText = document.getElementById('q-val-text');
+        const dqText = document.getElementById('dq-val-text');
+
+        // Dynamic elements
+        const elements = {
+            lblRU: document.getElementById('label-r-u'),
+            lblRD: document.getElementById('label-r-d'),
+            lblU_UU: document.getElementById('label-u-uu'),
+            lblU_UD: document.getElementById('label-u-ud'),
+            lblD_DU: document.getElementById('label-d-du'),
+            lblD_DD: document.getElementById('label-d-dd'),
+            pUU: document.getElementById('p-uu'),
+            pUD: document.getElementById('p-ud'),
+            pDU: document.getElementById('p-du'),
+            pDD: document.getElementById('p-dd'),
+            tblUU: document.getElementById('tbl-uu'),
+            tblUD: document.getElementById('tbl-ud'),
+            tblDU: document.getElementById('tbl-du'),
+            tblDD: document.getElementById('tbl-dd'),
+            state2: document.getElementById('state-2'),
+            state1: document.getElementById('state-1'),
+            state0: document.getElementById('state-0'),
+            edgeRU: document.getElementById('edge-r-u'),
+            edgeRD: document.getElementById('edge-r-d')
+        };
+
+        function updateSimulation() {
+            const q = parseFloat(slider.value);
+            const dq = 1 - q;
+
+            // Update controller text
+            qText.innerText = q.toFixed(2);
+            dqText.innerText = dq.toFixed(2);
+
+            // Calculate probabilities
+            const uu = q * q;
+            const ud = q * dq;
+            const du = dq * q;
+            const dd = dq * dq;
+
+            const state2Prob = uu;
+            const state1Prob = ud + du;
+            const state0Prob = dd;
+
+            // Update Edge text & positions
+            elements.lblRU.textContent = `q=${q.toFixed(2)}`;
+            elements.lblRD.textContent = `1-q=${dq.toFixed(2)}`;
+            elements.lblU_UU.textContent = q.toFixed(2);
+            elements.lblU_UD.textContent = dq.toFixed(2);
+            elements.lblD_DU.textContent = q.toFixed(2);
+            elements.lblD_DD.textContent = dq.toFixed(2);
+
+            // Update dynamic visual weight (stroke-width) based on probability values
+            elements.edgeRU.setAttribute('stroke-width', (2 + q * 5).toString());
+            elements.edgeRD.setAttribute('stroke-width', (2 + dq * 5).toString());
+
+            // Update terminal values
+            elements.pUU.textContent = uu.toFixed(3);
+            elements.pUD.textContent = ud.toFixed(3);
+            elements.pDU.textContent = du.toFixed(3);
+            elements.pDD.textContent = dd.toFixed(3);
+
+            // Update Tables
+            elements.tblUU.textContent = uu.toFixed(3);
+            elements.tblUD.textContent = ud.toFixed(3);
+            elements.tblDU.textContent = du.toFixed(3);
+            elements.tblDD.textContent = dd.toFixed(3);
+
+            elements.state2.textContent = state2Prob.toFixed(3);
+            elements.state1.textContent = state1Prob.toFixed(3);
+            elements.state0.textContent = state0Prob.toFixed(3);
+        }
+
+        slider.addEventListener('input', updateSimulation);
+        updateSimulation(); // init
+    </script>
+</body>
+</html>

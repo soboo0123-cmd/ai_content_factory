@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="800" height="300" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+  
+  <!-- Outer Title (Optional but clean) -->
+  <text x="400" y="35" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#1E293B" text-anchor="middle">베르누이 시행: 현실의 이분법적 상태와 수학적 확률변수의 매핑</text>
+
+  <!-- Left Node: Real World Event -->
+  <rect x="50" y="100" width="180" height="100" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+  <text x="140" y="145" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1E3A8A" text-anchor="middle">현실의 이분법적 사건</text>
+  <text x="140" y="175" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1D4ED8" text-anchor="middle">(예: 주가 등락)</text>
+
+  <!-- Branch Arrows -->
+  <!-- Upper Branch (Success) -->
+  <path d="M 230,130 C 290,100 310,90 370,90" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="1"/>
+  <polygon points="370,90 360,85 363,95" fill="#10B981"/>
+  <text x="300" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#047857" text-anchor="middle">상승 (Success)</text>
+  <text x="300" y="115" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#059669" text-anchor="middle">확률 q = 0.6</text>
+
+  <!-- Lower Branch (Failure) -->
+  <path d="M 230,170 C 290,200 310,210 370,210" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="1"/>
+  <polygon points="370,210 363,205 360,215" fill="#EF4444"/>
+  <text x="300" y="225" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#B91C1C" text-anchor="middle">하락 (Failure)</text>
+  <text x="300" y="245" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#DC2626" text-anchor="middle">확률 1-q = 0.4</text>
+
+  <!-- Right Node 1: Mapping to X = 1 -->
+  <rect x="380" y="55" width="370" height="70" rx="8" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
+  <text x="395" y="90" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#065F46">확률변수 X = 1</text>
+  <text x="395" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#047857">상승 상태를 숫자 1에 대응</text>
+  <text x="735" y="97" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#047857" text-anchor="end">P(X = 1) = q</text>
+
+  <!-- Right Node 2: Mapping to X = 0 -->
+  <rect x="380" y="175" width="370" height="70" rx="8" fill="#FEF2F2" stroke="#EF4444" stroke-width="2"/>
+  <text x="395" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#991B1B">확률변수 X = 0</text>
+  <text x="395" y="230" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#B91C1C">하락 상태를 숫자 0에 대응</text>
+  <text x="735" y="217" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="700" fill="#B91C1C" text-anchor="end">P(X = 0) = 1-q</text>
+</svg>

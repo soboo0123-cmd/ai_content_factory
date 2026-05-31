@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터랙티브 순열 시뮬레이터</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for formula rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .numerator {
+            border-bottom: 2px solid #475569;
+            padding-bottom: 2px;
+        }
+        .denominator {
+            padding-top: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-4 select-none">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 p-4 text-white">
+            <h2 class="text-lg font-bold">$_nP_j$ 순열(Permutation) 인터랙티브 시뮬레이터</h2>
+            <p class="text-xs text-indigo-100 mt-1">"나눗셈을 통한 낙선자들의 무의미한 순서 바꾸기 덜어내기"</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 p-6">
+            <!-- Controls (Left Side) -->
+            <div class="md:col-span-5 space-y-5">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-4">
+                    <h3 class="text-sm font-bold text-slate-700 mb-2">변수 설정</h3>
+                    
+                    <!-- Slider n -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-600">전체 인원 (n)</label>
+                            <span id="n-val" class="text-sm font-extrabold text-indigo-600">4 명</span>
+                        </div>
+                        <input type="range" id="slider-n" min="1" max="6" value="4" 
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                        <div class="flex justify-between text-[10px] text-slate-400 px-1">
+                            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider j -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-600">선택할 인원 (j)</label>
+                            <span id="j-val" class="text-sm font-extrabold text-indigo-600">2 명</span>
+                        </div>
+                        <input type="range" id="slider-j" min="1" max="4" value="2" 
+                               class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                        <div id="j-scale" class="flex justify-between text-[10px] text-slate-400 px-1">
+                            <!-- Dynamically generated scale -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Log of Permutations -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-sm font-bold text-slate-700">생성된 순열 목록</h3>
+                        <span id="perm-count" class="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full font-bold">12개</span>
+                    </div>
+                    <div id="perm-list" class="text-xs font-mono text-slate-600 max-h-32 overflow-y-auto bg-white border border-slate-200 rounded-lg p-2 grid grid-cols-2 gap-1">
+                        <!-- Permutations dynamically listed -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Pane (Right Side) -->
+            <div class="md:col-span-7 flex flex-col justify-between space-y-6">
+                <!-- Visual Arena: Selected vs Unselected -->
+                <div class="border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50/50 min-h-[180px]">
+                    <div class="w-full text-center text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">시나리오 상태 시각화</div>
+                    
+                    <div class="flex flex-wrap justify-center items-center gap-6 w-full">
+                        <!-- Selected Slots (Active Arena) -->
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-bold text-indigo-600 mb-1">무대 위 주전 (j)</span>
+                            <div id="slot-container" class="flex gap-2 p-2 bg-indigo-50 border border-indigo-100 rounded-xl min-h-[64px] items-center justify-center">
+                                <!-- JS puts active nodes here -->
+                            </div>
+                        </div>
+
+                        <!-- Divider Arrow -->
+                        <div class="text-slate-300 font-bold text-xl">
+                            ➔
+                        </div>
+
+                        <!-- Unselected Lounge (Discarded Arena) -->
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-bold text-rose-500 mb-1">무대 뒤 낙선자 구역 (n-j)</span>
+                            <div id="lounge-container" class="flex gap-2 p-2 bg-rose-50/50 border border-rose-100 border-dashed rounded-xl min-h-[64px] items-center justify-center">
+                                <!-- JS puts inactive nodes here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equation Box -->
+                <div class="bg-slate-900 text-slate-100 rounded-xl p-5 font-mono text-sm shadow-inner relative overflow-hidden">
+                    <div class="absolute top-2 right-2 text-[10px] text-indigo-400 font-bold uppercase tracking-wider">실시간 수식 계산기</div>
+                    
+                    <div class="flex flex-col space-y-3 mt-1">
+                        <!-- Formula Display -->
+                        <div class="flex items-center space-x-2 text-base">
+                            <span class="text-indigo-400 font-extrabold" id="formula-permutation">_4P_2</span>
+                            <span>=</span>
+                            <!-- Fraction representation -->
+                            <div class="fraction">
+                                <span class="numerator" id="formula-numerator">4!</span>
+                                <span class="denominator" id="formula-denominator">(4-2)!</span>
+                            </div>
+                            <span>=</span>
+                            <div class="fraction">
+                                <span class="numerator" id="expanded-numerator">4 × 3 × 2 × 1</span>
+                                <span class="denominator" id="expanded-denominator">2 × 1</span>
+                            </div>
+                            <span>=</span>
+                            <span class="text-emerald-400 font-extrabold" id="formula-result">12</span>
+                        </div>
+                        
+                        <!-- Visual breakdown of cancellation -->
+                        <div class="text-xs text-slate-400 border-t border-slate-800 pt-2 leading-relaxed">
+                            <span class="text-indigo-300 font-bold">해석:</span> 전체 나열 목록 <span id="num-fact" class="text-slate-200">24가지</span> 중에서 무대 뒤 낙선자 <span id="dis-count" class="text-rose-400">2명</span>의 의미 없는 순서 바꾸기 <span id="den-fact" class="text-rose-400">2가지</span>를 나누어 탈락시켰습니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sliderN = document.getElementById('slider-n');
+        const sliderJ = document.getElementById('slider-j');
+        const nValSpan = document.getElementById('n-val');
+        const jValSpan = document.getElementById('j-val');
+        const jScaleContainer = document.getElementById('j-scale');
+        
+        const slotContainer = document.getElementById('slot-container');
+        const loungeContainer = document.getElementById('lounge-container');
+        
+        const formulaPerm = document.getElementById('formula-permutation');
+        const formulaNum = document.getElementById('formula-numerator');
+        const formulaDen = document.getElementById('formula-denominator');
+        const expNum = document.getElementById('expanded-numerator');
+        const expDen = document.getElementById('expanded-denominator');
+        const formulaResult = document.getElementById('formula-result');
+        const numFactText = document.getElementById('num-fact');
+        const denFactText = document.getElementById('den-fact');
+        const disCountText = document.getElementById('dis-count');
+        const permCountText = document.getElementById('perm-count');
+        const permListContainer = document.getElementById('perm-list');
+
+        const elements = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+        function factorial(num) {
+            if (num <= 1) return 1;
+            return num * factorial(num - 1);
+        }
+
+        function getFactorialSequenceString(num) {
+            if (num === 0) return '1';
+            let str = [];
+            for (let i = num; i >= 1; i--) {
+                str.push(i);
+            }
+            return str.join(' × ');
+        }
+
+        function updateSliders() {
+            const n = parseInt(sliderN.value);
+            let j = parseInt(sliderJ.value);
+
+            // Constraint: j cannot be greater than n
+            sliderJ.max = n;
+            if (j > n) {
+                j = n;
+                sliderJ.value = n;
+            }
+
+            nValSpan.textContent = `${n} 명`;
+            jValSpan.textContent = `${j} 명`;
+
+            // Update j slider scale numbers
+            jScaleContainer.innerHTML = '';
+            for (let i = 1; i <= n; i++) {
+                const span = document.createElement('span');
+                span.textContent = i;
+                jScaleContainer.appendChild(span);
+            }
+
+            renderVisualization(n, j);
+            renderFormula(n, j);
+            generatePermutations(n, j);
+        }
+
+        function renderVisualization(n, j) {
+            slotContainer.innerHTML = '';
+            loungeContainer.innerHTML = '';
+
+            // Render selected slots
+            for (let i = 0; i < j; i++) {
+                const node = document.createElement('div');
+                node.className = "w-10 h-10 rounded-full bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-md animate-bounce";
+                node.textContent = elements[i];
+                slotContainer.appendChild(node);
+            }
+            if (j === 0) {
+                slotContainer.innerHTML = `<span class="text-xs text-slate-400 px-2">선택 없음</span>`;
+            }
+
+            // Render discarded lounge (n - j items)
+            const remainingCount = n - j;
+            for (let i = j; i < n; i++) {
+                const node = document.createElement('div');
+                node.className = "w-10 h-10 rounded-full bg-slate-200 text-slate-500 font-bold text-sm flex items-center justify-center border border-slate-300 opacity-60";
+                node.textContent = elements[i];
+                loungeContainer.appendChild(node);
+            }
+            if (remainingCount === 0) {
+                loungeContainer.innerHTML = `<span class="text-[10px] text-slate-400 px-2">낙선자 없음</span>`;
+            }
+        }
+
+        function renderFormula(n, j) {
+            const numeratorVal = factorial(n);
+            const denominatorVal = factorial(n - j);
+            const resultVal = numeratorVal / denominatorVal;
+
+            formulaPerm.textContent = `_${n}P_${j}`;
+            formulaNum.textContent = `${n}!`;
+            formulaDen.textContent = n - j === 0 ? '0!' : `(${n}-${j})!`;
+
+            // Core expansion
+            let expNumStr = getFactorialSequenceString(n);
+            let expDenStr = getFactorialSequenceString(n - j);
+
+            // Draw strike-through for the elements that cancel out
+            const commonTerms = n - j;
+            if (commonTerms > 0) {
+                // We highlight the part of numerator that is canceled
+                let numeratorParts = [];
+                for (let i = n; i > commonTerms; i--) {
+                    numeratorParts.push(i);
+                }
+                const activePart = numeratorParts.join(' × ');
+                const canceledPart = getFactorialSequenceString(commonTerms);
+                expNum.innerHTML = `${activePart} × <span class="line-through text-slate-400 opacity-50">${canceledPart}</span>`;
+                expDen.innerHTML = `<span class="line-through text-slate-400 opacity-50">${expDenStr}</span>`;
+            } else {
+                expNum.textContent = expNumStr;
+                expDen.textContent = expDenStr;
+            }
+
+            formulaResult.textContent = resultVal;
+
+            numFactText.textContent = `${numeratorVal}가지`;
+            disCountText.textContent = `${n - j}명`;
+            denFactText.textContent = `${denominatorVal}가지`;
+        }
+
+        // JS permutation generator
+        function getPermutations(arr, selectNum) {
+            const results = [];
+            if (selectNum === 1) return arr.map((v) => [v]);
+
+            arr.forEach((fixed, index, origin) => {
+                const rest = [...origin.slice(0, index), ...origin.slice(index + 1)];
+                const permutations = getPermutations(rest, selectNum - 1);
+                const attached = permutations.map((v) => [fixed, ...v]);
+                results.push(...attached);
+            });
+
+            return results;
+        }
+
+        function generatePermutations(n, j) {
+            const currentElements = elements.slice(0, n);
+            const perms = getPermutations(currentElements, j);
+            
+            permCountText.textContent = `${perms.length}개`;
+            permListContainer.innerHTML = '';
+            
+            perms.forEach((perm, idx) => {
+                const item = document.createElement('div');
+                item.className = "p-1 bg-slate-100/50 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] text-center border border-slate-200/50 transition-colors duration-150";
+                item.textContent = `${idx + 1:02d}: (${perm.join(', ')})`;
+                permListContainer.appendChild(item);
+            });
+        }
+
+        // Listeners
+        sliderN.addEventListener('input', updateSliders);
+        sliderJ.addEventListener('input', updateSliders);
+
+        // Initial trigger
+        updateSliders();
+    </script>
+</body>
+</html>

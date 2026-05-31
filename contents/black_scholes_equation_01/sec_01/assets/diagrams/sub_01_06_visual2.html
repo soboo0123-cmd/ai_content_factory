@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>성공 확률 q에 따른 베르누이 분산 거동</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .parabola-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 250px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-6 font-sans">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-600 px-6 py-4">
+            <h1 class="text-white text-lg font-bold">베르누이 분산 포물선과 역학 관계 시각화</h1>
+            <p class="text-indigo-100 text-xs mt-1">슬라이더를 통해 성공 확률 q를 조절하며, 두 세력의 조화 q(1-q)가 그리는 포물선의 궤적과 분산의 피크를 관찰하세요.</p>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Left Panel: SVG Graph Rendering -->
+            <div class="md:col-span-6 flex flex-col items-center justify-center border-r border-slate-100 pr-0 md:pr-6">
+                <div class="parabola-container">
+                    <svg width="100%" height="100%" viewBox="0 0 400 250" class="overflow-visible">
+                        <!-- Grid Lines -->
+                        <line x1="50" y1="200" x2="350" y2="200" stroke="#E2E8F0" stroke-width="2"/>
+                        <line x1="50" y1="50" x2="350" y2="50" stroke="#F1F5F9" stroke-width="1" stroke-dasharray="2"/>
+                        <line x1="200" y1="50" x2="200" y2="200" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4"/>
+                        
+                        <!-- Axes Labels -->
+                        <text x="35" y="204" font-size="10" font-weight="bold" fill="#64748B" text-anchor="end">0</text>
+                        <text x="35" y="54" font-size="10" font-weight="bold" fill="#64748B" text-anchor="end">0.25 (Max)</text>
+                        <text x="50" y="220" font-size="10" font-weight="bold" fill="#64748B" text-anchor="middle">q = 0.0</text>
+                        <text x="200" y="220" font-size="10" font-weight="bold" fill="#4F46E5" text-anchor="middle">q = 0.5</text>
+                        <text x="350" y="220" font-size="10" font-weight="bold" fill="#64748B" text-anchor="middle">q = 1.0</text>
+
+                        <!-- y-axis title -->
+                        <text x="15" y="125" font-size="11" font-weight="bold" fill="#475569" transform="rotate(-90, 15, 125)" text-anchor="middle">분산 Var(X)</text>
+
+                        <!-- Static Parabola Path -->
+                        <!-- Quadratic Curve: starts at (50, 200), peak at (200, 50), ends at (350, 200) -->
+                        <path d="M 50,200 Q 200,50 350,200" fill="none" stroke="#D9F99D" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M 50,200 Q 200,50 350,200" fill="none" stroke="#84CC16" stroke-width="3" stroke-linecap="round"/>
+
+                        <!-- Peak point marker -->
+                        <circle cx="200" cy="50" r="4" fill="#4F46E5" />
+
+                        <!-- Dynamic Point -->
+                        <circle id="dyn-point" cx="200" cy="50" r="8" fill="#4F46E5" class="transition-all duration-100 ease-out" stroke="white" stroke-width="2" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.2))" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Right Panel: Quantitative Values & Interactive Logic -->
+            <div class="md:col-span-6 flex flex-col justify-between">
+                <!-- Interactive Slider -->
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">성공 확률 q 조절</label>
+                    <input type="range" id="q-slider" min="0" max="1" step="0.01" value="0.60" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    <div class="flex justify-between text-xs font-semibold text-slate-400 mt-1">
+                        <span>q = 0.00 (완전 하락)</span>
+                        <span>q = 1.00 (완전 상승)</span>
+                    </div>
+                </div>
+
+                <!-- Equation Display -->
+                <div class="bg-indigo-50/50 rounded-lg p-4 border border-indigo-100 space-y-3">
+                    <div class="flex justify-between items-center pb-2 border-b border-indigo-100">
+                        <span class="text-xs font-bold text-indigo-500 uppercase">분산 계산식 적용</span>
+                        <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full">동적 연산</span>
+                    </div>
+
+                    <!-- Step by step -->
+                    <div class="space-y-1.5 text-sm font-mono text-slate-700">
+                        <div class="flex justify-between">
+                            <span>1. 성공 확률 (q)</span>
+                            <span id="eq-q" class="font-bold text-indigo-600">0.60</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>2. 실패 확률 (1-q)</span>
+                            <span id="eq-cq" class="font-bold text-rose-600">0.40</span>
+                        </div>
+                        <div class="flex justify-between pt-1 border-t border-dashed border-slate-200 text-base font-bold">
+                            <span class="text-slate-800">Var(X) = q × (1-q)</span>
+                            <span class="text-indigo-700"><span id="eq-result-mult">0.60 × 0.40</span> = <span id="eq-result-final" class="underline">0.240</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economic Intuition Badge -->
+                <div class="mt-4 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">상태별 불확실성 강도</div>
+                    <div class="flex items-center gap-2">
+                        <!-- Color status bar -->
+                        <div id="status-bar" class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        <div id="status-text" class="text-xs font-bold text-slate-700">안정적 (치우침 존재)</div>
+                    </div>
+                    <p id="status-desc" class="text-[11px] text-slate-500 mt-1 leading-relaxed">성공 확률과 실패 확률이 서로 다를 때, 사건의 한쪽 쏠림이 발생하여 평균 불확실성은 정점(0.25)보다 내려갑니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('q-slider');
+        const dynPoint = document.getElementById('dyn-point');
+        
+        const eqQ = document.getElementById('eq-q');
+        const eqCq = document.getElementById('eq-cq');
+        const eqResultMult = document.getElementById('eq-result-mult');
+        const eqResultFinal = document.getElementById('eq-result-final');
+
+        const statusBar = document.getElementById('status-bar');
+        const statusText = document.getElementById('status-text');
+        const statusDesc = document.getElementById('status-desc');
+
+        function updateGraph() {
+            const q = parseFloat(slider.value);
+            const complement = 1 - q;
+            const variance = q * complement;
+
+            // Mapping (q, variance) to SVG coordinates (cx, cy)
+            // q: 0.0 -> cx: 50 | q: 0.5 -> cx: 200 | q: 1.0 -> cx: 350
+            const cx = 50 + (q * 300);
+
+            // variance: 0.0 -> cy: 200 | variance: 0.25 -> cy: 50
+            // Mapping ratio: (variance / 0.25) * 150 = height diff. cy = 200 - (variance / 0.25) * 150
+            const cy = 200 - (variance / 0.25) * 150;
+
+            dynPoint.setAttribute('cx', cx);
+            dynPoint.setAttribute('cy', cy);
+
+            // Update equations
+            eqQ.textContent = q.toFixed(2);
+            eqCq.textContent = complement.toFixed(2);
+            eqResultMult.textContent = `${q.toFixed(2)} × ${complement.toFixed(2)}`;
+            eqResultFinal.textContent = variance.toFixed(3);
+
+            // Update system description / entropy states
+            if (q === 0.5) {
+                statusBar.className = "w-3 h-3 rounded-full bg-red-600 animate-pulse";
+                statusText.textContent = "최대 불확실성 상태 (Peak Hazard)";
+                statusDesc.textContent = "상승과 하락이 50대 50으로 완벽하게 균형을 이룹니다. 이 상태에서 시스템은 예측이 가장 불가능하며 분산은 한계 상한선인 0.25에 도달합니다.";
+            } else if (q === 0.0 || q === 1.0) {
+                statusBar.className = "w-3 h-3 rounded-full bg-blue-600";
+                statusText.textContent = "완벽한 확실성 상태 (Zero Risk)";
+                statusDesc.textContent = "결과가 사전에 이미 결정되어 있어 아무런 무작위성이 발생하지 않습니다. 분산(위험)은 수학적으로 완벽한 영(0)이 됩니다.";
+            } else if (q > 0.4 && q < 0.6) {
+                statusBar.className = "w-3 h-3 rounded-full bg-amber-500";
+                statusText.textContent = "고위험 긴장 국면 (High Entropy)";
+                statusDesc.textContent = "어느 한쪽이 확실히 우세하지 않아 변동성 분산 수준이 극대값(0.25)에 매우 긴밀하게 근접해 있습니다.";
+            } else {
+                statusBar.className = "w-3 h-3 rounded-full bg-emerald-500";
+                statusText.textContent = "안정적 편향 상태 (Predictable Biased)";
+                statusDesc.textContent = "상승 또는 하락의 확률 중 한쪽이 쏠려있으므로, 어느 정도 예측 가능성이 제고되며 분산은 낮아집니다.";
+            }
+        }
+
+        slider.addEventListener('input', updateGraph);
+        
+        // Initial Draw
+        updateGraph();
+    </script>
+</body>
+</html>

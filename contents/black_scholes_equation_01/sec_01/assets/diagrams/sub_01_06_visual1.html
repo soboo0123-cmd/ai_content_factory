@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>베르누이 시행 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin-up {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(540deg) scale(1.2); }
+            100% { transform: rotate(1080deg) scale(1); }
+        }
+        @keyframes spin-down {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(540deg) scale(1.2); }
+            100% { transform: rotate(1260deg) scale(1); }
+        }
+        .spin-active-up {
+            animation: spin-up 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .spin-active-down {
+            animation: spin-down 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-6 font-sans">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-blue-600 px-6 py-4">
+            <h1 class="text-white text-lg font-bold">인터랙티브 단일 베르누이 시행 시뮬레이터</h1>
+            <p class="text-blue-100 text-xs mt-1">성공 확률 q를 조절하여 직접 베르누이 시행을 관찰하고 대수적 매핑의 수렴성을 확인하세요.</p>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Left Controls & Animation -->
+            <div class="md:col-span-5 flex flex-col items-center justify-between border-r border-slate-100 pr-0 md:pr-6">
+                <!-- Slider -->
+                <div class="w-full">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-semibold text-slate-700">상승 확률 (q)</label>
+                        <span id="prob-val" class="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">0.60</span>
+                    </div>
+                    <input type="range" id="prob-slider" min="0" max="1" step="0.05" value="0.60" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1">
+                        <span>하락 확률 (1-q): <strong id="complement-val" class="text-slate-600">0.40</strong></span>
+                    </div>
+                </div>
+
+                <!-- Simulation Visual (Spinner) -->
+                <div class="my-8 relative w-32 h-32 flex items-center justify-center">
+                    <div id="spinner-arrow" class="w-24 h-24 rounded-full border-4 border-slate-300 flex items-center justify-center bg-slate-100 shadow-inner">
+                        <!-- Up Arrow Graphic inside Spinner -->
+                        <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>
+                    </div>
+                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow">인디케이터</div>
+                </div>
+
+                <!-- Run buttons -->
+                <div class="flex gap-2 w-full">
+                    <button id="btn-run" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm transition text-sm">
+                        단일 시행 (Run)
+                    </button>
+                    <button id="btn-reset" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-3 rounded-lg border border-slate-200 transition text-sm">
+                        초기화
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Results Panel -->
+            <div class="md:col-span-7 flex flex-col justify-between">
+                <!-- Current Outcome -->
+                <div class="bg-slate-50 rounded-lg p-4 mb-4 border border-slate-100">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">직전 시행 결과</div>
+                    <div class="flex items-center justify-between">
+                        <div id="outcome-text" class="text-xl font-extrabold text-slate-700">시행 버튼을 클릭하세요</div>
+                        <div id="outcome-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-600">-</div>
+                    </div>
+                </div>
+
+                <!-- Empirical Stats Table -->
+                <div class="overflow-hidden border border-slate-100 rounded-lg">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-slate-500 uppercase">구분 (X)</th>
+                                <th class="px-4 py-2 text-center text-xs font-bold text-slate-500 uppercase">누적 횟수</th>
+                                <th class="px-4 py-2 text-center text-xs font-bold text-slate-500 uppercase">표본 비율</th>
+                                <th class="px-4 py-2 text-right text-xs font-bold text-slate-500 uppercase">이론 확률</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-100 text-sm">
+                            <tr id="row-up">
+                                <td class="px-4 py-3 font-semibold text-emerald-600 flex items-center gap-1">
+                                    <span>상승 (1)</span>
+                                </td>
+                                <td id="count-up" class="px-4 py-3 text-center text-slate-600">0</td>
+                                <td id="ratio-up" class="px-4 py-3 text-center text-slate-600 font-bold">0.0%</td>
+                                <td id="theory-up" class="px-4 py-3 text-right text-emerald-700 font-bold">60.0%</td>
+                            </tr>
+                            <tr id="row-down">
+                                <td class="px-4 py-3 font-semibold text-rose-600">하락 (0)</td>
+                                <td id="count-down" class="px-4 py-3 text-center text-slate-600">0</td>
+                                <td id="ratio-down" class="px-4 py-3 text-center text-slate-600 font-bold">0.0%</td>
+                                <td id="theory-down" class="px-4 py-3 text-right text-rose-700 font-bold">40.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Simulation Summary -->
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-blue-50/50 rounded-lg border border-blue-100 text-center">
+                        <div class="text-[11px] text-blue-500 font-bold uppercase">누적 평균 기댓값 E[X]</div>
+                        <div id="stat-mean" class="text-lg font-black text-blue-800 mt-1">0.000</div>
+                        <div class="text-[10px] text-blue-400">이론 기댓값: <span id="theory-mean">0.600</span></div>
+                    </div>
+                    <div class="p-3 bg-indigo-50/50 rounded-lg border border-indigo-100 text-center">
+                        <div class="text-[11px] text-indigo-500 font-bold uppercase">누적 표본 분산 Var(X)</div>
+                        <div id="stat-var" class="text-lg font-black text-indigo-800 mt-1">0.000</div>
+                        <div class="text-[10px] text-indigo-400">이론 분산: <span id="theory-var">0.240</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('prob-slider');
+        const probVal = document.getElementById('prob-val');
+        const complementVal = document.getElementById('complement-val');
+        
+        const theoryUp = document.getElementById('theory-up');
+        const theoryDown = document.getElementById('theory-down');
+        const theoryMean = document.getElementById('theory-mean');
+        const theoryVar = document.getElementById('theory-var');
+
+        const btnRun = document.getElementById('btn-run');
+        const btnReset = document.getElementById('btn-reset');
+        const spinner = document.getElementById('spinner-arrow');
+
+        const outcomeText = document.getElementById('outcome-text');
+        const outcomeBadge = document.getElementById('outcome-badge');
+
+        const countUpText = document.getElementById('count-up');
+        const ratioUpText = document.getElementById('ratio-up');
+        const countDownText = document.getElementById('count-down');
+        const ratioDownText = document.getElementById('ratio-down');
+
+        const statMean = document.getElementById('stat-mean');
+        const statVar = document.getElementById('stat-var');
+
+        let totalTrials = 0;
+        let upCount = 0;
+        let downCount = 0;
+        let samples = [];
+
+        // Update theoretical values on UI
+        function updateTheory() {
+            const q = parseFloat(slider.value);
+            const complement = (1 - q).toFixed(2);
+            
+            probVal.textContent = q.toFixed(2);
+            complementVal.textContent = complement;
+
+            theoryUp.textContent = (q * 100).toFixed(0) + '%';
+            theoryDown.textContent = (complement * 100).toFixed(0) + '%';
+
+            theoryMean.textContent = q.toFixed(3);
+            theoryVar.textContent = (q * (1 - q)).toFixed(3);
+        }
+
+        slider.addEventListener('input', () => {
+            updateTheory();
+            resetStats();
+        });
+
+        function resetStats() {
+            totalTrials = 0;
+            upCount = 0;
+            downCount = 0;
+            samples = [];
+            
+            countUpText.textContent = '0';
+            ratioUpText.textContent = '0.0%';
+            countDownText.textContent = '0';
+            ratioDownText.textContent = '0.0%';
+
+            statMean.textContent = '0.000';
+            statVar.textContent = '0.000';
+
+            outcomeText.textContent = '시행 버튼을 클릭하세요';
+            outcomeText.className = 'text-xl font-extrabold text-slate-700';
+            outcomeBadge.textContent = '-';
+            outcomeBadge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-600';
+
+            spinner.className = "w-24 h-24 rounded-full border-4 border-slate-300 flex items-center justify-center bg-slate-100 shadow-inner";
+        }
+
+        btnReset.addEventListener('click', () => {
+            resetStats();
+        });
+
+        btnRun.addEventListener('click', () => {
+            const q = parseFloat(slider.value);
+            btnRun.disabled = true;
+
+            // Trigger Animation
+            const isUp = Math.random() < q;
+            spinner.className = "w-24 h-24 rounded-full border-4 border-slate-300 flex items-center justify-center bg-slate-100 shadow-inner";
+            
+            // force reflow
+            void spinner.offsetWidth;
+
+            if (isUp) {
+                spinner.classList.add('spin-active-up');
+            } else {
+                spinner.classList.add('spin-active-down');
+            }
+
+            setTimeout(() => {
+                btnRun.disabled = false;
+                
+                totalTrials++;
+                if (isUp) {
+                    upCount++;
+                    samples.push(1);
+                    outcomeText.textContent = "주가 상승 (Rise)";
+                    outcomeText.className = "text-xl font-extrabold text-emerald-600";
+                    outcomeBadge.textContent = "X = 1";
+                    outcomeBadge.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800";
+                } else {
+                    downCount++;
+                    samples.push(0);
+                    outcomeText.textContent = "주가 하락 (Fall)";
+                    outcomeText.className = "text-xl font-extrabold text-rose-600";
+                    outcomeBadge.textContent = "X = 0";
+                    outcomeBadge.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-800";
+                }
+
+                // Update counts & ratios
+                countUpText.textContent = upCount.toLocaleString();
+                countDownText.textContent = downCount.toLocaleString();
+                ratioUpText.textContent = ((upCount / totalTrials) * 100).toFixed(1) + '%';
+                ratioDownText.textContent = ((downCount / totalTrials) * 100).toFixed(1) + '%';
+
+                // Calculate mean & variance
+                const currentMean = upCount / totalTrials;
+                statMean.textContent = currentMean.toFixed(3);
+
+                // Variance formula: E[X^2] - (E[X])^2
+                // Since X is 0 or 1, X^2 is also 0 or 1. Thus E[X^2] is also equal to currentMean.
+                const currentVar = currentMean - (currentMean * currentMean);
+                statVar.textContent = Math.max(0, currentVar).toFixed(3);
+
+            }, 1200);
+        });
+
+        // Init
+        updateTheory();
+    </script>
+</body>
+</html>

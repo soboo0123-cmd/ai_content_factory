@@ -1,0 +1,82 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#F8FAFC" rx="12"/>
+  
+  <!-- Outer Borders/Grid visual -->
+  <rect x="15" y="15" width="770" height="370" fill="none" stroke="#E2E8F0" stroke-width="1" rx="8"/>
+
+  <!-- Left Side: Path 1 (Direct Selection) -->
+  <g transform="translate(40, 40)">
+    <!-- Title -->
+    <text x="10" y="25" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#1E293B">경로 ①: 직관적 누적 (단계별 곱셈)</text>
+    <text x="10" y="45" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">각 칸에 들어갈 수 있는 후보를 차례대로 곱함</text>
+    
+    <!-- Visual Representation of Slots -->
+    <!-- Slot 1 -->
+    <rect x="10" y="80" width="120" height="100" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="70" y="115" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#2563EB" text-anchor="middle">첫 번째 자리</text>
+    <text x="70" y="155" font-family="system-ui, sans-serif" font-size="28" font-weight="800" fill="#1D4ED8" text-anchor="middle">4</text>
+    <text x="70" y="172" font-family="system-ui, sans-serif" font-size="10" fill="#3B82F6" text-anchor="middle">(A, B, C, D)</text>
+
+    <!-- Multiplication Sign -->
+    <text x="160" y="140" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#94A3B8" text-anchor="middle">×</text>
+
+    <!-- Slot 2 -->
+    <rect x="190" y="80" width="120" height="100" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="250" y="115" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#2563EB" text-anchor="middle">두 번째 자리</text>
+    <text x="250" y="155" font-family="system-ui, sans-serif" font-size="28" font-weight="800" fill="#1D4ED8" text-anchor="middle">3</text>
+    <text x="250" y="172" font-family="system-ui, sans-serif" font-size="10" fill="#3B82F6" text-anchor="middle">(남은 3명)</text>
+
+    <!-- Equal Sign -->
+    <text x="10" y="235" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#334155">결과: 4 × 3 = 12 가지</text>
+  </g>
+
+  <!-- Divider Line -->
+  <line x1="400" y1="30" x2="400" y2="370" stroke="#CBD5E1" stroke-dasharray="4 4" stroke-width="1.5"/>
+
+  <!-- Right Side: Path 2 (Pruning / Division) -->
+  <g transform="translate(430, 40)">
+    <!-- Title -->
+    <text x="10" y="25" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#1E293B">경로 ②: 덜어냄의 연산 (나눗셈)</text>
+    <text x="10" y="45" font-family="system-ui, sans-serif" font-size="12" fill="#64748B">전체 나열에서 낙선자들의 무의미한 순서 소거</text>
+
+    <!-- Fraction Design -->
+    <!-- Numerator (4!) -->
+    <rect x="10" y="80" width="130" height="45" rx="6" fill="#EEF2F6" stroke="#94A3B8" stroke-width="1"/>
+    <text x="75" y="100" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569" text-anchor="middle">분자: 전체 나열</text>
+    <text x="75" y="118" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#1E293B" text-anchor="middle">4! (24가지)</text>
+
+    <!-- Div Line -->
+    <line x1="10" y1="140" x2="140" y2="140" stroke="#475569" stroke-width="2"/>
+    <text x="155" y="146" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#475569">=</text>
+
+    <!-- Denominator ((4-2)!) -->
+    <rect x="10" y="155" width="130" height="45" rx="6" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1"/>
+    <text x="75" y="175" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569" text-anchor="middle">분모: 낙선자 정렬</text>
+    <text x="75" y="193" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#E11D48" text-anchor="middle">2! (2가지)</text>
+
+    <!-- Expanded Calculation -->
+    <g transform="translate(180, 0)">
+      <!-- Numerator expanded -->
+      <text x="80" y="112" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#1E293B" text-anchor="middle">4 × 3 × <tspan fill="#94A3B8">2 × 1</tspan></text>
+      
+      <!-- Div Line -->
+      <line x1="10" y1="140" x2="150" y2="140" stroke="#475569" stroke-width="2"/>
+      
+      <!-- Denominator expanded -->
+      <text x="80" y="172" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#E11D48" text-anchor="middle"><tspan fill="#94A3B8">2 × 1</tspan></text>
+
+      <!-- Cancel lines -->
+      <line x1="105" y1="115" x2="145" y2="95" stroke="#EF4444" stroke-width="2" opacity="0.7"/>
+      <line x1="60" y1="175" x2="100" y2="155" stroke="#EF4444" stroke-width="2" opacity="0.7"/>
+    </g>
+
+    <!-- Result -->
+    <text x="10" y="235" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#334155">결과: 24 ÷ 2 = 12 가지</text>
+  </g>
+
+  <!-- Explanation Bottom Banner -->
+  <rect x="40" y="295" width="720" height="65" rx="8" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="60" y="325" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#334155">핵심 메커니즘:</text>
+  <text x="60" y="343" font-family="system-ui, sans-serif" font-size="11" fill="#475569">전체 순열에서 무대 뒤로 밀려나 관심 밖이 된 낙선자들 (n - j)명의 무의미한 내부 순서 바꾸기를 나눗셈으로 소거해 줍니다.</text>
+</svg>

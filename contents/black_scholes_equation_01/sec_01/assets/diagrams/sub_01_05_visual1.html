@@ -1,0 +1,268 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>n=4 이항 트리 시각화</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #f0f6fc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    .node-circle {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .node-circle:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.8));
+    }
+    .highlight-link {
+      stroke: #ff7b72;
+      stroke-width: 3.5px;
+      stroke-dasharray: 500;
+      animation: draw 1.5s linear forwards;
+      filter: drop-shadow(0 0 3px rgba(255, 123, 114, 0.6));
+    }
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px fill #30363d;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-[500px]">
+  <div class="w-full max-w-4xl bg-[#161b22] border border-[#30363d] rounded-xl p-5 shadow-2xl relative">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-[#58a6ff] flex items-center gap-2">
+          <span>🌳 n=4, j=2 균형 트리 상태 시각화</span>
+        </h2>
+        <p class="text-xs text-[#8b949e]">상승 2회와 하락 2회로 이루어진 총 6개의 미시적 경로가 하이라이트 표시됩니다.</p>
+      </div>
+      <div class="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg text-xs">
+        <span class="inline-block w-3 height-3 bg-[#ff7b72] rounded-full mr-1.5 align-middle"></span>
+        <span class="text-[#e1e4e8]">j=2에 해당하는 경로 (총 6개)</span>
+      </div>
+    </div>
+
+    <!-- 트리 캔버스 영역 -->
+    <div class="relative w-full overflow-hidden flex justify-center">
+      <svg id="tree-svg" width="800" height="340" class="mx-auto"></svg>
+      <div id="path-tooltip" class="tooltip text-[#f0f6fc]"></div>
+    </div>
+
+    <!-- 하단 설명 및 인터랙션 피드백 -->
+    <div class="mt-4 p-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-center">
+      <p class="text-sm" id="feedback-text">
+        <span class="text-[#8b949e]">각 노드에 마우스를 올리면 해당 분기점까지의 경로와 확률을 확인할 수 있습니다.</span>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const svg = document.getElementById('tree-svg');
+    const tooltip = document.getElementById('path-tooltip');
+    const feedback = document.getElementById('feedback-text');
+
+    const width = 800;
+    const height = 340;
+    const paddingLeft = 60;
+    const paddingY = 30;
+
+    const q = 0.6;
+    const p = 0.4; // 1-q
+
+    // 트리 데이터 구축 (5단계: 0, 1, 2, 3, 4)
+    const levels = 5;
+    const nodes = [];
+    const links = [];
+
+    // 노드 생성
+    for (let l = 0; l < levels; l++) {
+      const numNodesInLevel = Math.pow(2, l);
+      const colX = paddingLeft + (l * (width - paddingLeft * 2) / (levels - 1));
+      
+      for (let i = 0; i < numNodesInLevel; i++) {
+        // 노드 별 경로 및 누적값 계산
+        let path = "";
+        let upCount = 0;
+        let downCount = 0;
+        let temp = i;
+        
+        for (let step = l - 1; step >= 0; step--) {
+          const bit = (temp >> step) & 1;
+          if (bit === 1) {
+            path = "D" + path;
+            downCount++;
+          } else {
+            path = "U" + path;
+            upCount++;
+          }
+        }
+
+        const prob = Math.pow(q, upCount) * Math.pow(p, downCount);
+        
+        // Y 좌표 계산 (동일 레벨 내에서 균등 분할)
+        const rowY = paddingY + (i + 0.5) * (height - paddingY * 2) / numNodesInLevel;
+
+        nodes.push({
+          id: `${l}-${i}`,
+          level: l,
+          index: i,
+          x: colX,
+          y: rowY,
+          path: path || "Start",
+          up: upCount,
+          down: downCount,
+          prob: prob
+        });
+      }
+    }
+
+    // 링크 생성
+    for (let l = 0; l < levels - 1; l++) {
+      const numNodesInLevel = Math.pow(2, l);
+      for (let i = 0; i < numNodesInLevel; i++) {
+        const sourceId = `${l}-${i}`;
+        const sourceNode = nodes.find(n => n.id === sourceId);
+
+        // 자식 1 (Up - 0)
+        const targetIdUp = `${l+1}-${i*2}`;
+        const targetNodeUp = nodes.find(n => n.id === targetIdUp);
+        links.push({ source: sourceNode, target: targetNodeUp, type: 'U' });
+
+        // 자식 2 (Down - 1)
+        const targetIdDown = `${l+1}-${i*2+1}`;
+        const targetNodeDown = nodes.find(n => n.id === targetIdDown);
+        links.push({ source: sourceNode, target: targetNodeDown, type: 'D' });
+      }
+    }
+
+    // 특정 링크가 하이라이트(j=2 경로에 속함)되는지 판별
+    function isHighlightLink(link) {
+      // 타겟 노드의 최종 종단에 도달했을 때 U=2, D=2가 되는 최종 리프 노드로 연결되는 경로 판별
+      const target = link.target;
+      // 최종 레벨(4)에서 j=2인 리프는 U=2, D=2인 리프들임.
+      // 이 타겟에서 출발하여 최종 리프까지 도달했을 때 U=2, D=2가 될 수 있는지 역산 또는 순방향 계산
+      // 여기서는 경로의 히스토리를 기반으로 최종 리프로 향하는 경로에 속해 있는지 체크
+      const levelDiff = 4 - target.level;
+      // 가능한 상승 추가 횟수: 2 - target.up
+      // 가능한 하락 추가 횟수: 2 - target.down
+      const neededUp = 2 - target.up;
+      const neededDown = 2 - target.down;
+      
+      // 타겟 노드 자체가 j=2 최종 리프로 향하는 줄기 위에 있어야 함
+      if (neededUp < 0 || neededDown < 0) return false;
+
+      const source = link.source;
+      const sNeededUp = 2 - source.up;
+      const sNeededDown = 2 - source.down;
+      if (sNeededUp < 0 || sNeededDown < 0) return false;
+
+      return true;
+    }
+
+    // SVG 렌더링
+    // 1. 링크 그리기
+    links.forEach(link => {
+      const isHigh = isHighlightLink(link);
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", link.source.x);
+      line.setAttribute("y1", link.source.y);
+      line.setAttribute("x2", link.target.x);
+      line.setAttribute("y2", link.target.y);
+      
+      if (isHigh) {
+        line.setAttribute("class", "highlight-link");
+      } else {
+        line.setAttribute("stroke", "#30363d");
+        line.setAttribute("stroke-width", "1.5");
+      }
+      svg.appendChild(line);
+    });
+
+    // 2. 노드 그리기
+    nodes.forEach(node => {
+      // 노드가 하이라이트 그룹(U=2, D=2 타겟 혹은 그 조상)에 포함되는지 확인
+      const isHighNode = (2 - node.up >= 0) && (2 - node.down >= 0);
+
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("cx", node.x);
+      circle.setAttribute("cy", node.y);
+      circle.setAttribute("r", node.level === 4 ? "7" : "6");
+      circle.setAttribute("class", "node-circle");
+      
+      if (isHighNode) {
+        circle.setAttribute("fill", node.level === 4 && node.up === 2 ? "#ff7b72" : "#f0f6fc");
+        circle.setAttribute("stroke", "#ff7b72");
+        circle.setAttribute("stroke-width", "1.5");
+      } else {
+        circle.setAttribute("fill", "#21262d");
+        circle.setAttribute("stroke", "#30363d");
+        circle.setAttribute("stroke-width", "1");
+      }
+
+      // 이벤트 바인딩
+      circle.addEventListener('mouseover', (e) => {
+        tooltip.style.display = 'block';
+        tooltip.innerHTML = `
+          <div class="font-bold text-[#58a6ff] mb-1">단계: ${node.level}</div>
+          <div>경로: <span class="text-[#ff7b72] font-semibold">${node.path}</span></div>
+          <div>상승/하락: 상승 ${node.up}회 | 하락 ${node.down}회</div>
+          <div class="border-t border-[#30363d] mt-1 pt-1 text-xs text-[#8b949e]">누적 확률: ${node.prob.toFixed(4)}</div>
+        `;
+        
+        // 피드백 패널 업데이트
+        let explanation = "";
+        if (node.level === 0) {
+          explanation = "시작 지점 (원금 S_0 단계)";
+        } else {
+          explanation = `경로 <strong class="text-[#ff7b72]">${node.path}</strong>를 거쳐 도달한 노드입니다. 상승 ${node.up}번 x 하락 ${node.down}번의 개별 확률 계산: ${q}^{node.up} × ${p}^{node.down} = <strong>${node.prob.toFixed(4)}</strong>`;
+        }
+        feedback.innerHTML = explanation;
+      });
+
+      circle.addEventListener('mousemove', (e) => {
+        const rect = svg.getBoundingClientRect();
+        tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+        tooltip.style.top = (e.clientY - rect.top + 15) + 'px';
+      });
+
+      circle.addEventListener('mouseout', () => {
+        tooltip.style.display = 'none';
+        feedback.innerHTML = `<span class="text-[#8b949e]">각 노드에 마우스를 올리면 해당 분기점까지의 경로와 확률을 확인할 수 있습니다.</span>`;
+      });
+
+      svg.appendChild(circle);
+
+      // 최종 마디 정보 텍스트 표시
+      if (node.level === 4) {
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", node.x + 12);
+        text.setAttribute("y", node.y + 4);
+        text.setAttribute("font-size", "10px");
+        text.setAttribute("fill", node.up === 2 ? "#ff7b72" : "#8b949e");
+        text.setAttribute("font-family", "sans-serif");
+        text.textContent = `j=${node.up}`;
+        svg.appendChild(text);
+      }
+    });
+  </script>
+</body>
+</html>
+```
