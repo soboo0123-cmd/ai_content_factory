@@ -1000,7 +1000,8 @@
                   "created_at": "2026-05-22T23:24:27.607972"
                 },
                 "v3": {
-                  "status": "Pending"
+                  "status": "Pending",
+                  "user_feedback": "v1을 채택하되, [시각화: Manim을 활용하여 4명의 인형 중 2명이 선택되어 의자에 앉고, 나머지 인형들이 사라지는 애니메이션(직전 섹션의 PermutationStepByStep 논리 활용)]라는 시각화는 manim, permutationstepbystep을 무시하고 html로 작성해줘."
                 }
               },
               "metadata": {
@@ -1025,7 +1026,8 @@
                   "created_at": "2026-05-22T23:25:40.058423"
                 },
                 "v3": {
-                  "status": "Pending"
+                  "status": "Pending",
+                  "user_feedback": "v1을 채택해줘."
                 }
               },
               "metadata": {
@@ -1053,7 +1055,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘"
                 }
               },
               "metadata": {
@@ -1081,7 +1083,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘"
                 }
               },
               "metadata": {
@@ -1109,7 +1111,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘"
                 }
               },
               "metadata": {
@@ -1137,7 +1139,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택하되, 분산에서는 공분산이 추가되는 이유를 부록에서 수학적으로 더 자세히 설명해줘."
                 }
               },
               "metadata": {
@@ -1165,7 +1167,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택하되, 다음과 같은 수치적 예제를 먼저 보여주고 대수적으로 일반화해줘. --- 1, 2, 3은 평균이 2, 1을 더해 2,3,4가 되면 평균도 2에서 1이 커진 3이됨  2배를 해 2,4,6이 되면 평균도 2에서 2배커진 4가됨  분산은 Var(aX+b) = a^2Var(X)가 됨  더해진 상수 b는 불확실성을 의미하는 분산과는 관련이 없어 무시  곱해진 a는 제곱이 되어 나옴. 이유는 분산은 편차 제곱의 기대값인데  앞에서 1,2,3을 2배해 2,4,6이 되면 편차도 -1,0,1에서 -2,0,2로 2배가 됨  분산은 편차의 제곱을 포함하므로 편차가 2배가 되면,   편차의 제곱은 4배(2배^2)가 되므로 상수배는 제곱이 되어 나옴  실제 예제의 분산도 2에서 8로 4배가 됨"
                 }
               },
               "metadata": {
@@ -1193,7 +1195,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘."
                 }
               },
               "metadata": {
@@ -1221,7 +1223,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택하되, log_a b^c = c log_a b라는 로그 성질이 왜 그렇게 되는지 설명을 추가해줘"
                 }
               },
               "metadata": {
@@ -1249,7 +1251,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "user_feedback": null
+                  "user_feedback": "v1을 채택해줘."
                 }
               },
               "metadata": {
