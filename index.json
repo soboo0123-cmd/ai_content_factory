@@ -985,8 +985,8 @@
             {
               "sub_id": "sub_01_02",
               "sub_title": "순열",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1000,8 +1000,10 @@
                   "created_at": "2026-05-22T23:24:27.607972"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "user_feedback": "v1을 채택하되, [시각화: Manim을 활용하여 4명의 인형 중 2명이 선택되어 의자에 앉고, 나머지 인형들이 사라지는 애니메이션(직전 섹션의 PermutationStepByStep 논리 활용)]라는 시각화는 manim, permutationstepbystep을 무시하고 html로 작성해줘."
+                  "status": "Completed",
+                  "user_feedback": "v1을 채택하되, [시각화: Manim을 활용하여 4명의 인형 중 2명이 선택되어 의자에 앉고, 나머지 인형들이 사라지는 애니메이션(직전 섹션의 PermutationStepByStep 논리 활용)]라는 시각화는 manim, permutationstepbystep을 무시하고 html로 작성해줘.",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_02_v3.md",
+                  "created_at": "2026-05-31T01:57:55.175992"
                 }
               },
               "metadata": {
@@ -1011,8 +1013,8 @@
             {
               "sub_id": "sub_01_03",
               "sub_title": "조합",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1026,8 +1028,10 @@
                   "created_at": "2026-05-22T23:25:40.058423"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "user_feedback": "v1을 채택해줘."
+                  "status": "Completed",
+                  "user_feedback": "v1을 채택해줘.",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_03_v3.md",
+                  "created_at": "2026-05-31T01:58:53.920523"
                 }
               },
               "metadata": {
@@ -1037,8 +1041,8 @@
             {
               "sub_id": "sub_01_04",
               "sub_title": "1.4 이항분포의 개념과 확률 트리 모델링",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1052,9 +1056,9 @@
                   "created_at": "2026-05-24T09:51:35.624917"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_04_v3.md",
+                  "created_at": "2026-05-31T01:59:51.423004",
                   "user_feedback": "v1을 채택해줘"
                 }
               },
@@ -1065,8 +1069,8 @@
             {
               "sub_id": "sub_01_05",
               "sub_title": "1.5 이항분포의 대수적 일반화 및 확률 계산 공식",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
+              "status": "Polishing",
+              "current_version_code": "v3",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -1080,9 +1084,9 @@
                   "created_at": "2026-05-24T09:52:49.249455"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/black_scholes_equation_01/sec_01/sub_01_05_v3.md",
+                  "created_at": "2026-05-31T02:00:58.876454",
                   "user_feedback": "v1을 채택해줘"
                 }
               },

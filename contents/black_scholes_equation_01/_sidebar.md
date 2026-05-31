@@ -1,11 +1,11 @@
 * [🏠 노벨상 수식의 향기](home.md)
 
 * **고등학교 수학**
-  * [1.1 경우의 수 직접 나열](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
-  * [1.2 순열](contents/black_scholes_equation_01/sec_01/sub_01_02_v1.md)
-  * [1.3 조합](contents/black_scholes_equation_01/sec_01/sub_01_03_v1.md)
-  * [1.4 이항분포의 개념과 확률 트리 모델링](contents/black_scholes_equation_01/sec_01/sub_01_04_v1.md)
-  * [1.5 이항분포의 대수적 일반화 및 확률 계산 공식](contents/black_scholes_equation_01/sec_01/sub_01_05_v1.md)
+  * [경우의 수 나열](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
+  * [순열](contents/black_scholes_equation_01/sec_01/sub_01_02_v3.md)
+  * [조합](contents/black_scholes_equation_01/sec_01/sub_01_03_v3.md)
+  * [1.4 이항분포의 개념과 확률 트리 모델링](contents/black_scholes_equation_01/sec_01/sub_01_04_v3.md)
+  * [1.5 이항분포의 대수적 일반화 및 확률 계산 공식](contents/black_scholes_equation_01/sec_01/sub_01_05_v3.md)
   * [1.6 베르누이 시행과 평균/분산 정의](contents/black_scholes_equation_01/sec_01/sub_01_06_v1.md)
   * [1.7 이항분포의 평균 및 분산 수식 유도](contents/black_scholes_equation_01/sec_01/sub_01_07_v1.md)
   * [1.8 선형 결합 변수의 기댓값과 분산의 수학적 성질](contents/black_scholes_equation_01/sec_01/sub_01_08_v1.md)
