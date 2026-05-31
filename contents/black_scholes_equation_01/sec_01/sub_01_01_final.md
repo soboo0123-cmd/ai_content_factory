@@ -35,7 +35,7 @@ $$6 + 6 + 6 + 6 = 6 \times 4 = 24$$
 첫 번째 선택에서 4개의 가지가 뻗어 나오고, 그 각각의 가지 끝에서 다시 3개, 또 그 끝에서 2개... 이런 식으로 가지가 뻗어 나가는 형태가 됩니다. 
 
 ![선택의 트리 구조 개념도](assets/diagrams/sub_01_01_diagram1.svg)
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual2.html" width="100%" height="500px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual2.html" width="100%" height="530px" frameborder="0" scrolling="no"></iframe>
 
 ### 2.3 곱의 법칙의 탄생
 위의 트리 구조를 수식으로 옮기면 우리가 익히 아는 곱셈이 됩니다. 
