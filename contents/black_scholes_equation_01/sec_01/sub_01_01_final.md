@@ -57,7 +57,7 @@ $$6 + 6 + 6 + 6 = 6 \times 4 = 24$$
 
 따라서 **$n$명을 일렬로 나열하는 경우의 수는 $n!$** 입니다. 4명을 나열한다면 $4! = 4 \times 3 \times 2 \times 1 = 24$가 되는 것이죠. 팩토리얼은 $n$이 커짐에 따라 그 값이 매우 가파르게 증가하는 특징이 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual3.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual3.html" width="100%" height="500px" frameborder="0" scrolling="no"></iframe>
 
 ---
 
