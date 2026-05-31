@@ -1,5 +1,4 @@
-```html
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -12,11 +11,14 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
     .node-circle {
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      /* SVG 내에서 각 원의 중심을 기준으로 확대되도록 고정 */
+      transform-box: fill-box;
+      transform-origin: center;
       cursor: pointer;
     }
     .node-circle:hover {
-      transform: scale(1.2);
+      transform: scale(1.3);
       filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.8));
     }
     .highlight-link {
@@ -32,13 +34,13 @@
       }
     }
     .tooltip {
-      position: absolute;
+      position: fixed;
       background: rgba(22, 27, 34, 0.95);
-      border: 1px fill #30363d;
+      border: 1px solid #30363d; /* 올바른 border style로 수정 */
       padding: 10px;
       border-radius: 6px;
       font-size: 13px;
-      pointer-events: none;
+      pointer-events: none; /* 마우스 포인터 이벤트를 완전히 무시 */
       display: none;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       z-index: 50;
@@ -55,7 +57,7 @@
         <p class="text-xs text-[#8b949e]">상승 2회와 하락 2회로 이루어진 총 6개의 미시적 경로가 하이라이트 표시됩니다.</p>
       </div>
       <div class="bg-[#0d1117] border border-[#30363d] px-3 py-1.5 rounded-lg text-xs">
-        <span class="inline-block w-3 height-3 bg-[#ff7b72] rounded-full mr-1.5 align-middle"></span>
+        <span class="inline-block w-3 h-3 bg-[#ff7b72] rounded-full mr-1.5 align-middle"></span>
         <span class="text-[#e1e4e8]">j=2에 해당하는 경로 (총 6개)</span>
       </div>
     </div>
@@ -155,18 +157,10 @@
 
     // 특정 링크가 하이라이트(j=2 경로에 속함)되는지 판별
     function isHighlightLink(link) {
-      // 타겟 노드의 최종 종단에 도달했을 때 U=2, D=2가 되는 최종 리프 노드로 연결되는 경로 판별
       const target = link.target;
-      // 최종 레벨(4)에서 j=2인 리프는 U=2, D=2인 리프들임.
-      // 이 타겟에서 출발하여 최종 리프까지 도달했을 때 U=2, D=2가 될 수 있는지 역산 또는 순방향 계산
-      // 여기서는 경로의 히스토리를 기반으로 최종 리프로 향하는 경로에 속해 있는지 체크
-      const levelDiff = 4 - target.level;
-      // 가능한 상승 추가 횟수: 2 - target.up
-      // 가능한 하락 추가 횟수: 2 - target.down
       const neededUp = 2 - target.up;
       const neededDown = 2 - target.down;
       
-      // 타겟 노드 자체가 j=2 최종 리프로 향하는 줄기 위에 있어야 함
       if (neededUp < 0 || neededDown < 0) return false;
 
       const source = link.source;
@@ -198,7 +192,6 @@
 
     // 2. 노드 그리기
     nodes.forEach(node => {
-      // 노드가 하이라이트 그룹(U=2, D=2 타겟 혹은 그 조상)에 포함되는지 확인
       const isHighNode = (2 - node.up >= 0) && (2 - node.down >= 0);
 
       const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -227,20 +220,20 @@
           <div class="border-t border-[#30363d] mt-1 pt-1 text-xs text-[#8b949e]">누적 확률: ${node.prob.toFixed(4)}</div>
         `;
         
-        // 피드백 패널 업데이트
+        // 피드백 패널 업데이트 및 수식 표현 오류 정정 (sup 태그 적용)
         let explanation = "";
         if (node.level === 0) {
           explanation = "시작 지점 (원금 S_0 단계)";
         } else {
-          explanation = `경로 <strong class="text-[#ff7b72]">${node.path}</strong>를 거쳐 도달한 노드입니다. 상승 ${node.up}번 x 하락 ${node.down}번의 개별 확률 계산: ${q}^{node.up} × ${p}^{node.down} = <strong>${node.prob.toFixed(4)}</strong>`;
+          explanation = `경로 <strong class="text-[#ff7b72]">${node.path}</strong>를 거쳐 도달한 노드입니다. 상승 ${node.up}번 × 하락 ${node.down}번의 개별 확률 계산: ${q}<sup>${node.up}</sup> × ${p}<sup>${node.down}</sup> = <strong>${node.prob.toFixed(4)}</strong>`;
         }
         feedback.innerHTML = explanation;
       });
 
+      // 툴팁 위치를 마우스 포인터보다 살짝 아래 우측으로 오프셋을 두어 충돌 방지
       circle.addEventListener('mousemove', (e) => {
-        const rect = svg.getBoundingClientRect();
-        tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
-        tooltip.style.top = (e.clientY - rect.top + 15) + 'px';
+        tooltip.style.left = (e.clientX + 20) + 'px';
+        tooltip.style.top = (e.clientY + 20) + 'px';
       });
 
       circle.addEventListener('mouseout', () => {
@@ -265,4 +258,3 @@
   </script>
 </body>
 </html>
-```
