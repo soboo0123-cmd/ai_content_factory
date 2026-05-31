@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -14,6 +14,18 @@
       transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
   </style>
+  <!-- MathJax 설정 스크립트 (스크립트 로드 전에 위치해야 $ 기호가 작동합니다) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <!-- LaTeX 로드용 CDN -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-4 overflow-hidden">
   <div class="w-full max-w-4xl bg-slate-800 rounded-2xl border border-slate-700 p-6 shadow-2xl">
@@ -93,17 +105,17 @@
         <span class="text-lg font-bold text-white tracking-widest">DC</span>
       </div>
 
-      <!-- 조합 수축 포켓 라벨 (조합 모드 시 페이드인) -->
-      <div id="pocket_AB" class="absolute w-28 h-20 border border-indigo-500/30 rounded-xl bg-indigo-500/5 flex items-end justify-center pb-1 text-xs font-semibold text-indigo-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {A, B}</div>
-      <div id="pocket_AC" class="absolute w-28 h-20 border border-emerald-500/30 rounded-xl bg-emerald-500/5 flex items-end justify-center pb-1 text-xs font-semibold text-emerald-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {A, C}</div>
-      <div id="pocket_AD" class="absolute w-28 h-20 border border-amber-500/30 rounded-xl bg-amber-500/5 flex items-end justify-center pb-1 text-xs font-semibold text-amber-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {A, D}</div>
-      <div id="pocket_BC" class="absolute w-28 h-20 border border-pink-500/30 rounded-xl bg-pink-500/5 flex items-end justify-center pb-1 text-xs font-semibold text-pink-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {B, C}</div>
-      <div id="pocket_BD" class="absolute w-28 h-20 border border-purple-500/30 rounded-xl bg-purple-500/5 flex items-end justify-center pb-1 text-xs font-semibold text-purple-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {B, D}</div>
-      <div id="pocket_CD" class="absolute w-28 h-20 border border-cyan-500/30 rounded-xl bg-cyan-500/5 flex items-end justify-center pb-1 text-xs font-semibold text-cyan-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {C, D}</div>
+      <!-- 조합 수축 포켓 라벨 (조합 모드 시 페이드인, 높이를 h-24로 늘림) -->
+      <div id="pocket_AB" class="absolute w-28 h-28 border border-indigo-500/30 rounded-xl bg-indigo-500/5 flex items-end justify-center pb-2 text-xs font-semibold text-indigo-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {A, B}</div>
+      <div id="pocket_AC" class="absolute w-28 h-28 border border-emerald-500/30 rounded-xl bg-emerald-500/5 flex items-end justify-center pb-2 text-xs font-semibold text-emerald-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {A, C}</div>
+      <div id="pocket_AD" class="absolute w-28 h-28 border border-amber-500/30 rounded-xl bg-amber-500/5 flex items-end justify-center pb-2 text-xs font-semibold text-amber-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {A, D}</div>
+      <div id="pocket_BC" class="absolute w-28 h-28 border border-pink-500/30 rounded-xl bg-pink-500/5 flex items-end justify-center pb-2 text-xs font-semibold text-pink-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {B, C}</div>
+      <div id="pocket_BD" class="absolute w-28 h-28 border border-purple-500/30 rounded-xl bg-purple-500/5 flex items-end justify-center pb-2 text-xs font-semibold text-purple-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {B, D}</div>
+      <div id="pocket_CD" class="absolute w-28 h-28 border border-cyan-500/30 rounded-xl bg-cyan-500/5 flex items-end justify-center pb-2 text-xs font-semibold text-cyan-400 opacity-0 transition-opacity duration-500 pointer-events-none">팀 {C, D}</div>
     </div>
 
     <!-- 하단 수식 대조 패널 -->
-    <div class="mt-6 bg-slate-900 border border-slate-750 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="mt-6 bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="text-center md:text-left">
         <span class="text-xs uppercase tracking-wider text-slate-500 font-bold block">수식의 수축 메커니즘</span>
         <div id="formula" class="text-xl font-mono font-bold text-slate-200 mt-1 transition-all duration-500">
@@ -192,6 +204,7 @@
         
         if (isPerm) {
           card.classList.remove('z-10');
+          card.style.opacity = '1'; // 방법A: 순열 전환 시 카드의 투명도를 1로 복원
           // 내부 서브 텍스트 보이기
           card.children[0].style.opacity = '1';
         } else {
@@ -207,11 +220,11 @@
         }
       }
 
-      // 포켓 라벨 노출 제어
+      // 포켓 라벨 노출 및 위치 제어 (카드 크기 대비 중앙 정렬을 위해 오프셋 조정)
       for (const [key, pocket] of Object.entries(pockets)) {
         const baseCoord = coords[key];
-        pocket.style.left = `calc(${baseCoord.x} - 4px)`;
-        pocket.style.top = `calc(${baseCoord.y} - 8px)`;
+        pocket.style.left = `calc(${baseCoord.x} - 8px)`;
+        pocket.style.top = `calc(${baseCoord.y} - 16px)`;
         
         if (isPerm) {
           pocket.style.opacity = '0';
@@ -224,12 +237,15 @@
       if (isPerm) {
         formula.innerHTML = '$_4P_2 = \\frac{4!}{(4-2)!} = 12\\text{ 가지}$';
         explainText.innerText = '순열 모드에서는 순서가 다르면(AB vs BA) 별개의 노드로 존재하여 총 12가지의 서로 다른 고유 경로로 계산됩니다.';
-        // MathJax 렌더링 요청 (있을 경우 대비)
-        if (window.MathJax) MathJax.typesetPromise([formula]);
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          MathJax.typesetPromise([formula]).catch(err => console.log(err));
+        }
       } else {
         formula.innerHTML = '$_4C_2 = \\frac{_4P_2}{2!} = \\frac{12}{2} = 6\\text{ 가지}$';
         explainText.innerText = '조합 모드에서는 {A,B}처럼 순서라는 허물이 완전히 덜어내지며 동일 구성의 순열 쌍(2!)들이 단 하나의 상태로 병합 수축됩니다.';
-        if (window.MathJax) MathJax.typesetPromise([formula]);
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          MathJax.typesetPromise([formula]).catch(err => console.log(err));
+        }
       }
     };
 
@@ -251,8 +267,5 @@
       updateLayout(true);
     });
   </script>
-  <!-- LaTeX 로드용 CDN -->
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
