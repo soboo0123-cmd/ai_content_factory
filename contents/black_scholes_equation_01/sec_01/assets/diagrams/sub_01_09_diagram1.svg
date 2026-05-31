@@ -1,20 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
   <defs>
     <style>
-      .bg { fill: #1e293b; }
+      .bg { fill: #0f172a; }
       .grid { stroke: #334155; stroke-width: 1; stroke-dasharray: 4,4; }
       .axis { stroke: #94a3b8; stroke-width: 2; }
       .axis-arrow { fill: #94a3b8; }
       .line-y-x { stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 6,6; }
-      .curve-exp { stroke: #f43f5e; stroke-width: 3; fill: none; }
-      .curve-log { stroke: #3b82f6; stroke-width: 3; fill: none; }
-      .point { stroke: #1e293b; stroke-width: 2; }
+      .curve-exp { stroke: #f43f5e; stroke-width: 3; fill: none; stroke-linecap: round; }
+      .curve-log { stroke: #3b82f6; stroke-width: 3; fill: none; stroke-linecap: round; }
+      .point { stroke: #0f172a; stroke-width: 2; }
       .point-exp { fill: #f43f5e; }
       .point-log { fill: #3b82f6; }
-      .text-title { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #f8fafc; }
-      .text-label { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; fill: #cbd5e1; }
-      .text-sub { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; fill: #94a3b8; }
+      .text-title { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; font-weight: bold; fill: #f8fafc; }
+      .text-label { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; fill: #cbd5e1; }
+      .text-sub { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 11px; fill: #94a3b8; }
       .math { font-family: 'Times New Roman', Times, serif; font-style: italic; }
+      .math-sub { baseline-shift: sub; font-size: 9px; font-style: italic; }
+      .math-super { baseline-shift: super; font-size: 9px; font-style: italic; }
     </style>
     <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M 0 1.5 L 8 5 L 0 8.5 z" class="axis-arrow"/>
@@ -24,7 +26,7 @@
   <!-- Background -->
   <rect width="600" height="450" rx="12" class="bg"/>
 
-  <!-- Grid Lines -->
+  <!-- Grid Lines (1 Unit = 100px, Origin at 200, 300) -->
   <line x1="100" y1="50" x2="100" y2="380" class="grid" />
   <line x1="200" y1="50" x2="200" y2="380" class="grid" />
   <line x1="300" y1="50" x2="300" y2="380" class="grid" />
@@ -39,29 +41,27 @@
   <line x1="50" y1="300" x2="560" y2="300" class="axis" marker-end="url(#arrow)"/>
   <line x1="200" y1="390" x2="200" y2="40" class="axis" marker-end="url(#arrow)"/>
 
-  <!-- Axis Labels -->
+  <!-- Axis Labels (Overlap Resolved) -->
   <text x="570" y="305" class="text-label math">x</text>
-  <text x="195" y="30" class="text-label math">y</text>
-  <text x="185" y="315" class="text-label">0</text>
+  <text x="215" y="55" class="text-label math">y</text>
+  <text x="180" y="320" class="text-label math">O</text>
 
   <!-- Symmetry Line y = x -->
   <line x1="70" y1="430" x2="420" y2="80" class="line-y-x" />
-  <text x="390" y="70" class="text-label math" fill="#64748b">y = x</text>
+  <text x="390" y="70" class="text-label math" fill="#94a3b8">y = x</text>
 
-  <!-- Curves -->
-  <!-- y = 2^x (Mapped: Origin at 200,300. Scale: 1 unit = 100px) -->
-  <!-- X ranges from -1.5 (x=50) to 1.3 (x=330) -->
-  <path d="M 50,365 C 100,350 150,330 200,200 C 220,148 250,80 270,50" class="curve-exp"/>
+  <!-- Curves (Mathematically Exact Plotting) -->
+  <!-- y = 2^x (Symmetric with respect to the line y = x) -->
+  <path d="M 0,275 L 10,273.2 L 20,271.3 L 30,269.2 L 40,267 L 50,264.6 L 60,262.1 L 70,259.3 L 80,256.4 L 90,253.3 L 100,250 L 110,246.4 L 120,242.6 L 130,238.4 L 140,234 L 150,229.3 L 160,224.2 L 170,218.8 L 180,213 L 190,206.7 L 200,200 L 210,192.8 L 220,185.1 L 230,176.9 L 240,168.1 L 250,158.6 L 260,148.4 L 270,137.5 L 280,125.8 L 290,113.4 L 300,100 L 310,85.6 L 320,70.2 L 330,53.7 L 340,36.1 L 350,17.2" class="curve-exp"/>
   
-  <!-- y = log2(x) (Symmetric to y=2^x) -->
-  <!-- Y ranges from -1.5 (y=450) to 1.3 (y=170) -->
-  <path d="M 235,430 C 250,380 270,330 400,200 C 452,180 520,150 550,130" class="curve-log"/>
+  <!-- y = log_2(x) (Symmetric with respect to the line y = x) -->
+  <path d="M 235.4,450 L 237.9,440 L 240.7,430 L 243.6,420 L 246.7,410 L 250,400 L 253.6,390 L 257.4,380 L 261.6,370 L 266,360 L 270.7,350 L 275.8,340 L 281.2,330 L 287,320 L 293.3,310 L 300,300 L 307.2,290 L 314.9,280 L 323.1,270 L 331.9,260 L 341.4,250 L 351.6,240 L 362.5,230 L 374.2,220 L 386.6,210 L 400,200 L 414.4,190 L 429.8,180 L 446.3,170 L 463.9,160 L 482.8,150 L 502.6,140 L 523.4,130 L 545.3,120 L 568.4,110" class="curve-log"/>
 
   <!-- Key Points & Guidelines -->
   <!-- (0,1) on Exp -->
   <line x1="100" y1="200" x2="200" y2="200" class="grid" />
   <circle cx="200" cy="200" r="5" class="point point-exp"/>
-  <text x="140" y="190" class="text-label" fill="#f43f5e">(0, 1)</text>
+  <text x="145" y="190" class="text-label" fill="#f43f5e">(0, 1)</text>
 
   <!-- (1,0) on Log -->
   <line x1="300" y1="300" x2="300" y2="200" class="grid" />
@@ -70,20 +70,20 @@
 
   <!-- (1,2) on Exp -->
   <circle cx="300" cy="100" r="5" class="point point-exp"/>
-  <text x="310" y="95" class="text-label" fill="#f43f5e">(1, 2)</text>
+  <text x="315" y="95" class="text-label" fill="#f43f5e">(1, 2)</text>
 
   <!-- (2,1) on Log -->
   <circle cx="400" cy="200" r="5" class="point point-log"/>
-  <text x="410" y="190" class="text-label" fill="#3b82f6">(2, 1)</text>
+  <text x="415" y="190" class="text-label" fill="#3b82f6">(2, 1)</text>
 
   <!-- Title & Legend -->
-  <text x="30" y="45" class="text-title">지수함수와 로그함수의 역함수 대칭성 (밑 a = 2)</text>
+  <text x="30" y="35" class="text-title">지수함수와 로그함수의 역함수 대칭성 (밑 a = 2)</text>
   
-  <rect x="30" y="400" width="12" height="12" fill="#f43f5e" rx="2"/>
-  <text x="50" y="411" class="text-label math">y = 2^x (지수함수)</text>
+  <rect x="30" y="415" width="12" height="12" fill="#f43f5e" rx="2"/>
+  <text x="50" y="426" class="text-label math">y = 2<tspan class="math-super">x</tspan> <tspan font-family="Segoe UI" font-style="normal" fill="#cbd5e1">(지수함수)</tspan></text>
 
-  <rect x="180" y="400" width="12" height="12" fill="#3b82f6" rx="2"/>
-  <text x="200" y="411" class="text-label math">y = log_2(x) (로그함수)</text>
+  <rect x="195" y="415" width="12" height="12" fill="#3b82f6" rx="2"/>
+  <text x="215" y="426" class="text-label math">y = log<tspan class="math-sub">2</tspan>(x) <tspan font-family="Segoe UI" font-style="normal" fill="#cbd5e1">(로그함수)</tspan></text>
   
-  <text x="400" y="411" class="text-sub">※ 두 함수는 y = x 선에 대해 선대칭을 이룹니다.</text>
+  <text x="380" y="426" class="text-sub">※ 두 함수는 y = x 선에 대해 선대칭을 이룹니다.</text>
 </svg>
