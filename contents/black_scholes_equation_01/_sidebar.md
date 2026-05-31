@@ -2,8 +2,8 @@
 
 * **고등학교 수학**
   * [1.1 경우의 수 직접 나열](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
-  * [1.2 순열](contents/black_scholes_equation_01/sec_01/sub_01_02_final.md)
-  * [1.3 조합](contents/black_scholes_equation_01/sec_01/sub_01_03_final.md)
+  * [1.2 순열: 순서대로 나열](contents/black_scholes_equation_01/sec_01/sub_01_02_final.md)
+  * [1.3 조합: 그룹(조)을 합함](contents/black_scholes_equation_01/sec_01/sub_01_03_final.md)
   * [1.4 이항분포의 개념과 확률 트리 모델링](contents/black_scholes_equation_01/sec_01/sub_01_04_final.md)
   * [1.5 이항분포의 대수적 일반화 및 확률 계산 공식](contents/black_scholes_equation_01/sec_01/sub_01_05_final.md)
   * [1.6 베르누이 시행과 평균/분산 정의](contents/black_scholes_equation_01/sec_01/sub_01_06_final.md)
