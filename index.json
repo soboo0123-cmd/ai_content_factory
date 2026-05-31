@@ -956,7 +956,7 @@
           "sub_sections": [
             {
               "sub_id": "sub_01_01",
-              "sub_title": "경우의 수 나열",
+              "sub_title": "1.1 경우의 수 직접 나열",
               "status": "Published",
               "current_version_code": "v3",
               "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_01_final.md",
@@ -984,7 +984,7 @@
             },
             {
               "sub_id": "sub_01_02",
-              "sub_title": "순열",
+              "sub_title": "1.2 순열: 순서대로 나열",
               "status": "Published",
               "current_version_code": "v3",
               "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_02_final.md",
@@ -1012,7 +1012,7 @@
             },
             {
               "sub_id": "sub_01_03",
-              "sub_title": "조합",
+              "sub_title": "1.3 조합: 그룹(조)을 합함",
               "status": "Published",
               "current_version_code": "v3",
               "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_03_final.md",
