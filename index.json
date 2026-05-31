@@ -985,7 +985,7 @@
             {
               "sub_id": "sub_01_02",
               "sub_title": "순열",
-              "status": "Polishing",
+              "status": "Review_Pending",
               "current_version_code": "v3",
               "final_file_path": null,
               "history": {
@@ -1013,7 +1013,7 @@
             {
               "sub_id": "sub_01_03",
               "sub_title": "조합",
-              "status": "Polishing",
+              "status": "Review_Pending",
               "current_version_code": "v3",
               "final_file_path": null,
               "history": {
@@ -1031,7 +1031,7 @@
                   "status": "Pending",
                   "file_path": null,
                   "created_at": null,
-                  "created_at": "2026-05-31T01:58:53.920523"
+                  "user_feedback": "v1을 채택해줘"
                 }
               },
               "metadata": {
@@ -1041,7 +1041,7 @@
             {
               "sub_id": "sub_01_04",
               "sub_title": "1.4 이항분포의 개념과 확률 트리 모델링",
-              "status": "Polishing",
+              "status": "Review_Pending",
               "current_version_code": "v3",
               "final_file_path": null,
               "history": {
@@ -1069,7 +1069,7 @@
             {
               "sub_id": "sub_01_05",
               "sub_title": "1.5 이항분포의 대수적 일반화 및 확률 계산 공식",
-              "status": "Polishing",
+              "status": "Review_Pending",
               "current_version_code": "v3",
               "final_file_path": null,
               "history": {
