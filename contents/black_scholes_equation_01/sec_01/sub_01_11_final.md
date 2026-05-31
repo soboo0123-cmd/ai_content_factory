@@ -83,7 +83,7 @@ $$S_t = S_0 \left(1 + \frac{r}{n}\right)^{nt}$$
 
 이 아름다운 유도 과정에서 탄생한 식이 바로 현대 모든 이산적 금융 이론과 화폐의 시간 가치를 정량하는 뼈대인 **'이산 복리 공식(Discrete Compounding Formula)'**입니다. 정산 격자수 $n$이 촘촘해지면 촘촘해질수록, 전체 계산의 분모는 작아지지만 지수부의 결산 횟수가 기하급수적으로 폭발하게 되며 최종 수령 원리금 $S_t$는 점진적으로 증대하는 패턴을 띄게 됩니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_11_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_11_visual1.html" width="100%" height="600px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
