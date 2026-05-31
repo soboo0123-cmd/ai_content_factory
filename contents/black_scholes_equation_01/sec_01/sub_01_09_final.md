@@ -184,7 +184,7 @@ benchmark_binomial_underflow(q=0.6, num_trials=1000)
 
 일반 곱셈 연산은 소수점 아래 자릿수가 시스템의 허용 범위를 넘어서면서 가차 없이 수학적 무(無)를 뜻하는 `0.0`으로 파괴되었습니다. 그러나 곱셈을 덧셈으로 우회시킨 로그 스케일 연산은 `-916.29073`이라는 지극히 안정적인 음수 영역 안에 안착하여 소수점 아래 수백 자리 너머에 숨어있는 확률의 미세한 불씨를 완벽하게 지켜냈습니다. (복원 값이 `0.0`이 나오는 것은 다시 일반 스케일인 지수 영역 $e^{-916.29073}$으로 돌아가려고 할 때 컴퓨터의 부동소수점 한계를 다시 마주하기 때문이며, 분석가들은 역변환을 하지 않고 로그 스케일 자체 상태로 모든 통계 연산을 처리하여 안전성을 유지합니다.)
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_09_visual2.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_09_visual2.html" width="100%" height="550px" frameborder="0" scrolling="no"></iframe>
 
 ---
 
