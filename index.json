@@ -1125,9 +1125,9 @@
             {
               "sub_id": "sub_01_07",
               "sub_title": "1.7 이항분포의 평균 및 분산 수식 유도",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_07_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1153,9 +1153,9 @@
             {
               "sub_id": "sub_01_08",
               "sub_title": "1.8 선형 결합 변수의 기댓값과 분산의 수학적 성질",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_08_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1181,9 +1181,9 @@
             {
               "sub_id": "sub_01_09",
               "sub_title": "1.9 지수와 로그의 기본 성질",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_09_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1209,9 +1209,9 @@
             {
               "sub_id": "sub_01_10",
               "sub_title": "1.10 로그 곱 연산 법칙의 증명",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_10_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -1237,9 +1237,9 @@
             {
               "sub_id": "sub_01_11",
               "sub_title": "1.11 이산 수익률과 복리 계산 및 실효 이자율",
-              "status": "Polishing",
+              "status": "Published",
               "current_version_code": "v3",
-              "final_file_path": null,
+              "final_file_path": "contents/black_scholes_equation_01/sec_01/sub_01_11_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",

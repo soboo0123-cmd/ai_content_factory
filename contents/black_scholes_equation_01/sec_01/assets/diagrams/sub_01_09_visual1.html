@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>지수와 로그의 역함수 관계 및 경계 조건</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-screen">
+  <div class="w-full max-w-4xl bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-800">
+    <!-- Header -->
+    <div class="mb-4">
+      <h2 class="text-xl font-bold text-slate-100">실시간 지수-로그 함수 시뮬레이터</h2>
+      <p class="text-sm text-slate-400">밑(<span class="italic">a</span>)과 진수(<span class="italic">x</span>)를 조절하며 수학적 제약 조건과 역함수 대칭 구조를 관찰하세요.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Control Panel -->
+      <div class="space-y-6 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+        <div>
+          <!-- Slider 1: Base a -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-sm font-semibold text-slate-300">밑 <span class="italic text-rose-400 font-bold">a</span> 값</label>
+              <span id="baseVal" class="text-rose-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded">2.0</span>
+            </div>
+            <input id="sliderA" type="range" min="0.1" max="5.0" step="0.1" value="2.0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+              <span>0.1 (감소)</span>
+              <span class="text-yellow-500">a = 1 (불가)</span>
+              <span>5.0 (증가)</span>
+            </div>
+          </div>
+
+          <!-- Slider 2: Argument x -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-sm font-semibold text-slate-300">진수 <span class="italic text-blue-400 font-bold">x</span> 값</label>
+              <span id="argVal" class="text-blue-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded">2.0</span>
+            </div>
+            <input id="sliderX" type="range" min="-1.0" max="5.0" step="0.1" value="2.0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+              <span class="text-red-500">x &le; 0 (불가)</span>
+              <span>5.0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Warnings / Logs -->
+        <div class="space-y-3">
+          <div id="warningBox" class="p-3 rounded-lg border text-xs hidden">
+            <!-- Dynamic warning contents -->
+          </div>
+
+          <!-- Equations Realtime Display -->
+          <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 space-y-1.5 font-mono text-xs">
+            <div class="text-slate-400">실시간 연산 결과:</div>
+            <div class="flex justify-between">
+              <span class="text-rose-400">a<sup>y</sup> = x :</span>
+              <span id="calcExp" class="text-slate-200">2.00<sup>1.00</sup> = 2.00</span>
+            </div>
+            <div class="flex justify-between border-t border-slate-800 pt-1">
+              <span class="text-blue-400">log<sub>a</sub>(x) = y :</span>
+              <span id="calcLog" class="text-slate-200">log<sub>2.0</sub>(2.0) = 1.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph Display -->
+      <div class="col-span-1 md:col-span-2 bg-slate-950 p-3 rounded-xl border border-slate-800 relative min-h-[300px] flex items-center justify-center">
+        <canvas id="chartCanvas" class="w-full h-full"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sliderA = document.getElementById('sliderA');
+    const sliderX = document.getElementById('sliderX');
+    const baseVal = document.getElementById('baseVal');
+    const argVal = document.getElementById('argVal');
+    const warningBox = document.getElementById('warningBox');
+    const calcExp = document.getElementById('calcExp');
+    const calcLog = document.getElementById('calcLog');
+    const ctx = document.getElementById('chartCanvas').getContext('2d');
+
+    let chart;
+
+    function getChartData(a, currentX) {
+      const expData = [];
+      const logData = [];
+      const identityData = [];
+
+      // Generate y = x
+      for (let x = -1; x <= 5; x += 0.2) {
+        identityData.push({x: x, y: x});
+      }
+
+      // Generate y = a^x
+      for (let x = -1.5; x <= 3; x += 0.1) {
+        const y = Math.pow(a, x);
+        if (y <= 6 && y >= -1) {
+          expData.push({x: x, y: y});
+        }
+      }
+
+      // Generate y = log_a(x)
+      if (a > 0 && a !== 1) {
+        for (let x = 0.05; x <= 5; x += 0.05) {
+          const y = Math.log(x) / Math.log(a);
+          if (y <= 5 && y >= -2) {
+            logData.push({x: x, y: y});
+          }
+        }
+      }
+
+      return { expData, logData, identityData };
+    }
+
+    function updateSimulator() {
+      const a = parseFloat(sliderA.value);
+      const x = parseFloat(sliderX.value);
+
+      baseVal.innerText = a.toFixed(1);
+      argVal.innerText = x.toFixed(1);
+
+      // Reset Warnings
+      warningBox.className = "p-3 rounded-lg border text-xs hidden";
+      warningBox.innerHTML = "";
+      let isError = false;
+
+      // 1. Check conditions
+      if (a <= 0) {
+        showWarning("밑 조건 위배!", "밑(a)은 반드시 0보다 커야 합니다 (a > 0).", "bg-red-950/50 border-red-800 text-red-200");
+        isError = true;
+      } else if (Math.abs(a - 1.0) < 1e-9) {
+        showWarning("밑 조건 위배!", "밑(a)은 1이 될 수 없습니다 (a ≠ 1). 일대일 대응이 파괴됩니다.", "bg-yellow-950/50 border-yellow-800 text-yellow-200");
+        isError = true;
+      }
+
+      if (x <= 0) {
+        showWarning("진수 조건 위배!", "진수(x)는 반드시 0보다 커야 합니다 (x > 0). 양수의 거듭제곱은 음수가 될 수 없습니다.", "bg-red-950/50 border-red-800 text-red-200", true);
+        isError = true;
+      }
+
+      // 2. Compute log value if possible
+      if (!isError) {
+        const logResult = Math.log(x) / Math.log(a);
+        calcLog.innerHTML = `log<sub>${a.toFixed(1)}</sub>(${x.toFixed(1)}) = <span class="font-bold text-blue-400">${logResult.toFixed(2)}</span>`;
+        calcExp.innerHTML = `${a.toFixed(1)}<sup>${logResult.toFixed(2)}</sup> = <span class="font-bold text-rose-400">${x.toFixed(1)}</span>`;
+      } else {
+        calcLog.innerHTML = `<span class="text-red-500">정의 불가</span>`;
+        calcExp.innerHTML = `<span class="text-red-500">정의 불가</span>`;
+      }
+
+      // 3. Update Chart
+      const { expData, logData, identityData } = getChartData(a, x);
+      
+      chart.data.datasets[0].data = expData;
+      chart.data.datasets[1].data = logData;
+      chart.data.datasets[2].data = identityData;
+
+      // Current Point on Log Curve
+      if (!isError) {
+        const logY = Math.log(x) / Math.log(a);
+        chart.data.datasets[3].data = [{x: x, y: logY}]; // Point on log
+        chart.data.datasets[4].data = [{x: logY, y: x}]; // Point on exp (Symmetric)
+      } else {
+        chart.data.datasets[3].data = [];
+        chart.data.datasets[4].data = [];
+      }
+
+      chart.update();
+    }
+
+    function showWarning(title, desc, classes, append = false) {
+      warningBox.classList.remove('hidden');
+      if (append) {
+        warningBox.innerHTML += `<div class="mt-2 pt-2 border-t border-slate-800 font-bold text-sm">${title}</div><p class="text-slate-300 mt-1">${desc}</p>`;
+      } else {
+        warningBox.className = `p-3 rounded-lg border text-xs ${classes}`;
+        warningBox.innerHTML = `<div class="font-bold text-sm">${title}</div><p class="text-slate-300 mt-1">${desc}</p>`;
+      }
+    }
+
+    // Chart init
+    chart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'y = a^x (지수)',
+            data: [],
+            borderColor: '#f43f5e',
+            borderWidth: 2.5,
+            showLine: true,
+            pointRadius: 0,
+            fill: false
+          },
+          {
+            label: 'y = log_a(x) (로그)',
+            data: [],
+            borderColor: '#3b82f6',
+            borderWidth: 2.5,
+            showLine: true,
+            pointRadius: 0,
+            fill: false
+          },
+          {
+            label: 'y = x (대칭축)',
+            data: [],
+            borderColor: '#64748b',
+            borderWidth: 1.5,
+            borderDash: [6, 6],
+            showLine: true,
+            pointRadius: 0,
+            fill: false
+          },
+          {
+            label: '선택된 로그점 (x, log_a x)',
+            data: [],
+            borderColor: '#3b82f6',
+            backgroundColor: '#60a5fa',
+            pointRadius: 6,
+            pointHoverRadius: 8
+          },
+          {
+            label: '대칭 지수점 (log_a x, x)',
+            data: [],
+            borderColor: '#f43f5e',
+            backgroundColor: '#fb7185',
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            min: -1.5,
+            max: 5,
+            grid: { color: '#1e293b' },
+            ticks: { color: '#94a3b8' }
+          },
+          y: {
+            min: -1.5,
+            max: 5,
+            grid: { color: '#1e293b' },
+            ticks: { color: '#94a3b8' }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#cbd5e1', boxWidth: 12 }
+          }
+        }
+      }
+    });
+
+    sliderA.addEventListener('input', updateSimulator);
+    sliderX.addEventListener('input', updateSimulator);
+
+    // Initial Trigger
+    updateSimulator();
+  </script>
+</body>
+</html>

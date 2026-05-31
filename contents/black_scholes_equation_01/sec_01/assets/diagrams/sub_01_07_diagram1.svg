@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12"/>
+  
+  <!-- Outer Border -->
+  <rect width="100%" height="100%" fill="none" stroke="#e2e8f0" stroke-width="2" rx="12"/>
+
+  <!-- TITLE -->
+  <text x="400" y="35" font-family="'Pretendard', -apple-system, sans-serif" font-size="18" font-weight="700" fill="#1e293b" text-anchor="middle">독립적 베르누이 세포의 결합과 이항 확률변수 Y의 형성</text>
+  
+  <!-- SUBTITLE -->
+  <text x="400" y="58" font-family="'Pretendard', -apple-system, sans-serif" font-size="13" fill="#64748b" text-anchor="middle">각각의 독립적인 시행(X_i)들이 쌓여 총 성공 횟수 Y를 구성하는 메커니즘</text>
+
+  <!-- BLOCK X1 -->
+  <g transform="translate(80, 100)">
+    <rect width="90" height="90" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2" stroke-dasharray="0"/>
+    <text x="45" y="40" font-family="'Pretendard', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#047857" text-anchor="middle">시행 1 (X₁)</text>
+    <text x="45" y="65" font-family="'Pretendard', -apple-system, sans-serif" font-size="12" fill="#065f46" text-anchor="middle">1 (q) 또는 0</text>
+  </g>
+
+  <!-- PLUS 1 -->
+  <text x="195" y="152" font-family="'Pretendard', -apple-system, sans-serif" font-size="24" font-weight="700" fill="#94a3b8" text-anchor="middle">+</text>
+
+  <!-- BLOCK X2 -->
+  <g transform="translate(220, 100)">
+    <rect width="90" height="90" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+    <text x="45" y="40" font-family="'Pretendard', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#047857" text-anchor="middle">시행 2 (X₂)</text>
+    <text x="45" y="65" font-family="'Pretendard', -apple-system, sans-serif" font-size="12" fill="#065f46" text-anchor="middle">1 (q) 또는 0</text>
+  </g>
+
+  <!-- PLUS 2 -->
+  <text x="335" y="152" font-family="'Pretendard', -apple-system, sans-serif" font-size="24" font-weight="700" fill="#94a3b8" text-anchor="middle">+</text>
+
+  <!-- DOTS (Ellipsis) -->
+  <g transform="translate(360, 100)">
+    <circle cx="20" cy="45" r="4" fill="#94a3b8"/>
+    <circle cx="40" cy="45" r="4" fill="#94a3b8"/>
+    <circle cx="60" cy="45" r="4" fill="#94a3b8"/>
+  </g>
+
+  <!-- PLUS 3 -->
+  <text x="465" y="152" font-family="'Pretendard', -apple-system, sans-serif" font-size="24" font-weight="700" fill="#94a3b8" text-anchor="middle">+</text>
+
+  <!-- BLOCK Xn -->
+  <g transform="translate(490, 100)">
+    <rect width="90" height="90" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+    <text x="45" y="40" font-family="'Pretendard', -apple-system, sans-serif" font-size="14" font-weight="700" fill="#047857" text-anchor="middle">시행 n (X_n)</text>
+    <text x="45" y="65" font-family="'Pretendard', -apple-system, sans-serif" font-size="12" fill="#065f46" text-anchor="middle">1 (q) 또는 0</text>
+  </g>
+
+  <!-- EQUALS ARROW -->
+  <g transform="translate(605, 125)">
+    <path d="M 5,20 L 45,20 M 35,10 L 45,20 L 35,30" fill="none" stroke="#64748b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- TARGET BLOCK Y -->
+  <g transform="translate(670, 75)">
+    <rect width="90" height="140" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2.5"/>
+    <text x="45" y="40" font-family="'Pretendard', -apple-system, sans-serif" font-size="16" font-weight="800" fill="#1d4ed8" text-anchor="middle">이항변수 Y</text>
+    <line x1="15" y1="55" x2="75" y2="55" stroke="#bfdbfe" stroke-width="1.5"/>
+    <text x="45" y="80" font-family="'Pretendard', -apple-system, sans-serif" font-size="13" font-weight="700" fill="#1e40af" text-anchor="middle">∑ X_i</text>
+    <text x="45" y="105" font-family="'Pretendard', -apple-system, sans-serif" font-size="11" fill="#1e40af" text-anchor="middle">총 성공 횟수</text>
+    <text x="45" y="123" font-family="'Pretendard', -apple-system, sans-serif" font-size="11" fill="#1e40af" text-anchor="middle">(0 ~ n)</text>
+  </g>
+
+  <!-- UNDER BRACE / LABELS -->
+  <path d="M 80,210 L 80,220 L 325,220 L 325,230 M 325,220 L 580,220 L 580,210" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="330" y="248" font-family="'Pretendard', -apple-system, sans-serif" font-size="13" font-weight="600" fill="#475569" text-anchor="middle">상호 독립적(Independent)인 시행 관계</text>
+  <text x="330" y="268" font-family="'Pretendard', -apple-system, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">공분산 Cov(X_i, X_j) = 0  (i ≠ j)</text>
+
+  <!-- FOOTER STATS -->
+  <g transform="translate(80, 290)">
+    <rect width="680" height="40" rx="6" fill="#f1f5f9"/>
+    <text x="20" y="24" font-family="'Pretendard', -apple-system, sans-serif" font-size="13" font-weight="700" fill="#334155">가법성 결과:</text>
+    <text x="120" y="24" font-family="'Pretendard', -apple-system, sans-serif" font-size="13" fill="#0f172a">평균 기댓값: <tspan font-weight="700" fill="#059669">E[Y] = nq</tspan></text>
+    <text x="380" y="24" font-family="'Pretendard', -apple-system, sans-serif" font-size="13" fill="#0f172a">불확실성 분산: <tspan font-weight="700" fill="#2563eb">Var(Y) = nq(1-q)</tspan></text>
+  </g>
+</svg>

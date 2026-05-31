@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상수 a에 따른 배율 조정 및 제곱 팽창 시각화</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&family=JetBrains+Mono&display=swap');
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-4 md:p-6 flex flex-col justify-center items-center min-h-[400px]">
+
+  <div class="w-full max-w-2xl bg-white rounded-xl shadow-md border border-slate-100 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-base font-bold text-slate-800">시나리오 B: 배율 조정 <span class="mono text-amber-600">aX</span> 시각화</h3>
+      <span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full font-semibold">제곱 팽창 법칙</span>
+    </div>
+
+    <!-- Main Visual Panel (Flex container with 1D plot and 2D area representation) -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      
+      <!-- Left: 1D Scatter Plot on Number Line (Span 3 columns) -->
+      <div class="md:col-span-3 bg-slate-900 rounded-lg p-4 h-40 flex flex-col justify-end relative overflow-hidden">
+        <span class="absolute top-2 left-2 text-[9px] text-slate-400 font-semibold uppercase tracking-wider">포지션 맵 (1D)</span>
+        
+        <!-- Axis Line -->
+        <div class="absolute left-4 right-4 bottom-12 h-[2px] bg-slate-700"></div>
+
+        <!-- Dots -->
+        <div class="absolute left-4 right-4 bottom-12 h-0 flex items-center justify-start transition-all duration-300 ease-out" id="dots-container">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Axis Labels -->
+        <div class="absolute left-4 right-4 bottom-4 flex justify-between text-[10px] text-slate-500 font-mono">
+          <span>0</span>
+          <span>1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+          <span>5</span>
+          <span>6</span>
+          <span>7</span>
+          <span>8</span>
+          <span>9</span>
+        </div>
+
+        <!-- Mean Indicator -->
+        <div id="mean-indicator" class="absolute bottom-12 w-[2px] h-16 border-l-2 border-dashed border-amber-400 flex flex-col justify-start items-center transition-all duration-300 ease-out">
+          <span class="text-[9px] text-amber-300 font-mono bg-slate-800 px-1 rounded -translate-y-6">E[aX]</span>
+        </div>
+      </div>
+
+      <!-- Right: 2D Variance Square Area Representation (Span 2 columns) -->
+      <div class="md:col-span-2 bg-slate-900 rounded-lg p-4 h-40 flex flex-col items-center justify-center relative overflow-hidden">
+        <span class="absolute top-2 left-2 text-[9px] text-slate-400 font-semibold uppercase tracking-wider">편차 제곱 면적 (2D)</span>
+        
+        <!-- Scaled Square showing variance -->
+        <div class="flex items-center justify-center w-full h-full pt-4">
+          <div id="var-square" class="bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-md transition-all duration-300 ease-out shadow-lg shadow-teal-500/20 flex items-center justify-center">
+            <span id="square-label" class="text-slate-950 font-bold font-mono text-[11px] bg-white/80 px-1.5 py-0.5 rounded shadow">Var(aX)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls & Scoreboard -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="a-slider" class="text-sm font-semibold text-slate-600">배율 조정 상수 <span class="mono text-amber-600 font-bold">a</span></label>
+          <span id="a-value" class="text-sm font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded mono">x2.0</span>
+        </div>
+        <input type="range" id="a-slider" min="0.5" max="3.0" step="0.1" value="2.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600">
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+          <span>a = 0.5 (축소)</span>
+          <span>a = 3.0 (확대)</span>
+        </div>
+      </div>
+
+      <!-- Metrics Display -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-amber-50/50 p-3 rounded-lg border border-amber-100/50">
+          <div class="text-[11px] text-slate-500 font-semibold mb-1">기댓값 E[aX]</div>
+          <div id="mean-display" class="text-xl font-bold text-amber-600 mono">4.00</div>
+          <div class="text-[9px] text-slate-400 mt-0.5">원본 평균(2.00) * a</div>
+        </div>
+        <div class="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100/50">
+          <div class="text-[11px] text-slate-500 font-semibold mb-1">분산 Var(aX)</div>
+          <div id="var-display" class="text-xl font-bold text-emerald-600 mono">2.67</div>
+          <div class="text-[9px] text-slate-400 mt-0.5">원본 분산(0.67) * a²</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-100 leading-relaxed">
+      💡 <strong class="text-slate-700">인터랙티브 관찰:</strong> 배율 <span class="mono font-semibold">a</span>를 높이면 중심점(Mean)은 정직하게 <span class="text-amber-600 font-semibold">a배만큼 선형 이동</span>합니다. 하지만 분산은 편차의 제곱 면적과 직결되기 때문에, <span class="text-emerald-600 font-semibold">a² 배만큼 기하급수적으로 폭발</span>합니다. 오른쪽의 초록색 면적 팽창에 주목해 보세요.
+    </div>
+  </div>
+
+  <script>
+    const aSlider = document.getElementById('a-slider');
+    const aValue = document.getElementById('a-value');
+    const dotsContainer = document.getElementById('dots-container');
+    const meanIndicator = document.getElementById('mean-indicator');
+    const meanDisplay = document.getElementById('mean-display');
+    const varDisplay = document.getElementById('var-display');
+    const varSquare = document.getElementById('var-square');
+
+    // Original data: X = {1, 2, 3}
+    const originalX = [1, 2, 3];
+    const origMean = 2.0;
+    const origVar = 2/3; // 0.6666...
+
+    function update() {
+      const a = parseFloat(aSlider.value);
+      aValue.textContent = `x${a.toFixed(1)}`;
+
+      // Transformed Data
+      const transformed = originalX.map(x => x * a);
+      const newMean = origMean * a;
+      const newVar = origVar * (a * a);
+      
+      // Clear previous dots
+      dotsContainer.innerHTML = '';
+
+      // Map values to percentage widths of the container [0, 9] range
+      const minVal = 0;
+      const maxVal = 9;
+      const scale = (val) => ((val - minVal) / (maxVal - minVal)) * 100;
+
+      // Draw dots
+      transformed.forEach((val, idx) => {
+        const leftPercent = scale(val);
+        const dot = document.createElement('div');
+        dot.className = `absolute w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-300 ease-out shadow-lg`;
+        
+        if (idx === 0) dot.className += ' bg-amber-500';
+        else if (idx === 1) dot.className += ' bg-orange-500';
+        else dot.className += ' bg-rose-500';
+
+        dot.style.left = `calc(${leftPercent}% - 10px)`;
+        dot.style.transform = `scale(1.2)`;
+        dot.textContent = `${val.toFixed(1)}`;
+        dotsContainer.appendChild(dot);
+      });
+
+      // Position the Mean line indicator
+      const meanLeftPercent = scale(newMean);
+      meanIndicator.style.left = `${meanLeftPercent}%`;
+
+      // Update values in scoreboard
+      meanDisplay.textContent = newMean.toFixed(2);
+      varDisplay.textContent = newVar.toFixed(2);
+
+      // Scale the 2D Square to reflect Variance growth (which grows quadratically!)
+      // Baseline: at a=1.0, variance is 0.67, square side can be around 35px.
+      // Maximum variance (at a=3.0) is 6.0, square side around 105px.
+      const baseSide = 35; 
+      const newSide = baseSide * a; // Directly scaling side by 'a' gives area scale of a^2 !
+      varSquare.style.width = `${newSide}px`;
+      varSquare.style.height = `${newSide}px`;
+    }
+
+    aSlider.addEventListener('input', update);
+    window.addEventListener('load', update);
+  </script>
+</body>
+</html>

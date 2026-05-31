@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+  <!-- Style Definitions -->
+  <style>
+    .title { font-family: 'Pretendard', -apple-system, sans-serif; font-size: 16px; font-weight: bold; fill: #1e293b; }
+    .label { font-family: 'Pretendard', -apple-system, sans-serif; font-size: 12px; fill: #64748b; }
+    .bold-label { font-family: 'Pretendard', -apple-system, sans-serif; font-size: 13px; font-weight: bold; fill: #334155; }
+    .math { font-family: 'Cambria Math', 'Times New Roman', serif; font-style: italic; font-size: 14px; }
+    .grid-line { stroke: #e2e8f0; stroke-width: 1; stroke-dasharray: 4 4; }
+    .axis { stroke: #475569; stroke-width: 1.5; marker-end: url(#arrow); }
+    .curve-x { fill: url(#grad-x); stroke: #4f46e5; stroke-width: 2.5; }
+    .curve-y { fill: url(#grad-y); stroke: #059669; stroke-width: 2.5; }
+    .arrow-line { stroke: #f59e0b; stroke-width: 2; stroke-dasharray: 5 3; marker-end: url(#gold-arrow); }
+  </style>
+
+  <defs>
+    <!-- Markers -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#475569" />
+    </marker>
+    <marker id="gold-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f59e0b" />
+    </marker>
+
+    <!-- Gradients -->
+    <linearGradient id="grad-x" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.0" />
+    </linearGradient>
+    <linearGradient id="grad-y" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#059669" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#059669" stop-opacity="0.0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="350" fill="#f8fafc" rx="12" />
+
+  <!-- Grid Lines -->
+  <line x1="200" y1="50" x2="200" y2="300" class="grid-line" />
+  <line x1="550" y1="50" x2="550" y2="300" class="grid-line" />
+
+  <!-- Section 1: Original Distribution X -->
+  <g transform="translate(50, 0)">
+    <!-- X Axis -->
+    <line x1="50" y1="260" x2="300" y2="260" class="axis" />
+    <text x="290" y="280" class="math">x</text>
+
+    <!-- Normal Curve X -->
+    <!-- Center of distribution is at 150 (corresponds to E[X] = 2) -->
+    <!-- curve path: bell curve peaking at (150, 120) with width SD=30 -->
+    <path d="M 60,260 C 100,260 120,120 150,120 C 180,120 200,260 240,260 Z" class="curve-x" />
+    
+    <!-- Mean Line -->
+    <line x1="150" y1="120" x2="150" y2="260" stroke="#4f46e5" stroke-dasharray="3 3" stroke-width="1.5" />
+    <circle cx="150" cy="260" r="4" fill="#4f46e5" />
+    
+    <!-- SD Spread Indicator -->
+    <line x1="120" y1="190" x2="180" y2="190" stroke="#4f46e5" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+
+    <!-- Labels -->
+    <text x="150" y="90" text-anchor="middle" class="bold-label" fill="#4f46e5">원본 변수 X</text>
+    <text x="150" y="295" text-anchor="middle" class="math" fill="#4f46e5">E[X] = &mu;</text>
+    <text x="150" y="210" text-anchor="middle" class="label">변동성 (분산 = <tspan class="math">Var(X)</tspan>)</text>
+  </g>
+
+  <!-- Transformation Path (Arrow) -->
+  <g>
+    <path d="M 360,170 Q 400,140 440,170" fill="none" class="arrow-line" />
+    <text x="400" y="130" text-anchor="middle" class="bold-label" fill="#f59e0b">선형 변환 Y = aX + b</text>
+    <text x="400" y="200" text-anchor="middle" class="label" fill="#b45309">평행이동 + 배율팽창</text>
+  </g>
+
+  <!-- Section 2: Transformed Distribution Y -->
+  <g transform="translate(400, 0)">
+    <!-- Y Axis -->
+    <line x1="50" y1="260" x2="300" y2="260" class="axis" />
+    <text x="290" y="280" class="math">y</text>
+
+    <!-- Normal Curve Y -->
+    <!-- Center of distribution is at 200 (corresponds to E[Y] = aE[X] + b) -->
+    <!-- Curve path: wider and shifted. Peak at (200, 160) with wider SD=55 -->
+    <path d="M 60,260 C 110,260 150,160 200,160 C 250,160 290,260 340,260 Z" class="curve-y" />
+    
+    <!-- Mean Line -->
+    <line x1="200" y1="160" x2="200" y2="260" stroke="#059669" stroke-dasharray="3 3" stroke-width="1.5" />
+    <circle cx="200" cy="260" r="4" fill="#059669" />
+    
+    <!-- SD Spread Indicator (Wider) -->
+    <line x1="145" y1="210" x2="255" y2="210" stroke="#059669" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+
+    <!-- Labels -->
+    <text x="200" y="90" text-anchor="middle" class="bold-label" fill="#059669">변환된 변수 Y</text>
+    <text x="200" y="295" text-anchor="middle" class="math" fill="#059669">E[aX + b] = aE[X] + b</text>
+    <text x="200" y="230" text-anchor="middle" class="label">제곱 팽창 (분산 = <tspan class="math">a²Var(X)</tspan>)</text>
+  </g>
+
+  <!-- Bottom Annotation -->
+  <rect x="150" y="315" width="500" height="25" fill="#f1f5f9" rx="6" />
+  <text x="400" y="332" text-anchor="middle" font-family="'Pretendard', sans-serif" font-size="11px" fill="#475569">
+    * 평행이동 <tspan class="math">b</tspan>는 중심만 이동시킬 뿐 산포도(폭)에 영향을 미치지 않으며, 배율 <tspan class="math">a</tspan>는 분산을 제곱 배(<tspan class="math">a²</tspan>)로 팽창시킵니다.
+  </text>
+</svg>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상수 b에 따른 평행이동 시각화</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&family=JetBrains+Mono&display=swap');
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-4 md:p-6 flex flex-col justify-center items-center min-h-[400px]">
+
+  <div class="w-full class max-w-2xl bg-white rounded-xl shadow-md border border-slate-100 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-base font-bold text-slate-800">시나리오 A: 평행이동 <span class="mono text-indigo-600">X + b</span> 시각화</h3>
+      <span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-full font-semibold">산포도 보존 법칙</span>
+    </div>
+
+    <!-- Live Chart Canvas/SVG Container -->
+    <div class="bg-slate-900 rounded-lg p-4 h-40 flex flex-col justify-end relative overflow-hidden mb-6">
+      <!-- Standard Coordinate Line -->
+      <div class="absolute left-4 right-4 bottom-12 h-[2px] bg-slate-700"></div>
+
+      <!-- Live Dots -->
+      <div class="absolute left-4 right-4 bottom-12 h-0 flex items-center justify-start transition-all duration-300 ease-out" id="dots-container">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <!-- X Axis markings -->
+      <div class="absolute left-4 right-4 bottom-4 flex justify-between text-[10px] text-slate-500 font-mono">
+        <span>0</span>
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>5</span>
+        <span>6</span>
+        <span>7</span>
+        <span>8</span>
+      </div>
+
+      <!-- Mean line indicator (Dynamic) -->
+      <div id="mean-indicator" class="absolute bottom-12 w-[2px] h-16 border-l-2 border-dashed border-amber-400 flex flex-col justify-start items-center transition-all duration-300 ease-out">
+        <span class="text-[9px] text-amber-300 font-mono bg-slate-800 px-1 rounded -translate-y-6">Mean</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="b-slider" class="text-sm font-semibold text-slate-600">평행이동 변수 <span class="mono text-indigo-600 font-bold">b</span></label>
+          <span id="b-value" class="text-sm font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded mono">+1.0</span>
+        </div>
+        <input type="range" id="b-slider" min="-1" max="5" step="0.5" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+          <span>b = -1.0</span>
+          <span>b = +5.0</span>
+        </div>
+      </div>
+
+      <!-- Metrics Display Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50">
+          <div class="text-[11px] text-slate-500 font-semibold mb-1">기댓값 E[X + b]</div>
+          <div id="mean-display" class="text-xl font-bold text-indigo-600 mono">3.00</div>
+          <div class="text-[9px] text-slate-400 mt-0.5">원본 평균(2.00) + b</div>
+        </div>
+        <div class="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100/50">
+          <div class="text-[11px] text-slate-500 font-semibold mb-1">분산 Var(X + b)</div>
+          <div id="var-display" class="text-xl font-bold text-emerald-600 mono">0.67</div>
+          <div class="text-[9px] text-slate-400 mt-0.5">상수 b 소거 완료</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 border border-slate-100 leading-relaxed">
+      💡 <strong class="text-slate-700">인터랙티브 관찰:</strong> 슬라이더를 통해 상수 <span class="mono font-semibold">b</span>를 변경해 보세요. 점들이 통째로 좌우 평행이동하지만, 점들 사이의 <span class="text-emerald-600 font-semibold">상대적 간격</span>은 일정하게 보존되기 때문에 불확실성을 나타내는 <span class="text-emerald-600 font-semibold">분산 값은 절대 변하지 않습니다.</span>
+    </div>
+  </div>
+
+  <script>
+    const bSlider = document.getElementById('b-slider');
+    const bValue = document.getElementById('b-value');
+    const dotsContainer = document.getElementById('dots-container');
+    const meanIndicator = document.getElementById('mean-indicator');
+    const meanDisplay = document.getElementById('mean-display');
+    const varDisplay = document.getElementById('var-display');
+
+    // Original data: X = {1, 2, 3}
+    const originalX = [1, 2, 3];
+    const origMean = 2.0;
+    const origVar = 2/3; // 0.6666...
+
+    function update() {
+      const b = parseFloat(bSlider.value);
+      bValue.textContent = b >= 0 ? `+${b.toFixed(1)}` : b.toFixed(1);
+
+      // Transformed Data
+      const transformed = originalX.map(x => x + b);
+      const newMean = origMean + b;
+      
+      // Clear previous dots
+      dotsContainer.innerHTML = '';
+
+      // We map the values [0, 8] to percentage widths of the container [0%, 100%]
+      const minVal = 0;
+      const maxVal = 8;
+      const scale = (val) => ((val - minVal) / (maxVal - minVal)) * 100;
+
+      // Draw transformed dots
+      transformed.forEach((val, idx) => {
+        const leftPercent = scale(val);
+        const dot = document.createElement('div');
+        dot.className = `absolute w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white transition-all duration-300 ease-out shadow-lg`;
+        
+        // Differentiate colors
+        if (idx === 0) dot.className += ' bg-indigo-500';
+        else if (idx === 1) dot.className += ' bg-violet-500';
+        else dot.className += ' bg-purple-500';
+
+        dot.style.left = `calc(${leftPercent}% - 10px)`;
+        dot.style.transform = `scale(1.2)`;
+        dot.textContent = `${val.toFixed(1)}`;
+        dotsContainer.appendChild(dot);
+      });
+
+      // Position the Mean line indicator
+      const meanLeftPercent = scale(newMean);
+      meanIndicator.style.left = `${meanLeftPercent}%`;
+
+      // Update values in scoreboard
+      meanDisplay.textContent = newMean.toFixed(2);
+      varDisplay.textContent = origVar.toFixed(2);
+    }
+
+    bSlider.addEventListener('input', update);
+    window.addEventListener('load', update);
+  </script>
+</body>
+</html>

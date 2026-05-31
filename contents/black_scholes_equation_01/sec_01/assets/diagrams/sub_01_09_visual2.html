@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>컴퓨터의 한계: 언더플로우와 로그 스케일 방어</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-screen">
+  <div class="w-full max-w-4xl bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-800">
+    <!-- Header -->
+    <div class="mb-4">
+      <h2 class="text-xl font-bold text-slate-100">컴퓨터 연산 언더플로우(Underflow) 시각화</h2>
+      <p class="text-sm text-slate-400">1.8절의 모수(<span class="italic">q = 0.6</span>, 실패 확률 <span class="italic">1-q = 0.4</span>)를 사용하여, 시행 횟수가 커질 때 일반 연산이 무너지는 임계점을 목격하세요.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Controls -->
+      <div class="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+        <div class="space-y-4">
+          <!-- Probability Selection -->
+          <div>
+            <label class="text-sm font-semibold text-slate-300 block mb-2">개별 사건의 확률 (<span class="italic">p</span>)</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="setProb(0.6)" id="btnP1" class="py-1.5 px-2 bg-slate-900 border border-slate-700 rounded text-xs hover:bg-slate-800 transition text-rose-400 font-bold">q = 0.6<br>(성공 확률)</button>
+              <button onclick="setProb(0.4)" id="btnP2" class="py-1.5 px-2 bg-slate-900 border border-slate-700 rounded text-xs hover:bg-slate-800 transition text-blue-400 font-bold">1-q = 0.4<br>(실패 확률)</button>
+              <button onclick="setProb(0.01)" id="btnP3" class="py-1.5 px-2 bg-slate-900 border border-slate-700 rounded text-xs hover:bg-slate-800 transition text-yellow-400 font-bold">p = 0.01<br>(미세 확률)</button>
+            </div>
+            <div class="mt-3 flex justify-between items-center">
+              <span class="text-xs text-slate-400">선택된 확률:</span>
+              <span id="currentP" class="text-sm font-mono font-bold text-slate-200">0.40</span>
+            </div>
+          </div>
+
+          <!-- Slider: Multiplications N -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-sm font-semibold text-slate-300">연속 독립 시행 횟수 (<span class="italic">N</span>)</label>
+              <span id="trialsVal" class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded">300</span>
+            </div>
+            <input id="sliderN" type="range" min="1" max="1000" step="10" value="300" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+              <span>1회</span>
+              <span>1,000회</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Realtime Math Display -->
+        <div class="space-y-3 pt-4 border-t border-slate-800">
+          <div class="p-3 bg-slate-900 rounded-lg space-y-2 font-mono text-xs">
+            <div class="text-slate-400">연산 결과 비교:</div>
+            <div class="flex justify-between">
+              <span class="text-rose-400">일반 곱셈 (p<sup>N</sup>):</span>
+              <span id="valNormal" class="text-slate-200">0.00</span>
+            </div>
+            <div class="flex justify-between border-t border-slate-800 pt-1.5">
+              <span class="text-blue-400">로그 합산 (N ln p):</span>
+              <span id="valLog" class="text-slate-200">0.00</span>
+            </div>
+          </div>
+
+          <!-- Underflow status tag -->
+          <div id="statusTag" class="p-2.5 rounded text-center text-xs font-bold transition">
+            정상 연산 진행 중
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph View -->
+      <div class="col-span-1 md:col-span-2 bg-slate-950 p-3 rounded-xl border border-slate-800 min-h-[320px] flex flex-col">
+        <div class="flex justify-between items-center mb-2 px-1">
+          <span class="text-xs font-semibold text-slate-400">시행 횟수 증가에 따른 연산 왜곡 (로그 스케일 Y축)</span>
+          <span class="text-[10px] text-slate-500">※ 일반 곱셈이 0이 되는 순간 최하단으로 낙하합니다.</span>
+        </div>
+        <div class="relative flex-1">
+          <canvas id="underflowChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let p = 0.4; // Default standard probability (1-q from 1.8 section)
+    const sliderN = document.getElementById('sliderN');
+    const trialsVal = document.getElementById('trialsVal');
+    const currentP = document.getElementById('currentP');
+    const valNormal = document.getElementById('valNormal');
+    const valLog = document.getElementById('valLog');
+    const statusTag = document.getElementById('statusTag');
+    const ctx = document.getElementById('underflowChart').getContext('2d');
+
+    let chart;
+
+    function setProb(val) {
+      p = val;
+      currentP.innerText = p.toFixed(2);
+      
+      // Update Button Styles
+      document.getElementById('btnP1').className = "py-1.5 px-2 bg-slate-900 border border-slate-700 rounded text-xs hover:bg-slate-800 text-slate-400";
+      document.getElementById('btnP2').className = "py-1.5 px-2 bg-slate-900 border border-slate-700 rounded text-xs hover:bg-slate-800 text-slate-400";
+      document.getElementById('btnP3').className = "py-1.5 px-2 bg-slate-900 border border-slate-700 rounded text-xs hover:bg-slate-800 text-slate-400";
+
+      if (val === 0.6) document.getElementById('btnP1').className = "py-1.5 px-2 bg-rose-950/40 border-rose-800 rounded text-xs text-rose-400 font-bold";
+      if (val === 0.4) document.getElementById('btnP2').className = "py-1.5 px-2 bg-blue-950/40 border-blue-800 rounded text-xs text-blue-400 font-bold";
+      if (val === 0.01) document.getElementById('btnP3').className = "py-1.5 px-2 bg-yellow-950/40 border-yellow-800 rounded text-xs text-yellow-400 font-bold";
+
+      updateSimulation();
+    }
+
+    function calculateSystem(p, N) {
+      // 1. Raw multiplication simulation
+      let rawVal = 1.0;
+      let underflowPoint = -1;
+      const normalPath = [];
+      const logPath = [];
+      const steps = [];
+
+      for (let i = 1; i <= 1000; i += 20) {
+        steps.push(i);
+        
+        // Raw Multi
+        let val = Math.pow(p, i);
+        normalPath.push(val);
+
+        // Log Additive
+        let lVal = i * Math.log(p);
+        logPath.push(lVal);
+      }
+
+      // Exact values for selected N
+      let selectedNormal = Math.pow(p, N);
+      let selectedLog = N * Math.log(p);
+
+      return { steps, normalPath, logPath, selectedNormal, selectedLog };
+    }
+
+    function updateSimulation() {
+      const N = parseInt(sliderN.value);
+      trialsVal.innerText = N;
+
+      const { steps, normalPath, logPath, selectedNormal, selectedLog } = calculateSystem(p, N);
+
+      // Display numeric results
+      if (selectedNormal === 0) {
+        valNormal.innerHTML = `<span class="text-red-500 font-bold">0.0 (언더플로우 발생)</span>`;
+        statusTag.innerText = "언더플로우 침몰! 시스템이 확률 소실";
+        statusTag.className = "p-2.5 rounded text-center text-xs font-bold bg-red-950/50 border border-red-800 text-red-200";
+      } else {
+        valNormal.innerText = selectedNormal.toExponential(4);
+        statusTag.innerText = "컴퓨터 정상 수치 보존 중";
+        statusTag.className = "p-2.5 rounded text-center text-xs font-bold bg-emerald-950/50 border border-emerald-800 text-emerald-200";
+      }
+
+      valLog.innerText = selectedLog.toFixed(2);
+
+      // Update Chart Data
+      // To visualize comparison elegantly, we transform the Raw Multiplication to its log value so they can be plotted on same scale.
+      // If rawVal is 0, we plot a extremely low clamped value (-1000) to represent system collapse.
+      const rawPlotData = normalPath.map((v) => {
+        return v === 0 ? -900 : Math.log(v);
+      });
+
+      chart.data.labels = steps;
+      chart.data.datasets[0].data = rawPlotData; // Raw Multi (Log scale mapped)
+      chart.data.datasets[1].data = logPath;     // Pure Log path
+
+      // Highlight selected step N
+      const selectIndex = steps.findIndex(s => s >= N);
+      if (selectIndex !== -1) {
+        const selLog = selectedLog;
+        const selRaw = selectedNormal === 0 ? -900 : Math.log(selectedNormal);
+        chart.data.datasets[2].data = [{x: N, y: selRaw}];
+        chart.data.datasets[3].data = [{x: N, y: selLog}];
+      }
+
+      chart.update();
+    }
+
+    // Initialize Chart
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: '일반 곱셈의 실효 궤적 (ln p^N)',
+            data: [],
+            borderColor: '#f43f5e',
+            borderWidth: 2,
+            pointRadius: 2,
+            fill: false
+          },
+          {
+            label: '로그 스케일 안전 궤적 (N ln p)',
+            data: [],
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 2,
+            fill: false
+          },
+          {
+            label: '현재 일반 곱셈 연산 위치',
+            data: [],
+            backgroundColor: '#fb7185',
+            borderColor: '#f43f5e',
+            pointRadius: 6,
+            type: 'scatter'
+          },
+          {
+            label: '현재 로그 안전 연산 위치',
+            data: [],
+            backgroundColor: '#60a5fa',
+            borderColor: '#3b82f6',
+            pointRadius: 6,
+            type: 'scatter'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: { display: true, text: '시행 횟수 (N)', color: '#94a3b8' },
+            grid: { color: '#1e293b' },
+            ticks: { color: '#94a3b8' }
+          },
+          y: {
+            title: { display: true, text: '로그 에너지 스케일 (ln P)', color: '#94a3b8' },
+            min: -1000,
+            max: 0,
+            grid: { color: '#1e293b' },
+            ticks: { color: '#94a3b8' }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#cbd5e1', boxWidth: 12 }
+          }
+        }
+      }
+    });
+
+    sliderN.addEventListener('input', updateSimulation);
+    
+    // Initial load
+    setProb(0.4);
+  </script>
+</body>
+</html>

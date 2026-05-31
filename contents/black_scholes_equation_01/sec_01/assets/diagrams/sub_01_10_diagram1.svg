@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <!-- 배경 그라데이션 및 그리드 -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="heavyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+    <linearGradient id="lightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <drop-shadow dx="0" dy="4" stdDeviation="6" flood-color="#6366f1" flood-opacity="0.3"/>
+    </filter>
+    <filter id="heavyGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <drop-shadow dx="0" dy="4" stdDeviation="8" flood-color="#f43f5e" flood-opacity="0.25"/>
+    </filter>
+    <filter id="lightGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <drop-shadow dx="0" dy="4" stdDeviation="8" flood-color="#10b981" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bgGrad)" rx="12" />
+
+  <!-- 장식선 (배경 격자느낌) -->
+  <path d="M 50,0 L 50,450 M 150,0 L 150,450 M 250,0 L 250,450 M 350,0 L 350,450 M 450,0 L 450,450 M 550,0 L 550,450 M 650,0 L 650,450 M 750,0 L 750,450" stroke="#334155" stroke-opacity="0.15" stroke-width="1" />
+  <path d="M 0,50 L 800,50 M 0,150 L 800,150 M 0,250 L 800,250 M 0,350 L 800,350" stroke="#334155" stroke-opacity="0.15" stroke-width="1" />
+
+  <!-- 타이틀 -->
+  <text x="400" y="40" font-family="'Inter', system-ui, sans-serif" font-size="20" font-weight="800" fill="#f8fafc" text-anchor="middle" letter-spacing="1">로그 변환을 통한 연산 계층의 하강 (Scale Demotion)</text>
+  <text x="400" y="65" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="400" fill="#94a3b8" text-anchor="middle">무거운 연산(지수/곱셈)을 가벼운 선형 연산(곱셈/덧셈)으로 변환하는 통로</text>
+
+  <!-- 상층부: 무거운 연산 (High Complexity Layer) -->
+  <g transform="translate(0, 0)">
+    <!-- 가이드 바 -->
+    <rect x="50" y="100" width="700" height="3" fill="#ef4444" fill-opacity="0.3" />
+    <rect x="50" y="94" width="180" height="15" rx="7.5" fill="#ef4444" fill-opacity="0.1" />
+    <text x="140" y="105" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="700" fill="#f43f5e" text-anchor="middle" letter-spacing="0.5">HIGH COMPLEXITY (기하/지수 영역)</text>
+
+    <!-- 카드 1: 거듭제곱 -->
+    <rect x="130" y="130" width="220" height="85" rx="10" fill="#1e293b" stroke="url(#heavyGrad)" stroke-width="2" filter="url(#heavyGlow)"/>
+    <text x="240" y="155" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="700" fill="#94a3b8" text-anchor="middle">거듭제곱 (Exponentiation)</text>
+    <text x="240" y="195" font-family="'Inter', system-ui, sans-serif" font-size="26" font-weight="800" fill="#f8fafc" text-anchor="middle">x<tspan font-size="18" dy="-10" fill="#f43f5e">k</tspan></text>
+
+    <!-- 카드 2: 곱셈 -->
+    <rect x="450" y="130" width="220" height="85" rx="10" fill="#1e293b" stroke="url(#heavyGrad)" stroke-width="2" filter="url(#heavyGlow)"/>
+    <text x="560" y="155" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="700" fill="#94a3b8" text-anchor="middle">곱셈 (Multiplication)</text>
+    <text x="560" y="195" font-family="'Inter', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f8fafc" text-anchor="middle">x <tspan fill="#f43f5e">×</tspan> y</text>
+  </g>
+
+  <!-- 중간부: 로그 변환 필터 (Logarithm Filter Bridge) -->
+  <g transform="translate(0, 0)">
+    <!-- 다운 화살표 왼쪽 -->
+    <path d="M 240,225 L 240,295" stroke="url(#arrowGrad)" stroke-width="4" marker-end="url(#arrow)" stroke-dasharray="4 4" />
+    <rect x="180" y="245" width="120" height="30" rx="15" fill="#6366f1" filter="url(#glow)"/>
+    <text x="240" y="264" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">log<tspan font-size="9" dy="3">a</tspan><tspan font-size="11" dy="-3">( ) 변환</tspan></text>
+
+    <!-- 다운 화살표 오른쪽 -->
+    <path d="M 560,225 L 560,295" stroke="url(#arrowGrad)" stroke-width="4" marker-end="url(#arrow)" stroke-dasharray="4 4" />
+    <rect x="500" y="245" width="120" height="30" rx="15" fill="#6366f1" filter="url(#glow)"/>
+    <text x="560" y="264" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">log<tspan font-size="9" dy="3">a</tspan><tspan font-size="11" dy="-3">( ) 변환</tspan></text>
+  </g>
+
+  <!-- 하층부: 가벼운 연산 (Low Complexity Layer) -->
+  <g transform="translate(0, 0)">
+    <!-- 가이드 바 -->
+    <rect x="50" y="315" width="700" height="3" fill="#10b981" fill-opacity="0.3" />
+    <rect x="50" y="309" width="180" height="15" rx="7.5" fill="#10b981" fill-opacity="0.1" />
+    <text x="140" y="320" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="700" fill="#10b981" text-anchor="middle" letter-spacing="0.5">LOW COMPLEXITY (산술/선형 영역)</text>
+
+    <!-- 카드 1: 실수배 곱셈 -->
+    <rect x="130" y="335" width="220" height="85" rx="10" fill="#1e293b" stroke="url(#lightGrad)" stroke-width="2" filter="url(#lightGlow)"/>
+    <text x="240" y="360" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="700" fill="#94a3b8" text-anchor="middle">배수 곱셈 (Scalar Multiplication)</text>
+    <text x="240" y="398" font-family="'Inter', system-ui, sans-serif" font-size="20" font-weight="800" fill="#f8fafc" text-anchor="middle"><tspan fill="#10b981">k</tspan> · log<tspan font-size="12" dy="4">a</tspan><tspan font-size="20" dy="-4"> x</tspan></text>
+
+    <!-- 카드 2: 덧셈 -->
+    <rect x="450" y="335" width="220" height="85" rx="10" fill="#1e293b" stroke="url(#lightGrad)" stroke-width="2" filter="url(#lightGlow)"/>
+    <text x="560" y="360" font-family="'Inter', system-ui, sans-serif" font-size="13" font-weight="700" fill="#94a3b8" text-anchor="middle">덧셈 (Addition)</text>
+    <text x="560" y="398" font-family="'Inter', system-ui, sans-serif" font-size="18" font-weight="800" fill="#f8fafc" text-anchor="middle">log<tspan font-size="11" dy="4">a</tspan><tspan font-size="18" dy="-4"> x </tspan><tspan fill="#10b981">+</tspan> log<tspan font-size="11" dy="4">a</tspan><tspan font-size="18" dy="-4"> y</tspan></text>
+  </g>
+
+  <!-- 화살표 정의 -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f46e5" />
+    </marker>
+  </defs>
+</svg>
+</svg>

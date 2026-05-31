@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>이항분포 PMF 및 파라미터별 기댓값/분산 변화 시각화</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Pretendard', sans-serif;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-6 flex flex-col items-center justify-center min-h-[460px]">
+    <div class="bg-white rounded-xl shadow-md border border-slate-200 p-5 w-full max-w-2xl">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    이항분포 모수 제어기 및 분산 통제 피드백 루프
+                </h3>
+                <p class="text-[11px] text-slate-500">
+                    시행 횟수 $n$과 성공 확률 $q$를 변화시키며 이항분포의 기댓값과 분산이 어떻게 선형 결합을 통해 도출되고 수렴하는지 확인하세요.
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+            <!-- Left Controls Panel -->
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col justify-center gap-3">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 flex justify-between">
+                        <span>시행 횟수 (n)</span>
+                        <span id="n-display" class="font-bold text-blue-600">15</span>
+                    </label>
+                    <input id="n-slider" type="range" min="1" max="50" value="15" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 mt-1">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600 flex justify-between">
+                        <span>성공 확률 (q)</span>
+                        <span id="q-display" class="font-bold text-emerald-600">0.60</span>
+                    </label>
+                    <input id="q-slider" type="range" min="0" max="1" step="0.01" value="0.60" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 mt-1">
+                </div>
+
+                <!-- Stats Dashboard -->
+                <div class="mt-2 pt-2 border-t border-slate-200 space-y-1.5">
+                    <div class="flex justify-between text-[11px] text-slate-600">
+                        <span>기댓값 E[Y] (nq):</span>
+                        <span id="calc-mean" class="font-bold text-slate-800">9.00</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-600">
+                        <span>분산 Var(Y) (nq(1-q)):</span>
+                        <span id="calc-var" class="font-bold text-slate-800">3.60</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-600">
+                        <span>이론적 최대 분산 (0.25n):</span>
+                        <span id="calc-maxvar" class="font-bold text-slate-500">3.75</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Chart Display -->
+            <div class="col-span-2 relative h-48">
+                <canvas id="pmfChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const nSlider = document.getElementById('n-slider');
+        const qSlider = document.getElementById('q-slider');
+        const nDisplay = document.getElementById('n-display');
+        const qDisplay = document.getElementById('q-display');
+        const calcMean = document.getElementById('calc-mean');
+        const calcVar = document.getElementById('calc-var');
+        const calcMaxVar = document.getElementById('calc-maxvar');
+
+        // 이항 계수 계산 함수
+        function binomialCoef(n, k) {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            let res = 1;
+            for (let i = 1; i <= Math.min(k, n - k); i++) {
+                res = res * (n - i + 1) / i;
+            }
+            return res;
+        }
+
+        // 이항분포 PMF 계산
+        function binomialPMF(n, q, k) {
+            return binomialCoef(n, k) * Math.pow(q, k) * Math.pow(1 - q, n - k);
+        }
+
+        // 차트 설정
+        const ctx = document.getElementById('pmfChart').getContext('2d');
+        let pmfChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '성공 횟수별 확률 P(Y=k)',
+                    data: [],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 9 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        ticks: { font: { size: 9 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        function updateSimulation() {
+            const n = parseInt(nSlider.value);
+            const q = parseFloat(qSlider.value);
+
+            nDisplay.textContent = n;
+            qDisplay.textContent = q.toFixed(2);
+
+            // 통계치 계산
+            const mean = n * q;
+            const variance = n * q * (1 - q);
+            const maxVariance = n * 0.25;
+
+            calcMean.textContent = mean.toFixed(2);
+            calcVar.textContent = variance.toFixed(2);
+            calcMaxVar.textContent = maxVariance.toFixed(2);
+
+            // 차트 데이터 업데이트
+            let labels = [];
+            let dataset = [];
+            let maxP = 0;
+            for (let k = 0; k <= n; k++) {
+                labels.push(k);
+                const p = binomialPMF(n, q, k);
+                dataset.push(p);
+                if (p > maxP) maxP = p;
+            }
+
+            pmfChart.data.labels = labels;
+            pmfChart.data.datasets[0].data = dataset;
+            
+            // 동적 Y축 스케일링으로 해상도 개선
+            pmfChart.options.scales.y.max = maxP > 0.4 ? 1.0 : (maxP > 0.2 ? 0.5 : 0.25);
+            pmfChart.update();
+        }
+
+        nSlider.addEventListener('input', updateSimulation);
+        qSlider.addEventListener('input', updateSimulation);
+
+        // 초기 실행
+        updateSimulation();
+    </script>
+</body>
+</html>
