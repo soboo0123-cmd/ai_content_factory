@@ -32,7 +32,7 @@ $$\text{조합의 수} = \frac{\text{순열의 수}}{\text{선택된 이들의 �
 
 아래의 인터랙티브 시뮬레이터를 통해, 순열로 나열되어 있던 12가지의 개별 경로들이 '순서 무시' 제어를 거치며 어떻게 동일한 멤버 포켓 속으로 빨려 들어가 압축되는지 그 역동적인 과정을 시각적으로 체험해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_03_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_03_visual1.html" width="100%" height="550px" frameborder="0" scrolling="no"></iframe>
 
 ---
 
