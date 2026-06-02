@@ -1,0 +1,396 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <!-- [모바일 최적화 2-2] 반응형 뷰포트 설정 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX 컬러 에디터 v3</title>
+    
+    <!-- KaTeX core CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <!-- KaTeX Auto-Render Extension (혼합 텍스트 처리) -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        /* --- 기본값: 다크모드 (Dark Mode Default) --- */
+        body { 
+            font-family: sans-serif; 
+            padding: 20px; 
+            background-color: #121212; 
+            color: #e0e0e0; 
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container { display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin: 0 auto; position: relative; }
+        
+        /* 다크모드 요소 스타일 */
+        textarea { 
+            width: 100%; height: 100px; font-size: 16px; padding: 10px; 
+            background-color: #1e1e1e; color: #e0e0e0;
+            border: 1px solid #333; border-radius: 4px; box-sizing: border-box; resize: vertical; 
+        }
+        #preview { 
+            padding: 25px; border: 1px solid #333; border-radius: 4px; font-size: 20px; 
+            background-color: #1e1e1e; min-height: 60px;
+            overflow-x: auto; white-space: normal; word-break: break-all;
+        }
+
+        /* --- [모바일 최적화 2-1] 터치 편의성을 고려한 글자 여백 및 터치 영역 설정 --- */
+        .math-term { 
+            transition: background-color 0.15s, outline 0.15s; 
+            border-radius: 4px; 
+            padding: 3px 5px; /* 데스크톱 기본 터치 영역 */
+            margin: 1px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .math-term {
+                padding: 6px 8px; /* 모바일 기기 터치 영역 대폭 확장 */
+                margin: 2px;
+            }
+        }
+
+        /* --- 호버 및 선택 시 컬러 가독성 보정 --- */
+        .math-term.hovered { background-color: #2b2b2b; }
+        
+        /* 다크모드에서도 연한 파란색이 이쁘게 보이도록 적용 후 글자색 검은색 보정 */
+        .math-term.selected, .math-term.selected * { 
+            background-color: #bbdefb !important; 
+            color: #121212 !important; 
+            outline: 2px solid #2196f3; 
+        }
+
+        /* --- 버튼 및 타이틀 레이아웃 --- */
+        .title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .title-bar h2 { margin: 0; font-size: 20px; }
+        
+        /* 공통 액션 버튼 */
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            transition: background 0.2s;
+        }
+        .action-btn:hover { background-color: #444; }
+
+        /* 다크모드 토글 버튼 (우측 상단 고정) */
+        .theme-btn {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+        }
+
+        /* 안내 문구 */
+        .guide { font-size: 13px; color: #aaa; margin-top: -5px; }
+
+        /* 팔레트 */
+        .palette-area { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .palette { display: flex; gap: 10px; align-items: center; }
+        .color-btn { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 3px rgba(0,0,0,0.3); }
+        .color-btn:hover { transform: scale(1.1); }
+        .clear-btn { padding: 8px 16px; border: 1px solid #555; background: #333; color:#e0e0e0; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .clear-btn:hover { background: #444; }
+
+        /* 출력부 */
+        .output-container { display: flex; gap: 10px; align-items: stretch; }
+        .output-container textarea { height: auto; flex-grow: 1; background-color: #2a2a2a; color:#fff; }
+        .copy-btn { width: 100px; background-color: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; transition: background 0.2s; }
+        .copy-btn:hover { background-color: #45a049; }
+
+        /* --- 라이트모드 스타일 오버라이드 --- */
+        body.light-mode {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        body.light-mode textarea {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        body.light-mode #preview {
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+        body.light-mode .action-btn, body.light-mode .clear-btn, body.light-mode .theme-btn {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        body.light-mode .action-btn:hover, body.light-mode .clear-btn:hover, body.light-mode .theme-btn:hover {
+            background-color: #eee;
+        }
+        body.light-mode .math-term.hovered { background-color: #e3f2fd; }
+        body.light-mode .output-container textarea { background-color: #f1f1f1; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- [개선 3] 다크모드 전환 버튼 (우측 상단 위치) -->
+    <button id="themeToggle" class="theme-btn" onclick="toggleTheme()">☀️ 라이트모드로 보기</button>
+
+    <!-- [개선 1, 2] 제목 우측 입력 초기화 배치 -->
+    <div class="title-bar" style="margin-top: 30px;">
+        <h2>1. LaTeX 입력 (텍스트/수식 혼용 가능)</h2>
+        <button class="action-btn" onclick="resetInput()">입력 초기화</button>
+    </div>
+    <textarea id="latexInput">$E[S_1]$은 다음과 같이 표현할 수 있습니다.&#10;$$E[S_1] = p(uS) + (1-p)(dS)$$</textarea>
+
+    <h2>2. 항 선택 (모바일 호환 스마트 토글)</h2>
+    <p class="guide">💡 터치 시 동일 기호 전체 선택 ➡️ 선택된 기호를 다시 터치 시 해당 기호만 부분 해제</p>
+    <div id="preview"></div>
+
+    <!-- [개선 1, 2] 제목 우측 색상 초기화 배치 -->
+    <div class="title-bar">
+        <h2>3. 색상 지정</h2>
+        <button class="action-btn" onclick="resetColors()">전체 색상 초기화</button>
+    </div>
+    <div class="palette-area">
+        <div class="palette">
+            <div class="color-btn" style="background-color: #e53935;" onclick="applyColor('#e53935')"></div>
+            <div class="color-btn" style="background-color: #1e88e5;" onclick="applyColor('#1e88e5')"></div>
+            <div class="color-btn" style="background-color: #43a047;" onclick="applyColor('#43a047')"></div>
+            <div class="color-btn" style="background-color: #fdd835;" onclick="applyColor('#fdd835')"></div>
+            <button class="clear-btn" onclick="applyColor(null)">선택한 기호 색상만 지우기</button>
+        </div>
+    </div>
+
+    <h2>최종 출력 코드</h2>
+    <div class="output-container">
+        <textarea id="latexOutput" readonly></textarea>
+        <button class="copy-btn" onclick="copyToClipboard()">코드 복사</button>
+    </div>
+</div>
+
+<script>
+    // --- 상태 관리 ---
+    let tokenColors = {};       // 고유 인덱스별 색상 데이터 { 0: "red" }
+    let selectedIds = new Set(); // 선택된 토큰의 고유 인덱스 목록
+    let tokenRegistry = [];      // 실시간 수식 텍스트 매핑 목록
+
+    const encodeClass = (str) => "term-" + btoa(unescape(encodeURIComponent(str))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+    // --- 파싱 및 수식 조립 엔진 ---
+    function processMixedText(text, isForOutput = false) {
+        text = text.replace(/₩/g, '\\'); 
+        
+        let tokenIndex = 0;
+        if (!isForOutput) tokenRegistry = []; 
+
+        const mathBlockRegex = /(\$\$[\s\S]+?\$\$)|(\$[\s\S]+?\$)/g;
+
+        return text.replace(mathBlockRegex, (block) => {
+            const isDisplay = block.startsWith('$$');
+            const delimiter = isDisplay ? '$$' : '$';
+            const mathContent = isDisplay ? block.slice(2, -2) : block.slice(1, -1);
+
+            const tokenRegex = /(\\[a-zA-Z]+)|([a-zA-Z0-9])/g;
+
+            const processedMath = mathContent.replace(tokenRegex, (match) => {
+                const currentIdx = tokenIndex++;
+                
+                if (!isForOutput) {
+                    tokenRegistry[currentIdx] = match; 
+                }
+
+                const color = tokenColors[currentIdx];
+                let coloredToken = color ? `\\textcolor{${color}}{${match}}` : match;
+
+                if (isForOutput) {
+                    return `{${coloredToken}}`;
+                } else {
+                    const valClass = encodeClass(match);
+                    const idClass = `idx-${currentIdx}`;
+                    return `{\\htmlClass{math-term ${valClass} ${idClass}}{${coloredToken}}}`;
+                }
+            });
+
+            return `${delimiter}${processedMath}${delimiter}`;
+        });
+    }
+
+    function parseAndRender() {
+        const rawInput = document.getElementById('latexInput').value;
+        const previewSource = processMixedText(rawInput, false);
+        const finalSource = processMixedText(rawInput, true);
+
+        const previewEl = document.getElementById('preview');
+        previewEl.innerHTML = previewSource.replace(/\n/g, '<br>'); 
+
+        try {
+            renderMathInElement(previewEl, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                trust: true,
+                throwOnError: false
+            });
+            document.getElementById('latexOutput').value = finalSource;
+        } catch (err) {
+            previewEl.innerHTML = `<span style="color:red; font-size:16px;">렌더링 에러: ${err.message}</span>`;
+        }
+
+        attachEvents();
+        updateSelectionStyles();
+    }
+
+    // --- [개선 1] 모바일용 스마트 시퀀스 토글 (A안) 이벤트 구현 ---
+    function attachEvents() {
+        const terms = document.querySelectorAll('.math-term');
+
+        terms.forEach(term => {
+            const classes = Array.from(term.classList);
+            const valClass = classes.find(c => c.startsWith('term-'));
+            const idClass = classes.find(c => c.startsWith('idx-'));
+            if (!valClass || !idClass) return;
+
+            const currentId = parseInt(idClass.replace('idx-', ''));
+
+            // 마우스 호버 효과 (모바일에서는 무시됨)
+            term.onmouseenter = () => {
+                document.querySelectorAll(`.${valClass}`).forEach(el => el.classList.add('hovered'));
+            };
+            term.onmouseleave = () => {
+                document.querySelectorAll(`.${valClass}`).forEach(el => el.classList.remove('hovered'));
+            };
+
+            // 터치/클릭 로직 (스마트 토글 A안 적용)
+            term.onclick = (e) => {
+                e.stopPropagation();
+
+                const isAlreadySelected = selectedIds.has(currentId);
+
+                if (isAlreadySelected) {
+                    // 1단계: 이미 선택된 개별 기호를 다시 탭하면 해당 기호만 부분 해제
+                    selectedIds.delete(currentId);
+                } else {
+                    // 2단계: 안 선택된 기호를 탭했을 때
+                    const currentlySelectedValues = Array.from(selectedIds).map(id => tokenRegistry[id]);
+                    const firstSelectedVal = currentlySelectedValues[0];
+                    const clickedVal = tokenRegistry[currentId];
+
+                    // 다른 종류의 기호가 이미 선택되어 있는 중이었다면 기존 선택 완전히 초기화
+                    if (firstSelectedVal && firstSelectedVal !== clickedVal) {
+                        selectedIds.clear();
+                    }
+
+                    // 클릭한 기호와 동일한 모양을 가진 수식 전체 기호를 일괄 선택에 추가
+                    tokenRegistry.forEach((val, idx) => {
+                        if (val === clickedVal) {
+                            selectedIds.add(idx);
+                        }
+                    });
+                }
+                updateSelectionStyles();
+            };
+        });
+
+        // 수식 외부 터치 시 선택 해제
+        document.getElementById('preview').onclick = () => {
+            selectedIds.clear();
+            updateSelectionStyles();
+        };
+    }
+
+    function updateSelectionStyles() {
+        document.querySelectorAll('.math-term').forEach(el => {
+            const idClass = Array.from(el.classList).find(c => c.startsWith('idx-'));
+            if (idClass) {
+                const id = parseInt(idClass.replace('idx-', ''));
+                if (selectedIds.has(id)) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            }
+        });
+    }
+
+    // --- 색상 제어 ---
+    function applyColor(color) {
+        if (selectedIds.size === 0) {
+            alert("수식 영역에서 편집할 기호를 먼저 터치해 주세요.");
+            return;
+        }
+
+        selectedIds.forEach(id => {
+            if (color === null) {
+                delete tokenColors[id];
+            } else {
+                tokenColors[id] = color;
+            }
+        });
+
+        selectedIds.clear(); 
+        parseAndRender();
+    }
+
+    // --- [개선 1] 입력창 초기화 (공백 처리) ---
+    function resetInput() {
+        document.getElementById('latexInput').value = '';
+        tokenColors = {};
+        selectedIds.clear();
+        parseAndRender();
+        document.getElementById('latexInput').focus();
+    }
+
+    // --- [개선 1] 전체 색상 초기화 (기본 글자색 원복) ---
+    function resetColors() {
+        tokenColors = {};
+        selectedIds.clear();
+        parseAndRender();
+    }
+
+    // --- [개선 3] 다크모드/라이트모드 토글 스위치 ---
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeToggle');
+        body.classList.toggle('light-mode');
+
+        if (body.classList.contains('light-mode')) {
+            btn.innerText = '🌙 다크모드로 보기';
+        } else {
+            btn.innerText = '☀️ 라이트모드로 보기';
+        }
+    }
+
+    // --- [개선 4] 클립보드 복사 ---
+    function copyToClipboard() {
+        const outputEl = document.getElementById('latexOutput');
+        navigator.clipboard.writeText(outputEl.value).then(() => {
+            alert("최종 코드가 클립보드에 복사되었습니다.");
+        }).catch(err => {
+            alert("복사 실패: " + err);
+        });
+    }
+
+    // 입력값 변경 감지 시 리셋 처리
+    document.getElementById('latexInput').addEventListener('input', () => {
+        tokenColors = {};
+        selectedIds.clear();
+        parseAndRender();
+    });
+
+    parseAndRender();
+</script>
+
+</body>
+</html>
