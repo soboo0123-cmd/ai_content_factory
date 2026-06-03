@@ -128,7 +128,7 @@ $$\sum_{j=0}^{n} \pi_j = \frac{1}{(1+r)^n}$$
 
 아래의 실시간 시뮬레이터를 조작하며 시장 변수의 변화가 상태 가격 분포의 형태와 최종 파생상품 가격에 미치는 동적 기하학을 직접 확인해 보십시오.
 
-<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_07_visual1.html" width="100%" height="600px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_07_visual1.html" width="100%" height="635px" frameborder="0" scrolling="no"></iframe>
 
 ---
 
