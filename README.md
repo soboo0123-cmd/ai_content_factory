@@ -1,3 +1,10 @@
+다음은 수정 필요함
+
+$\hat{{\sigma}}_{\textcolor{#e53935}{n}}^{2} {=} \text{{V}{a}{r}}{(}{R}_{{t}{o}{t}{a}{l}}{)} {=} {\textcolor{#e53935}{n}} {\cdot} \hat{{\sigma}}^{2} {=} {\textcolor{#e53935}{n}} {\cdot} \left\{ {q}{(}{1}{-}{q}{)} \left[ \ln\left(\frac{{u}}{{d}}\right) \right]^{2} \right\}$
+
+
+
+
 # AI Content Factory 🚀
 
 AI를 활용하여 고품질 교육 콘텐츠를 자동으로 생성하고 관리하는 시스템입니다.
