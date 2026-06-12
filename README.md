@@ -12,7 +12,7 @@ AI를 활용하여 고품질 교육 콘텐츠를 자동으로 생성하고 관�
 ## 사용방법
 - 목차를 index.json에 추가한다.(ready부터 v3의 user feedback: nul까지(zip파일에 기초 양식 있다)
 - 목차뿐 아니라 참고할 원고와 코드를 넘길 수 있다.(00_00_direction.md 등 파일명을 맞춰 source폴더에 두기. 그러면 프롬프트 넘길 때 같이 넘김)
-  - **위 과정을 자동화해주는 re_index_builder2.html이 있다.** index.json이 있는 로컬 폴더를 지정하면 끝. 참고할 원고를 선택하면 파일명을 변경해줌
+  - **위 과정을 자동화해주는 re_index_builder2.html이 있다.** index.json이 있는 로컬 폴더를 지정하고 작성 시작. 참고할 원고를 선택하면 파일명을 변경해줌
 - 작성하고 나면 polishing 절차가 있다. 따로 추가하는 html파일은 assets폴더에 넣고 본문에 링크를 추가하면 된다.
   - 링크 예시) <iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
 - 초안이 작성되면 reveiw_arena.html을 통해 수정사항을 전달하고 v3을 만든다.
