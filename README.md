@@ -2,9 +2,9 @@
 
 ~~$\hat{{\sigma}}_{\textcolor{#e53935}{n}}^{2} {=} \text{{V}{a}{r}}{(}{R}_{{t}{o}{t}{a}{l}}{)} {=} {\textcolor{#e53935}{n}} {\cdot} \hat{{\sigma}}^{2} {=} {\textcolor{#e53935}{n}} {\cdot} \left\{ {q}{(}{1}{-}{q}{)} \left[ \ln\left(\frac{{u}}{{d}}\right) \right]^{2} \right\}$~~
 
-다음은 수정 필요함
-- re_index_builder2.html이 책 1권을 기준으로 구성되어 있음.
-- 그리고 book id는 수기 변경 필요
+- 다음은 수정 필요함
+  - re_index_builder2.html이 책 1권을 기준으로 구성되어 있음.
+  - 그리고 book id는 수기 변경 필요
 
 
 # AI Content Factory 🚀
