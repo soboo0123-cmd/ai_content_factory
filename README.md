@@ -48,5 +48,5 @@ python ai_content_factory/orchestrator.py
 - `orchestrator.py`: 메인 실행 엔진
 - `instructions/`: 집필 지침 및 프롬프트 템플릿
 - `contents/`: 생성된 마크다운 콘텐츠
-  -`source/`: 초고작성 때 참고할 원고와 코드
-  -`assets/`: polishing단계에서 생성하는 interactive한 시각자료(html, svg 등)
+  - `source/`: 초고작성 때 참고할 원고와 코드
+  - `assets/`: polishing단계에서 생성하는 interactive한 시각자료(html, svg 등)
