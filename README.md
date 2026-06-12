@@ -19,7 +19,7 @@ AI를 활용하여 고품질 교육 콘텐츠를 자동으로 생성하고 관�
   - 링크 예시) <iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
 - 초안이 작성되면 reveiw_arena.html을 통해 수정사항을 전달하고 v3을 만든다.
 - v3에 polishing단게를 거치면 final버전이 된다.
-- (참고) 목차는 루트(책 제목)와 책 폴더(책 목차)에 각각 위치시킨다.
+- (참고) 목차인 _sidebar.md는 루트(책 제목)와 책 폴더(책 목차)에 각각 위치시킨다.
 
 ## 🛠 실행 방법 (uv 사용 권장)
 
