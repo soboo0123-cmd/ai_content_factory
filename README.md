@@ -13,7 +13,7 @@ AI를 활용하여 고품질 교육 콘텐츠를 자동으로 생성하고 관�
 - 목차를 index.json에 추가한다.(ready부터 v3의 user feedback: nul까지(zip파일에 기초 양식 있다)
 - 목차뿐 아니라 참고할 원고와 코드를 넘길 수 있다.(00_00_direction.md 등 파일명을 맞춰 source폴더에 두기)
 - 작성하고 나면 polishing 절차가 있다. 따로 추가하는 html파일은 assets폴더에 넣고 본문에 링크를 추가하면 된다.
-  - 
+  - 링크 예시) <iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
 - 초안이 작성되면 reveiw_arena.html을 통해 수정사항을 전달하고 v3을 만든다.
 - v3에 polishing단게를 거치면 final버전이 된다.
 - (참고) 목차는 루트(책 제목)와 책 폴더(책 목차)에 각각 위치시킨다.
