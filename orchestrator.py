@@ -477,7 +477,7 @@ def execute_polishing(client, book, section, sub, guidelines):
     * 파일명은 '{sub_id}_visual1.html', '{sub_id}_visual2.html'과 같이 유니크하게 작명해 주세요.
     * 필요에 따라 Tailwind CSS 라이브러리나 외부 모던 테마(CDN 링크)를 내부에 포함하여 사용해도 좋습니다.
     3. 본문 연결 (HTML 위젯): 마크다운 본문의 시각화 주석 위치에는 이미지가 아닌, 생성한 HTML 파일을 즉시 가져와 보여줄 수 있는 iframe 태그를 다음과 같이 조화롭게 배치해 주세요.
-    `<iframe src="contents/{b_id}/{s_id}/assets/diagrams/에셋파일명.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>`
+    `<iframe src="contents/{b_id}/{s_id}/assets/diagrams/에셋파일명.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>`
     * 주의: 뷰어 상의 404 에러 방지를 위해, iframe의 src 주소는 반드시 'contents/{b_id}/{s_id}/assets/diagrams/'로 시작하는 최상위 루트 기준의 물리 경로를 사용해야 합니다.
     4. 다이어그램 및 도식화 (SVG 그래픽): 마크다운 주석 내용 중 단순 흐름도, 순서도, 구조도 등은 XML 형태의 정적 SVG 그래픽 코드로 직접 변환하여 별도로 추출해 주세요.
     [ASSET:다이어그램파일명.svg]
