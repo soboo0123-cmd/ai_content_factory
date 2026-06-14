@@ -2799,19 +2799,19 @@
             {
               "sub_id": "sub_08_01",
               "sub_title": "8.1 시나리오 A: 상승 추세 초입",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_08/sub_08_01_v1.md",
+                  "created_at": "2026-06-14T05:49:58.816213"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_08/sub_08_01_v2.md",
+                  "created_at": "2026-06-14T05:51:01.039301"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2827,19 +2827,19 @@
             {
               "sub_id": "sub_08_02",
               "sub_title": "8.2 시나리오 B: 상승 고점 근접 예상",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_08/sub_08_02_v1.md",
+                  "created_at": "2026-06-14T05:52:13.182115"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_08/sub_08_02_v2.md",
+                  "created_at": "2026-06-14T05:53:18.533577"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2861,19 +2861,19 @@
             {
               "sub_id": "sub_09_01",
               "sub_title": "9.1 시나리오 C: 하락 추세 초입",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_09/sub_09_01_v1.md",
+                  "created_at": "2026-06-14T05:54:18.225335"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_09/sub_09_01_v2.md",
+                  "created_at": "2026-06-14T05:55:23.466776"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2889,19 +2889,19 @@
             {
               "sub_id": "sub_09_02",
               "sub_title": "9.2 시나리오 D: 방향 불확실",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_09/sub_09_02_v1.md",
+                  "created_at": "2026-06-14T05:56:29.541899"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_09/sub_09_02_v2.md",
+                  "created_at": "2026-06-14T05:57:32.544836"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2923,19 +2923,19 @@
             {
               "sub_id": "sub_10_01",
               "sub_title": "10.1 네 가지 수단의 메커니즘과 비교",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_10/sub_10_01_v1.md",
+                  "created_at": "2026-06-14T05:58:36.279776"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_10/sub_10_01_v2.md",
+                  "created_at": "2026-06-14T05:59:46.914884"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2951,19 +2951,19 @@
             {
               "sub_id": "sub_10_02",
               "sub_title": "10.2 시나리오별 수단 선택 요약 매트릭스",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_10/sub_10_02_v1.md",
+                  "created_at": "2026-06-14T06:00:51.725808"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_10/sub_10_02_v2.md",
+                  "created_at": "2026-06-14T06:01:58.160473"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2979,19 +2979,19 @@
             {
               "sub_id": "sub_10_03",
               "sub_title": "10.3 수단 전환 시 유의사항",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_10/sub_10_03_v1.md",
+                  "created_at": "2026-06-14T06:03:06.783834"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_10/sub_10_03_v2.md",
+                  "created_at": "2026-06-14T06:04:10.969811"
                 },
                 "v3": {
                   "status": "Pending",
@@ -3013,19 +3013,19 @@
             {
               "sub_id": "sub_11_01",
               "sub_title": "부록 A. 금리평가이론(IRP) 수식과 스왑포인트 계산 예시",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_01_v1.md",
+                  "created_at": "2026-06-14T06:05:30.169226"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_01_v2.md",
+                  "created_at": "2026-06-14T06:06:41.012450"
                 },
                 "v3": {
                   "status": "Pending",
@@ -3041,19 +3041,19 @@
             {
               "sub_id": "sub_11_02",
               "sub_title": "부록 B. CFaR(Cash Flow at Risk) 개념과 유동성 버퍼 추정",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_02_v1.md",
+                  "created_at": "2026-06-14T06:07:46.825948"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_02_v2.md",
+                  "created_at": "2026-06-14T06:08:54.766403"
                 },
                 "v3": {
                   "status": "Pending",
@@ -3069,19 +3069,19 @@
             {
               "sub_id": "sub_11_03",
               "sub_title": "부록 C. 분산 만기(Staggered Maturity) 전략 수치 예시",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_03_v1.md",
+                  "created_at": "2026-06-14T06:10:03.996323"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_03_v2.md",
+                  "created_at": "2026-06-14T06:11:11.863706"
                 },
                 "v3": {
                   "status": "Pending",
@@ -3097,19 +3097,19 @@
             {
               "sub_id": "sub_11_04",
               "sub_title": "부록 D. 헤지 비율·수단별 손익 시나리오 비교표",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_04_v1.md",
+                  "created_at": "2026-06-14T06:12:21.578024"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_04_v2.md",
+                  "created_at": "2026-06-14T06:14:31.401769"
                 },
                 "v3": {
                   "status": "Pending",
@@ -3125,14 +3125,14 @@
             {
               "sub_id": "sub_11_05",
               "sub_title": "부록 E. 공정가치 위험회피회계와 현금흐름 위험회피회계의 비교 및 실무 적용",
-              "status": "Ready",
+              "status": "Drafting_V2",
               "current_version_code": "v1",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_05_v1.md",
+                  "created_at": "2026-06-14T06:15:52.056761"
                 },
                 "v2": {
                   "status": "Pending",

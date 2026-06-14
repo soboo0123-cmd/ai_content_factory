@@ -38,21 +38,21 @@
   * [7.3 의사결정의 선행 조건 (전략 수립 전 반드시 확인)](contents/fx_hedge_strategy_01/sec_07/sub_07_03_v1.md)
 
 * **8장. 환율 상승기 전략**
-  * 8.1 시나리오 A: 상승 추세 초입
-  * 8.2 시나리오 B: 상승 고점 근접 예상
+  * [8.1 시나리오 A: 상승 추세 초입](contents/fx_hedge_strategy_01/sec_08/sub_08_01_v1.md)
+  * [8.2 시나리오 B: 상승 고점 근접 예상](contents/fx_hedge_strategy_01/sec_08/sub_08_02_v1.md)
 
 * **9장. 환율 하락기 전략**
-  * 9.1 시나리오 C: 하락 추세 초입
-  * 9.2 시나리오 D: 방향 불확실
+  * [9.1 시나리오 C: 하락 추세 초입](contents/fx_hedge_strategy_01/sec_09/sub_09_01_v1.md)
+  * [9.2 시나리오 D: 방향 불확실](contents/fx_hedge_strategy_01/sec_09/sub_09_02_v1.md)
 
 * **10장. 헤지 수단별 비교와 선택 기준**
-  * 10.1 네 가지 수단의 메커니즘과 비교
-  * 10.2 시나리오별 수단 선택 요약 매트릭스
-  * 10.3 수단 전환 시 유의사항
+  * [10.1 네 가지 수단의 메커니즘과 비교](contents/fx_hedge_strategy_01/sec_10/sub_10_01_v1.md)
+  * [10.2 시나리오별 수단 선택 요약 매트릭스](contents/fx_hedge_strategy_01/sec_10/sub_10_02_v1.md)
+  * [10.3 수단 전환 시 유의사항](contents/fx_hedge_strategy_01/sec_10/sub_10_03_v1.md)
 
 * **11장. 부록**
-  * 부록 A. 금리평가이론(IRP) 수식과 스왑포인트 계산 예시
-  * 부록 B. CFaR(Cash Flow at Risk) 개념과 유동성 버퍼 추정
-  * 부록 C. 분산 만기(Staggered Maturity) 전략 수치 예시
-  * 부록 D. 헤지 비율·수단별 손익 시나리오 비교표
-  * 부록 E. 공정가치 위험회피회계와 현금흐름 위험회피회계의 비교 및 실무 적용
+  * [부록 A. 금리평가이론(IRP) 수식과 스왑포인트 계산 예시](contents/fx_hedge_strategy_01/sec_11/sub_11_01_v1.md)
+  * [부록 B. CFaR(Cash Flow at Risk) 개념과 유동성 버퍼 추정](contents/fx_hedge_strategy_01/sec_11/sub_11_02_v1.md)
+  * [부록 C. 분산 만기(Staggered Maturity) 전략 수치 예시](contents/fx_hedge_strategy_01/sec_11/sub_11_03_v1.md)
+  * [부록 D. 헤지 비율·수단별 손익 시나리오 비교표](contents/fx_hedge_strategy_01/sec_11/sub_11_04_v1.md)
+  * [부록 E. 공정가치 위험회피회계와 현금흐름 위험회피회계의 비교 및 실무 적용](contents/fx_hedge_strategy_01/sec_11/sub_11_05_v1.md)
