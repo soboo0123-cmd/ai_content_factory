@@ -19,23 +19,23 @@
 * **4장. 헤지와 회계 처리**
   * [4.1 결산 시점의 선물환 평가손익 처리](contents/fx_hedge_strategy_01/sec_04/sub_04_01_v1.md)
   * [4.2 자산 평가손익과의 비대칭 문제](contents/fx_hedge_strategy_01/sec_04/sub_04_02_v1.md)
-  * 4.3 만기 도래 시 손익 상쇄 구조
-  * 4.4 롤오버 반복 시 누적 손익의 흐름
+  * [4.3 만기 도래 시 손익 상쇄 구조](contents/fx_hedge_strategy_01/sec_04/sub_04_03_v1.md)
+  * [4.4 롤오버 반복 시 누적 손익의 흐름](contents/fx_hedge_strategy_01/sec_04/sub_04_04_v1.md)
 
 * **5장. 환율 상승기의 이중 압박**
-  * 5.1 헤지 비용 증가의 두 경로
-  * 5.2 결산·롤오버 시점의 현금 정산 부담
-  * 5.3 핵심 딜레마의 구조화
+  * [5.1 헤지 비용 증가의 두 경로](contents/fx_hedge_strategy_01/sec_05/sub_05_01_v1.md)
+  * [5.2 결산·롤오버 시점의 현금 정산 부담](contents/fx_hedge_strategy_01/sec_05/sub_05_02_v1.md)
+  * [5.3 핵심 딜레마의 구조화](contents/fx_hedge_strategy_01/sec_05/sub_05_03_v1.md)
 
 * **6장. 헤지 비율 100% 정책의 한계**
-  * 6.1 전액 헤지가 유동성 리스크를 고정시키는 역설
-  * 6.2 부분 헤지의 논리와 잔여 위험 수용 기준
-  * 6.3 헤지 비율 결정의 실무 기준
+  * [6.1 전액 헤지가 유동성 리스크를 고정시키는 역설](contents/fx_hedge_strategy_01/sec_06/sub_06_01_v1.md)
+  * [6.2 부분 헤지의 논리와 잔여 위험 수용 기준](contents/fx_hedge_strategy_01/sec_06/sub_06_02_v1.md)
+  * [6.3 헤지 비율 결정의 실무 기준](contents/fx_hedge_strategy_01/sec_06/sub_06_03_v1.md)
 
 * **7장. 전략 의사결정의 구조**
-  * 7.1 세 가지 전략 변수
-  * 7.2 신규 vs 기존 자산의 전략 자유도 차이
-  * 7.3 의사결정의 선행 조건 (전략 수립 전 반드시 확인)
+  * [7.1 세 가지 전략 변수](contents/fx_hedge_strategy_01/sec_07/sub_07_01_v1.md)
+  * [7.2 신규 vs 기존 자산의 전략 자유도 차이](contents/fx_hedge_strategy_01/sec_07/sub_07_02_v1.md)
+  * [7.3 의사결정의 선행 조건 (전략 수립 전 반드시 확인)](contents/fx_hedge_strategy_01/sec_07/sub_07_03_v1.md)
 
 * **8장. 환율 상승기 전략**
   * 8.1 시나리오 A: 상승 추세 초입

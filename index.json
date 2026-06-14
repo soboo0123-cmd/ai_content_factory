@@ -2467,19 +2467,19 @@
             {
               "sub_id": "sub_04_03",
               "sub_title": "4.3 만기 도래 시 손익 상쇄 구조",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_04/sub_04_03_v1.md",
+                  "created_at": "2026-06-14T02:45:46.611894"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_04/sub_04_03_v2.md",
+                  "created_at": "2026-06-14T02:46:52.038605"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2495,19 +2495,19 @@
             {
               "sub_id": "sub_04_04",
               "sub_title": "4.4 롤오버 반복 시 누적 손익의 흐름",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_04/sub_04_04_v1.md",
+                  "created_at": "2026-06-14T02:47:54.332457"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_04/sub_04_04_v2.md",
+                  "created_at": "2026-06-14T02:49:02.984174"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2529,19 +2529,19 @@
             {
               "sub_id": "sub_05_01",
               "sub_title": "5.1 헤지 비용 증가의 두 경로",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_05/sub_05_01_v1.md",
+                  "created_at": "2026-06-14T02:50:00.226019"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_05/sub_05_01_v2.md",
+                  "created_at": "2026-06-14T02:50:57.979629"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2557,19 +2557,19 @@
             {
               "sub_id": "sub_05_02",
               "sub_title": "5.2 결산·롤오버 시점의 현금 정산 부담",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_05/sub_05_02_v1.md",
+                  "created_at": "2026-06-14T02:51:52.510265"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_05/sub_05_02_v2.md",
+                  "created_at": "2026-06-14T02:52:53.676603"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2585,19 +2585,19 @@
             {
               "sub_id": "sub_05_03",
               "sub_title": "5.3 핵심 딜레마의 구조화",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_05/sub_05_03_v1.md",
+                  "created_at": "2026-06-14T02:53:47.869198"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_05/sub_05_03_v2.md",
+                  "created_at": "2026-06-14T02:54:47.305475"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2619,19 +2619,19 @@
             {
               "sub_id": "sub_06_01",
               "sub_title": "6.1 전액 헤지가 유동성 리스크를 고정시키는 역설",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_06/sub_06_01_v1.md",
+                  "created_at": "2026-06-14T02:55:46.614013"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_06/sub_06_01_v2.md",
+                  "created_at": "2026-06-14T02:56:49.595220"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2647,19 +2647,19 @@
             {
               "sub_id": "sub_06_02",
               "sub_title": "6.2 부분 헤지의 논리와 잔여 위험 수용 기준",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_06/sub_06_02_v1.md",
+                  "created_at": "2026-06-14T02:57:57.999114"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_06/sub_06_02_v2.md",
+                  "created_at": "2026-06-14T02:59:02.841586"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2675,19 +2675,19 @@
             {
               "sub_id": "sub_06_03",
               "sub_title": "6.3 헤지 비율 결정의 실무 기준",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_06/sub_06_03_v1.md",
+                  "created_at": "2026-06-14T03:00:22.978978"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_06/sub_06_03_v2.md",
+                  "created_at": "2026-06-14T03:01:36.296611"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2709,19 +2709,19 @@
             {
               "sub_id": "sub_07_01",
               "sub_title": "7.1 세 가지 전략 변수",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_07/sub_07_01_v1.md",
+                  "created_at": "2026-06-14T03:02:41.930848"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_07/sub_07_01_v2.md",
+                  "created_at": "2026-06-14T03:03:44.056776"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2737,19 +2737,19 @@
             {
               "sub_id": "sub_07_02",
               "sub_title": "7.2 신규 vs 기존 자산의 전략 자유도 차이",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_07/sub_07_02_v1.md",
+                  "created_at": "2026-06-14T03:04:46.365344"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_07/sub_07_02_v2.md",
+                  "created_at": "2026-06-14T03:06:45.044908"
                 },
                 "v3": {
                   "status": "Pending",
@@ -2765,19 +2765,19 @@
             {
               "sub_id": "sub_07_03",
               "sub_title": "7.3 의사결정의 선행 조건 (전략 수립 전 반드시 확인)",
-              "status": "Ready",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_07/sub_07_03_v1.md",
+                  "created_at": "2026-06-14T03:07:50.538357"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_07/sub_07_03_v2.md",
+                  "created_at": "2026-06-14T03:08:46.480698"
                 },
                 "v3": {
                   "status": "Pending",
