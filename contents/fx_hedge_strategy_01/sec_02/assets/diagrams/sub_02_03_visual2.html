@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>크로스커런시 베이시스 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6">
+  <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-slate-900 text-white p-6">
+      <h2 class="text-xl font-bold">크로스커런시 베이시스 (수급 마찰) 시뮬레이터</h2>
+      <p class="text-slate-400 text-xs mt-1">시장 참여자의 달러 실수요 쏠림이 유발하는 추가 헤지 청구 비용 연산기</p>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Controls -->
+      <div class="space-y-6">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">변수 1. 국내 기관의 해외투자 강도</label>
+          <div class="text-xs text-slate-400 mb-2">해외 주식/채권 투자를 위한 달러 매수 후 헤지용 달러 매도 수급</div>
+          <input id="inv-slider" type="range" min="0" max="100" value="40" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>극히 조용함</span>
+            <span>사상 최대 쏠림</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">변수 2. 수출업체 달러 선물환 매도 강도</label>
+          <div class="text-xs text-slate-400 mb-2">미래 유입 대금의 리스크 헤지를 위한 선물환 매도 물량 집중도</div>
+          <input id="hedge-slider" type="range" min="0" max="100" value="50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>미미함</span>
+            <span>주문 폭주</span>
+          </div>
+        </div>
+
+        <div class="p-4 bg-teal-50 rounded-lg border border-teal-100">
+          <div class="flex justify-between text-xs text-teal-800 font-bold mb-1">
+            <span>스왑 베이시스 반응 산출값:</span>
+            <span id="basis-output">-54 bps</span>
+          </div>
+          <p class="text-[10px] text-teal-600 leading-relaxed">
+            *수급 쏠림이 발생할수록 스왑마켓 내 원화 담보 달러 수요가 폭발하여 통화스왑 베이시스가 하방(-) 압력을 받습니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- Displays (Theoretical vs Actual comparison) -->
+      <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 border-b border-slate-200 pb-2 mb-4">선물환 거래비용 대조군</h3>
+          
+          <div class="space-y-3">
+            <!-- Theory -->
+            <div class="p-3 bg-white rounded border border-slate-100 flex justify-between items-center">
+              <div>
+                <span class="text-xs text-slate-400 block font-semibold">이론선물환율 (IRP)</span>
+                <span id="theo-forward" class="text-sm font-bold text-slate-700">1,293.47 원</span>
+              </div>
+              <span id="theo-spop" class="text-xs font-bold text-slate-500">-6.53 원</span>
+            </div>
+
+            <!-- Actual -->
+            <div class="p-3 bg-teal-900 text-white rounded shadow flex justify-between items-center">
+              <div>
+                <span class="text-xs text-teal-300 block font-semibold">실제 시장 선물환율</span>
+                <span id="act-forward" class="text-sm font-black">1,291.71 원</span>
+              </div>
+              <span id="act-spop" class="text-xs font-bold text-teal-300">-8.29 원</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Delta Card -->
+        <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+          <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider mb-1">수급 왜곡으로 가중된 100만 달러당 추가 손실액</span>
+          <span id="cost-delta" class="text-lg font-extrabold text-red-600">1,760,000 원</span>
+          <div class="text-[10px] text-slate-400 mt-1">
+            연율화 실질 헤지 비용률: <span id="act-cost-pct" class="font-bold text-slate-600">-2.55%</span> (이론비용 외 <span id="add-cost-pct" class="font-bold text-red-500">-0.54%</span> 추가됨)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const invSlider = document.getElementById('inv-slider');
+    const hedgeSlider = document.getElementById('hedge-slider');
+    
+    const basisOutput = document.getElementById('basis-output');
+    const theoForward = document.getElementById('theo-forward');
+    const theoSpop = document.getElementById('theo-spop');
+    const actForward = document.getElementById('act-forward');
+    const actSpop = document.getElementById('act-spop');
+    const costDelta = document.getElementById('cost-delta');
+    const actCostPct = document.getElementById('act-cost-pct');
+    const addCostPct = document.getElementById('add-cost-pct');
+
+    const S = 1300.00;
+    const krw = 0.03;
+    const usd = 0.05025;
+    const t = 0.25; // 3Months
+
+    function calculate() {
+      const inv = parseFloat(invSlider.value);
+      const hedge = parseFloat(hedgeSlider.value);
+
+      // Compute artificial Swops Basis in bps based on demand (0 to -160 bps)
+      const basis_bps = -Math.round((inv * 0.8) + (hedge * 0.8));
+      const basis = basis_bps / 10000;
+
+      basisOutput.textContent = basis_bps + ' bps (' + (basis * 100).toFixed(2) + '%)';
+
+      // 1. Theoretical
+      const F_theo = S * (1 + krw * t) / (1 + usd * t);
+      const spop_theo = F_theo - S;
+
+      // 2. Actual (KRW adjusted by basis)
+      const F_act = S * (1 + (krw + basis) * t) / (1 + usd * t);
+      const spop_act = F_act - S;
+
+      // Update UI
+      theoForward.textContent = F_theo.toFixed(2) + ' 원';
+      theoSpop.textContent = spop_theo.toFixed(2) + ' 원';
+
+      actForward.textContent = F_act.toFixed(2) + ' 원';
+      actSpop.textContent = spop_act.toFixed(2) + ' 원';
+
+      // Additional loss for $1,000,000
+      const extra_loss = (F_theo - F_act) * 1000000;
+      costDelta.textContent = Math.round(extra_loss).toLocaleString() + ' 원';
+
+      // Percentages
+      const pct_act = (F_act / S - 1) * 4 * 100;
+      const pct_theo = (F_theo / S - 1) * 4 * 100;
+      const pct_diff = pct_act - pct_theo;
+
+      actCostPct.textContent = pct_act.toFixed(2) + '%';
+      addCostPct.textContent = Math.abs(pct_diff).toFixed(2) + '%p';
+    }
+
+    invSlider.addEventListener('input', calculate);
+    hedgeSlider.addEventListener('input', calculate);
+
+    // Init
+    calculate();
+  </script>
+</body>
+</html>

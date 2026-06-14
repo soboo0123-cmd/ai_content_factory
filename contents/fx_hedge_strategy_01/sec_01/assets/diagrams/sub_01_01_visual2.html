@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자산군별 변동성 비교 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 p-4 font-sans text-slate-800 antialiased">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-slate-100 p-6">
+    <h2 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+      <span class="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">⚡</span>
+      자산 변동성 vs 환율 변동성 비교 시뮬레이터
+    </h2>
+    <p class="text-slate-500 text-sm mb-6">
+      미국 주식(고변동성)과 미국 국채(저변동성)가 환율이라는 거친 파도를 만났을 때 최종 원화 변동성이 어떻게 변하는지 확인해 보세요.
+    </p>
+
+    <!-- 시나리오 실행 및 변동성 가이드 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-center">
+        <span class="block text-xs text-indigo-700 font-bold mb-1">미국 주식 변동성</span>
+        <span class="text-2xl font-extrabold text-indigo-900">± 18.0%</span>
+        <span class="block text-[10px] text-indigo-400 mt-1">기대수익/변동성이 환율을 압도</span>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center">
+        <span class="block text-xs text-emerald-700 font-bold mb-1">미국 국채 변동성</span>
+        <span class="text-2xl font-extrabold text-emerald-900">± 4.0%</span>
+        <span class="block text-[10px] text-emerald-400 mt-1">변동성이 극히 작아 안정적</span>
+      </div>
+      <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-center">
+        <span class="block text-xs text-amber-700 font-bold mb-1">원/달러 환율 변동성</span>
+        <span class="text-2xl font-extrabold text-amber-900">± 10.0%</span>
+        <span class="block text-[10px] text-amber-400 mt-1">국채의 안정성을 흔드는 지배자</span>
+      </div>
+    </div>
+
+    <!-- 인터랙티브 시뮬레이션 버튼 -->
+    <div class="flex justify-center mb-6">
+      <button id="simBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-all shadow-md active:scale-95 flex items-center gap-2">
+        🎲 연간 자산 시장 시뮬레이션 실행
+      </button>
+    </div>
+
+    <!-- 메인 비교 차트 영역 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- 시나리오 설명 보드 -->
+      <div class="space-y-4">
+        <h3 class="text-sm font-bold text-slate-700 border-b pb-2">시뮬레이션 분석</h3>
+        
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <h4 class="text-xs font-bold text-slate-600 mb-1">🇺🇸 해외 주식 투자 (원화 환산)</h4>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            주식의 높은 고유 변동성 덕분에, 환율 변동(±10%)이 추가되더라도 원화 기준 자산의 전체 방향성은 <span class="font-bold text-indigo-600">주식 본질의 가치</span>가 지배합니다. (환율은 조연)
+          </p>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+          <h4 class="text-xs font-bold text-slate-600 mb-1">🇺🇸 해외 채권 투자 (원화 환산)</h4>
+          <p class="text-xs text-slate-500 leading-relaxed font-semibold text-rose-700">
+            채권의 고유 변동성(±4%)보다 환율 변동성(±10%)이 훨씬 크기 때문에, 환 노출 시 채권 투자의 전체 성패는 채권 금리가 아니라 <span class="underline">환율의 방향성</span>이 결정합니다. (배보다 배꼽이 큰 상황 발생)
+          </p>
+        </div>
+      </div>
+
+      <!-- 실시간 시계열 / 확률 분포 느낌의 차트 -->
+      <div class="relative h-64 bg-white rounded-lg border border-slate-100 p-2">
+        <canvas id="volChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('volChart').getContext('2d');
+    
+    // 박스플롯 혹은 오차범위 느낌을 시각화하기 위해 Bar 차트 활용
+    let volChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['미국 주식 자체', '환율 반영 주식', '미국 국채 자체', '환율 반영 채권'],
+        datasets: [{
+          label: '연간 실현 수익률 예시',
+          data: [12, 17, 5, -3],
+          backgroundColor: [
+            'rgba(129, 140, 248, 0.5)', // Indigo Light
+            'rgba(79, 70, 229, 0.9)',   // Indigo Deep
+            'rgba(110, 231, 183, 0.5)', // Emerald Light
+            'rgba(244, 63, 94, 0.9)'    // Rose (환차손 노출 채권 경고)
+          ],
+          borderColor: [
+            'rgb(99, 102, 241)',
+            'rgb(67, 56, 202)',
+            'rgb(52, 211, 153)',
+            'rgb(225, 29, 72)'
+          ],
+          borderWidth: 1.5,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: '가상의 1개년도 시장 충격 시뮬레이션',
+            font: { size: 12, weight: 'bold' }
+          }
+        },
+        scales: {
+          y: {
+            min: -25,
+            max: 35,
+            grid: { color: '#f1f5f9' },
+            ticks: {
+              callback: function(value) { return value + '%'; }
+            }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // 정규분포 난수 발생기 (Box-Muller transform)
+    function randomNormal(mean, stdDev) {
+      let u = 0, v = 0;
+      while(u === 0) u = Math.random(); 
+      while(v === 0) v = Math.random();
+      let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      return num * stdDev + mean;
+    }
+
+    // 시뮬레이션 연산
+    function runSimulation() {
+      // 1. 자산 자체 수익률 생성
+      const stockRaw = randomNormal(8, 18); // 평균 8%, 표준편차 18%
+      const bondRaw = 5.0; // 미국 국채 연 5% (고정)
+
+      // 2. 환율 수익률 생성
+      const fxRaw = randomNormal(0, 10); // 평균 0%, 표준편차 10%
+
+      // 3. 결합 수익률 적용
+      const stockConverted = (1 + stockRaw/100) * (1 + fxRaw/100) - 1;
+      const bondConverted = (1 + bondRaw/100) * (1 + fxRaw/100) - 1;
+
+      // 차트 데이터 갱신
+      volChart.data.datasets[0].data = [
+        parseFloat(stockRaw.toFixed(1)),
+        parseFloat((stockConverted * 100).toFixed(1)),
+        parseFloat(bondRaw.toFixed(1)),
+        parseFloat((bondConverted * 100).toFixed(1))
+      ];
+
+      volChart.update();
+    }
+
+    // 버튼 바인딩
+    document.getElementById('simBtn').addEventListener('click', runSimulation);
+
+    // 최초 1회 자동 가동
+    runSimulation();
+  </script>
+</body>
+</html>

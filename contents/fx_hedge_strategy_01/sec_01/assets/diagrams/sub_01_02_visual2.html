@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>위험회피회계 손익 상쇄 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-slate-100 p-6">
+        <div class="mb-5 pb-4 border-b border-slate-100">
+            <h2 class="text-xl font-bold text-slate-800">위험회피회계 적용 여부별 재무 영향</h2>
+            <p class="text-sm text-slate-500">K-GAAP 기준, 기말 평가 시 파생상품 평가손익과 외화채권 평가손익의 상쇄 구조를 분석합니다.</p>
+        </div>
+
+        <!-- 환율 변동 제어 -->
+        <div class="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="w-full md:w-2/3">
+                <label class="block text-sm font-semibold text-slate-700 mb-1 flex justify-between">
+                    <span>기말 평가 환율 시나리오 ($S_1$)</span>
+                    <span class="text-blue-600 font-bold" id="s1-display">1,200원 / 달러 (-100원 변동)</span>
+                </label>
+                <input type="range" id="rate" min="1100" max="1500" step="10" value="1200" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="setScenario(1200)" class="flex-1 md:flex-none px-3 py-1.5 bg-red-50 text-red-600 rounded text-xs font-semibold hover:bg-red-100 transition">원화 강세(환율 하락)</button>
+                <button onclick="setScenario(1400)" class="flex-1 md:flex-none px-3 py-1.5 bg-blue-50 text-blue-600 rounded text-xs font-semibold hover:bg-blue-100 transition">원화 약세(환율 상승)</button>
+            </div>
+        </div>
+
+        <!-- 비교 카드 레이아웃 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 일반 회계 처리 -->
+            <div class="border border-slate-200 rounded-lg p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-slate-700">일반 회계 처리 (헤지 미지정)</h3>
+                    <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-medium">개별 평가</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">채권 외화평가손익과 파생상품 평가손익이 독립적으로 계상됩니다.</p>
+                
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between p-2.5 bg-slate-50 rounded">
+                        <span class="text-slate-600">외화채권 환산 손익</span>
+                        <span id="gen-bond" class="font-semibold text-slate-800">0원</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 bg-slate-50 rounded">
+                        <span class="text-slate-600">선물환 파생상품 평가손익</span>
+                        <span id="gen-deriv" class="font-semibold text-slate-800">0원</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 bg-amber-50 rounded border border-amber-200 font-semibold">
+                        <span class="text-amber-900">당기순이익(N/I) 변동</span>
+                        <span id="gen-total" class="text-amber-900">0원</span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2">※ 실무상 손익 상쇄가 누락되거나 이원화되어 재무 왜곡 오해가 발생할 수 있습니다.</p>
+            </div>
+
+            <!-- 위험회피 회계 처리 -->
+            <div class="border border-emerald-200 bg-emerald-50/20 rounded-lg p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-emerald-800">공정가치 위험회피회계 적용</h3>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-medium">완전 상쇄</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-4">지정 요건 충족 시, 두 손익이 대칭적으로 상쇄되어 손익 변동성이 제거됩니다.</p>
+                
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between p-2.5 bg-white rounded border border-emerald-100">
+                        <span class="text-slate-600">외화채권 환산 손익</span>
+                        <span id="hedge-bond" class="font-semibold text-slate-800">0원</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 bg-white rounded border border-emerald-100">
+                        <span class="text-slate-600">선물환 파생상품 평가손익</span>
+                        <span id="hedge-deriv" class="font-semibold text-slate-800">0원</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 bg-emerald-500 rounded text-white font-semibold shadow-sm">
+                        <span>당기순이익(N/I) 변동</span>
+                        <span id="hedge-total">0원 (완벽한 헤지)</span>
+                    </div>
+                </div>
+                <p class="text-[11px] text-emerald-700/70 mt-2">※ 변동성이 완벽히 상쇄되어 기업의 재무안정성이 외부에 투명하게 입증됩니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rateInput = document.getElementById('rate');
+        const s1Display = document.getElementById('s1-display');
+
+        const genBond = document.getElementById('gen-bond');
+        const genDeriv = document.getElementById('gen-deriv');
+        const genTotal = document.getElementById('gen-total');
+
+        const hedgeBond = document.getElementById('hedge-bond');
+        const hedgeDeriv = document.getElementById('hedge-deriv');
+        const hedgeTotal = document.getElementById('hedge-total');
+
+        const baseRate = 1300;
+        const hedgeContractAmount = 1050; // $1,050 헤지 대상금액
+
+        function setScenario(val) {
+            rateInput.value = val;
+            updateValues();
+        }
+
+        function formatWon(val) {
+            const formatted = new Intl.NumberFormat('ko-KR').format(Math.abs(Math.round(val)));
+            if (val > 0) return `+${formatted}원 (이익)`;
+            if (val < 0) return `-${formatted}원 (손실)`;
+            return '0원';
+        }
+
+        function updateValues() {
+            const s1 = parseInt(rateInput.value);
+            const diff = s1 - baseRate;
+            
+            s1Display.innerText = `${s1.toLocaleString()}원 / 달러 (${diff >= 0 ? '+' : ''}${diff}원 변동)`;
+
+            // 외화채권 환산손익: 외화채권 원리금($1,050) 기준 환산 효과
+            const bondProfit = hedgeContractAmount * diff;
+            // 파생상품 평가손익: 매도계약이므로 약정 환율 - 기말 환율
+            const derivProfit = hedgeContractAmount * (baseRate - s1);
+            
+            // 일반회계
+            genBond.innerText = formatWon(bondProfit);
+            genDeriv.innerText = formatWon(derivProfit);
+            
+            genBond.className = bondProfit >= 0 ? "font-semibold text-blue-600" : "font-semibold text-red-600";
+            genDeriv.className = derivProfit >= 0 ? "font-semibold text-blue-600" : "font-semibold text-red-600";
+
+            const netImpact = bondProfit + derivProfit; // 수학적으론 항상 0이지만 회계 계정상 상쇄를 보여줌
+            genTotal.innerText = formatWon(netImpact) + ' 임시 합산';
+
+            // 위험회피회계
+            hedgeBond.innerText = formatWon(bondProfit);
+            hedgeDeriv.innerText = formatWon(derivProfit);
+            hedgeBond.className = bondProfit >= 0 ? "font-semibold text-blue-600" : "font-semibold text-red-600";
+            hedgeDeriv.className = derivProfit >= 0 ? "font-semibold text-blue-600" : "font-semibold text-red-600";
+            
+            // 완벽 상쇄
+            hedgeTotal.innerText = '0원 (완벽한 변동성 제거)';
+        }
+
+        rateInput.addEventListener('input', updateValues);
+        updateValues();
+    </script>
+</body>
+</html>

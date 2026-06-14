@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="100%" height="100%">
+  <!-- 배경 스타일 정의 -->
+  <defs>
+    <style>
+      .title-text { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; fill: #1e293b; font-size: 16px; }
+      .box-label { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; fill: #ffffff; font-size: 13px; }
+      .body-text { font-family: 'Segoe UI', system-ui, sans-serif; fill: #334155; font-size: 12px; }
+      .highlight-text { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; fill: #2563eb; font-size: 13px; }
+      .accent-text { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; fill: #10b981; font-size: 13px; }
+      .arrow-text { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: bold; fill: #64748b; font-size: 11px; }
+    </style>
+    <!-- 화살표 마커 정의 -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrow-indigo" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#6366f1"/>
+    </marker>
+    <marker id="arrow-emerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <!-- 전체 배경 -->
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12"/>
+
+  <!-- 메인 프레임 타임라인 분할선 -->
+  <line x1="400" y1="40" x2="400" y2="330" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1.5"/>
+
+  <!-- 타임라인 헤더 -->
+  <text x="200" y="32" class="title-text" text-anchor="middle">투자 시점 (T = 0)</text>
+  <text x="600" y="32" class="title-text" text-anchor="middle">만기 시점 (T = 1)</text>
+
+  <!-- ================= T = 0 영역 ================= -->
+  <!-- 1. 원화 자산 박스 -->
+  <rect x="30" y="60" width="140" height="70" rx="8" fill="#3b82f6" />
+  <text x="100" y="85" class="box-label" text-anchor="middle">초기 원화 투자금</text>
+  <text x="100" y="110" class="box-label" text-anchor="middle" font-size="14px">1,300,000원</text>
+
+  <!-- 2. 해외 채권 매수 박스 -->
+  <rect x="230" y="60" width="140" height="70" rx="8" fill="#1e3a8a" />
+  <text x="300" y="85" class="box-label" text-anchor="middle">미국 국채 매수</text>
+  <text x="300" y="110" class="box-label" text-anchor="middle" font-size="14px">$1,000 (S₀=1,300)</text>
+
+  <!-- 환전 화살표 -->
+  <path d="M 170 95 L 220 95" fill="none" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="195" y="85" class="arrow-text" text-anchor="middle">환전</text>
+
+  <!-- 3. 선물환 계약 박스 (T=0시점에 동시 체결) -->
+  <rect x="30" y="210" width="340" height="100" rx="10" fill="#ffffff" stroke="#6366f1" stroke-width="2" stroke-dasharray="2 2"/>
+  <text x="200" y="235" class="highlight-text" text-anchor="middle" fill="#6366f1">1년 만기 선물환 매도 계약 체결 (은행과 약정)</text>
+  <text x="200" y="260" class="body-text" text-anchor="middle">계약 금액: $1,050 (만기 회수금 전액)</text>
+  <text x="200" y="285" class="body-text" text-anchor="middle" font-weight="bold" fill="#4f46e5">약정 선물환율 F₀ = 1,300원 / 달러</text>
+
+
+  <!-- ================= T = 1 영역 ================= -->
+  <!-- 4. 미국 채권 원리금 상환 -->
+  <rect x="430" y="60" width="140" height="70" rx="8" fill="#10b981" />
+  <text x="500" y="85" class="box-label" text-anchor="middle">채권 원리금 수령</text>
+  <text x="500" y="110" class="box-label" text-anchor="middle" font-size="14px">$1,050 (원금+5%이자)</text>
+
+  <!-- 5. 만기 시장 환율 변동성 (중간 경로) -->
+  <path d="M 370 95 L 420 95" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrow-blue)"/>
+  <text x="395" y="85" class="arrow-text" text-anchor="middle" fill="#94a3b8">1년 보유</text>
+
+  <!-- 6. 최종 고정 원화 회수금 -->
+  <rect x="630" y="135" width="140" height="90" rx="8" fill="#047857" />
+  <text x="700" y="160" class="box-label" text-anchor="middle">최종 원화 회수금</text>
+  <text x="700" y="185" class="box-label" text-anchor="middle" font-size="15px">1,365,000원</text>
+  <text x="700" y="208" class="box-label" text-anchor="middle" font-size="11px" fill="#a7f3d0">연 5.0% 수익률 고정</text>
+
+  <!-- 만기 자금 정산 결합선 -->
+  <!-- 채권원리금 수령 -> 최종 정산으로 화살표 -->
+  <path d="M 570 95 L 630 145" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+  <text x="610" y="110" class="arrow-text" text-anchor="middle" fill="#10b981">A. 채권 가치 (S₁)</text>
+
+  <!-- 선물환 계약 정산 -> 최종 정산으로 화살표 -->
+  <path d="M 370 260 L 520 260 L 630 215" fill="none" stroke="#6366f1" stroke-width="2" marker-end="url(#arrow-indigo)"/>
+  <text x="500" y="280" class="arrow-text" text-anchor="middle" fill="#6366f1">B. 선물환 정산 손익 (F₀ - S₁)</text>
+
+</svg>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="100%" height="100%">
+  <defs>
+    <filter id="shadow" x="-3%" y="-3%" width="106%" height="106%">
+      <drop-shadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15" />
+    </filter>
+    <linearGradient id="assetGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="hedgeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12" />
+
+  <!-- Time Axis -->
+  <g transform="translate(50, 300)">
+    <line x1="0" y1="0" x2="700" y2="0" stroke="#94a3b8" stroke-width="3" />
+    <!-- Ticks -->
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#94a3b8" stroke-width="3" />
+    <line x1="233" y1="0" x2="233" y2="8" stroke="#94a3b8" stroke-width="3" />
+    <line x1="466" y1="0" x2="466" y2="8" stroke="#94a3b8" stroke-width="3" />
+    <line x1="700" y1="0" x2="700" y2="8" stroke="#94a3b8" stroke-width="3" />
+    
+    <text x="0" y="25" fill="#475569" font-size="12" text-anchor="middle" font-family="'Pretendard', sans-serif" font-weight="bold">t = 0 (투자 개시)</text>
+    <text x="233" y="25" fill="#475569" font-size="12" text-anchor="middle" font-family="'Pretendard', sans-serif" font-weight="bold">t = 1년</text>
+    <text x="466" y="25" fill="#475569" font-size="12" text-anchor="middle" font-family="'Pretendard', sans-serif" font-weight="bold">t = 2년</text>
+    <text x="700" y="25" fill="#475569" font-size="12" text-anchor="middle" font-family="'Pretendard', sans-serif" font-weight="bold">t = 3년 (만기)</text>
+  </g>
+
+  <!-- Long-term Asset (Base bar) -->
+  <g transform="translate(50, 50)" filter="url(#shadow)">
+    <rect width="700" height="40" rx="6" fill="url(#assetGrad)" />
+    <text x="350" y="25" fill="#ffffff" font-size="14" font-weight="bold" text-anchor="middle" font-family="'Pretendard', sans-serif">해외 실물 자산 / 장기 채권 포지션 (3년 연속 노출)</text>
+  </g>
+
+  <!-- Short-term Hedges (Rollover stones) -->
+  <!-- 1st Period -->
+  <g transform="translate(50, 130)" filter="url(#shadow)">
+    <rect width="228" height="50" rx="6" fill="url(#hedgeGrad)" />
+    <text x="114" y="25" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle" font-family="'Pretendard', sans-serif">제1차 환헤지 계약 (1년만기)</text>
+    <text x="114" y="42" fill="#a7f3d0" font-size="10" text-anchor="middle" font-family="'Pretendard', sans-serif">초기 헤지 비율 N₀ 적용</text>
+  </g>
+
+  <!-- Rollover Link 1 -->
+  <g transform="translate(265, 155)">
+    <circle cx="13" cy="30" r="16" fill="#f59e0b" filter="url(#shadow)" />
+    <text x="13" y="34" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle" font-family="'Pretendard', sans-serif">갱신</text>
+    <path d="M -5,-10 Q 13,-25 31,-10" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3 3" />
+  </g>
+
+  <!-- 2nd Period -->
+  <g transform="translate(283, 160)" filter="url(#shadow)">
+    <rect width="228" height="50" rx="6" fill="url(#hedgeGrad)" />
+    <text x="114" y="25" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle" font-family="'Pretendard', sans-serif">제2차 환헤지 계약 (1년만기)</text>
+    <text x="114" y="42" fill="#a7f3d0" font-size="10" text-anchor="middle" font-family="'Pretendard', sans-serif">리밸런싱된 헤지 비율 N₁ 적용</text>
+  </g>
+
+  <!-- Rollover Link 2 -->
+  <g transform="translate(498, 185)">
+    <circle cx="13" cy="30" r="16" fill="#f59e0b" filter="url(#shadow)" />
+    <text x="13" y="34" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle" font-family="'Pretendard', sans-serif">갱신</text>
+    <path d="M -5,-10 Q 13,-25 31,-10" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3 3" />
+  </g>
+
+  <!-- 3rd Period -->
+  <g transform="translate(516, 190)" filter="url(#shadow)">
+    <rect width="234" height="50" rx="6" fill="url(#hedgeGrad)" />
+    <text x="117" y="25" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle" font-family="'Pretendard', sans-serif">제3차 환헤지 계약 (1년만기)</text>
+    <text x="117" y="42" fill="#a7f3d0" font-size="10" text-anchor="middle" font-family="'Pretendard', sans-serif">최종 분기 헤지 비율 N₂ 적용</text>
+  </g>
+
+  <!-- Side Legends -->
+  <rect x="50" y="255" width="12" height="12" fill="#3b82f6" rx="2" />
+  <text x="68" y="265" fill="#475569" font-size="11" font-family="'Pretendard', sans-serif">대상 자산 (노출)</text>
+
+  <rect x="180" y="255" width="12" height="12" fill="#10b981" rx="2" />
+  <text x="198" y="265" fill="#475569" font-size="11" font-family="'Pretendard', sans-serif">단기 헤지 (실행)</text>
+
+  <circle cx="310" cy="261" r="6" fill="#f59e0b" />
+  <text x="322" y="265" fill="#475569" font-size="11" font-family="'Pretendard', sans-serif">롤오버 시점 (기존 정산 &amp; 신규 진입)</text>
+</svg>

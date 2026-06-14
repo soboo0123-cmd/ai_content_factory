@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>해외 채권 투자 환율 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 p-4 font-sans text-slate-800 antialiased">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-slate-100 p-6">
+    <h2 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+      <span class="p-1.5 bg-blue-100 text-blue-600 rounded-lg">📊</span>
+      해외 채권 만기 환율 시뮬레이터
+    </h2>
+    <p class="text-slate-500 text-sm mb-6">
+      만기 시점의 환율을 조정하며 원화 기준 최종 수익률과 손익분기 한계선을 시각적으로 확인해 보세요.
+    </p>
+
+    <!-- 시뮬레이터 핵심 레이아웃 -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+      
+      <!-- 컨트롤 파트 (4개 열) -->
+      <div class="md:col-span-5 space-y-5 bg-slate-50 p-4 rounded-lg border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">시나리오 기본 변수</h3>
+        
+        <!-- 원화 투자금 고정값 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">초기 원화 투자금</label>
+          <div class="text-base font-bold text-slate-800">1,300,000 원 <span class="text-xs font-normal text-slate-400">($1,000 × 1,300원)</span></div>
+        </div>
+
+        <!-- 미국 채권 수익률 고정값 -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">달러 기준 채권 수익률 (R_USD)</label>
+          <div class="text-base font-bold text-emerald-600">연 +5.00% <span class="text-xs font-normal text-slate-400">(만기 시 $1,050 회수)</span></div>
+        </div>
+
+        <hr class="border-slate-200">
+
+        <!-- 변동 입력값: 만기 시 환율 -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-xs font-bold text-slate-700">만기 시 환율 (S₁)</label>
+            <span id="rateVal" class="text-lg font-extrabold text-blue-600">1,300원</span>
+          </div>
+          <input id="rateSlider" type="range" min="1100" max="1500" step="5" value="1300" 
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>1,100원 (강한 원화 강세)</span>
+            <span>1,500원 (강한 원화 약세)</span>
+          </div>
+        </div>
+
+        <!-- 상태 판정 카드 -->
+        <div id="statusCard" class="p-3 rounded-md text-center font-bold text-sm transition-all duration-300">
+          -
+        </div>
+      </div>
+
+      <!-- 리포트 및 시각화 그래프 파트 (7개 열) -->
+      <div class="md:col-span-7 space-y-5">
+        
+        <!-- 수치 데이터 보드 -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50/60 p-3 rounded-lg border border-blue-100">
+            <span class="block text-xs text-slate-500 font-medium">환율 변동률 (R_FX)</span>
+            <span id="fxReturn" class="text-xl font-extrabold text-blue-700">-</span>
+          </div>
+          <div class="bg-emerald-50/60 p-3 rounded-lg border border-emerald-100">
+            <span class="block text-xs text-slate-500 font-medium">최종 원화 수익률 (R_KRW)</span>
+            <span id="krwReturn" class="text-xl font-extrabold text-emerald-700">-</span>
+          </div>
+        </div>
+
+        <!-- 차트 영역 -->
+        <div class="relative h-56 bg-white rounded-lg border border-slate-100 p-2">
+          <canvas id="returnChart"></canvas>
+        </div>
+
+        <!-- 손익분기 팁 -->
+        <div class="text-xs text-slate-500 bg-amber-50 border border-amber-100 rounded-lg p-3 leading-relaxed">
+          💡 <span class="font-bold text-amber-800">손익분기 환율(BEP): 1,238.10원</span> (환율 변동률 -4.76%). <br>
+          만기 시 환율이 이 값보다 낮아지면 채권 이자(5%)를 온전히 받아도 원화 기준으로는 원금 손실을 보게 됩니다.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // 상수 및 초기 세팅
+    const S0 = 1300; // 초기 환율
+    const R_USD = 0.05; // 채권 수익률 5%
+    const V0 = 1000; // 달러 원금
+    const initialKRW = S0 * V0; // 1,300,000원
+    const BEP_Rate = 1238.10;
+
+    // DOM 요소 캐싱
+    const slider = document.getElementById('rateSlider');
+    const rateVal = document.getElementById('rateVal');
+    const fxReturnText = document.getElementById('fxReturn');
+    const krwReturnText = document.getElementById('krwReturn');
+    const statusCard = document.getElementById('statusCard');
+
+    // Chart.js 인스턴스 초기화
+    const ctx = document.getElementById('returnChart').getContext('2d');
+    let returnChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['환율 변동률 (R_FX)', '채권 이자율 (R_USD)', '최종 원화 수익률 (R_KRW)'],
+        datasets: [{
+          data: [0, 5, 5],
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.7)', // Blue
+            'rgba(16, 185, 129, 0.4)', // Green (Static)
+            'rgba(13, 148, 136, 0.8)'  // Teal
+          ],
+          borderColor: [
+            'rgb(37, 99, 235)',
+            'rgb(5, 150, 105)',
+            'rgb(13, 148, 136)'
+          ],
+          borderWidth: 1.5,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed.y.toFixed(2) + '%';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            min: -20,
+            max: 20,
+            grid: { color: '#f1f5f9' },
+            ticks: {
+              callback: function(value) { return value + '%'; }
+            }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // 계산 및 업데이트 함수
+    function updateMetrics() {
+      const S1 = parseFloat(slider.value);
+      rateVal.innerText = S1.toLocaleString() + '원';
+
+      // 1. 환율 변동률 계산 (R_FX)
+      const R_FX = (S1 - S0) / S0;
+      const R_FX_Percent = R_FX * 100;
+
+      // 2. 최종 원화 수익률 계산 (결합수익률 공식 적용)
+      const R_KRW = (1 + R_USD) * (1 + R_FX) - 1;
+      const R_KRW_Percent = R_KRW * 100;
+
+      // UI 텍스트 업데이트
+      fxReturnText.innerText = (R_FX_Percent >= 0 ? '+' : '') + R_FX_Percent.toFixed(2) + '%';
+      krwReturnText.innerText = (R_KRW_Percent >= 0 ? '+' : '') + R_KRW_Percent.toFixed(2) + '%';
+
+      // 상태 카드 분기 처리
+      if (S1 > S0) {
+        statusCard.className = "p-3 rounded-md text-center font-bold text-sm bg-blue-100 text-blue-800 border border-blue-200";
+        statusCard.innerHTML = `📈 환차익 발생 (최종 수익 극대화)`;
+      } else if (S1 >= BEP_Rate) {
+        statusCard.className = "p-3 rounded-md text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-200";
+        statusCard.innerHTML = `🛡️ 환차손 발생하나 원금 방어 성공`;
+      } else {
+        statusCard.className = "p-3 rounded-md text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-200";
+        statusCard.innerHTML = `🚨 원화 환산 원금 손실 구간`;
+      }
+
+      // 차트 데이터 업데이트
+      returnChart.data.datasets[0].data = [
+        R_FX_Percent,
+        R_USD * 100,
+        R_KRW_Percent
+      ];
+      // 원화 수익률 색상 동적 제어
+      returnChart.data.datasets[0].backgroundColor[2] = R_KRW_Percent >= 0 ? 'rgba(13, 148, 136, 0.8)' : 'rgba(244, 63, 94, 0.8)';
+      returnChart.data.datasets[0].borderColor[2] = R_KRW_Percent >= 0 ? 'rgb(13, 148, 136)' : 'rgb(225, 29, 72)';
+      
+      returnChart.update();
+    }
+
+    // 슬라이더 이벤트 리스너 등록
+    slider.addEventListener('input', updateMetrics);
+
+    // 초기 실행
+    updateMetrics();
+  </script>
+</body>
+</html>

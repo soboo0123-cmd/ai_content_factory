@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>롤오버 주기별 현금흐름 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-6 text-white">
+      <div class="flex items-center space-x-3">
+        <div class="p-2.5 bg-blue-500/20 rounded-lg border border-blue-500/30">
+          <i class="fa-solid fa-chart-line text-blue-400 text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">롤오버 주기별 현금흐름 시뮬레이터</h1>
+          <p class="text-xs text-slate-300 mt-1">외화 자산 규모와 만기 시점 환율에 따른 주기별 정산 부담을 동적으로 분석합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Sliders (Inputs) -->
+      <div class="md:col-span-1 space-y-5 bg-slate-50 p-5 rounded-xl border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3">시나리오 매개변수 설정</h3>
+        
+        <!-- Asset Volume Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+            <span>보유 외화 자산 ($)</span>
+            <span id="assetVal" class="text-blue-600 font-bold">$10,000,000</span>
+          </div>
+          <input type="range" id="inputAsset" min="1" max="50" value="10" step="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>$1M</span>
+            <span>$50M</span>
+          </div>
+        </div>
+
+        <!-- Annual Swap Rate Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+            <span>연간 스왑레이트 (%)</span>
+            <span id="swapVal" class="text-orange-600 font-bold">-2.00%</span>
+          </div>
+          <input type="range" id="inputSwap" min="-5" max="0" value="-2.0" step="0.1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>-5.0%</span>
+            <span>0.0%</span>
+          </div>
+        </div>
+
+        <!-- Initial Spot Rate -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+            <span>초기 환율 (원/달러)</span>
+            <span id="initSpotVal" class="text-slate-800 font-bold">1,300원</span>
+          </div>
+          <input type="range" id="inputInitSpot" min="1100" max="1500" value="1,300" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-700">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>1,100원</span>
+            <span>1,500원</span>
+          </div>
+        </div>
+
+        <!-- Final Spot Rate Slider -->
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+            <span>1년 뒤 만기 환율 (원)</span>
+            <span id="finalSpotVal" class="text-red-600 font-bold">1,400원</span>
+          </div>
+          <input type="range" id="inputFinalSpot" min="1100" max="1600" value="1400" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>1,100원</span>
+            <span>1,600원</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation Results (Outputs) -->
+      <div class="md:col-span-2 space-y-6">
+        <!-- Main Comparison Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Strategy A Status Card -->
+          <div class="p-4 rounded-xl border border-blue-100 bg-blue-50/50">
+            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">전략 A: 3개월 단위 롤오버 (4회)</span>
+            <div class="text-2xl font-extrabold text-blue-900 mt-1" id="totalA">-12.67 억원</div>
+            <p class="text-xs text-slate-500 mt-1">분기당 평균 정산액: <strong class="text-slate-700" id="avgA">-3.17억 원</strong></p>
+            <div class="mt-3 text-xs bg-white rounded p-2 border border-blue-100 text-blue-800">
+              <i class="fa-solid fa-circle-info mr-1"></i> 건당 정산 부담액이 <strong>분산</strong>됩니다.
+            </div>
+          </div>
+
+          <!-- Strategy B Status Card -->
+          <div class="p-4 rounded-xl border border-red-100 bg-red-50/50">
+            <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider">전략 B: 12개월 만기 헤지 (1회)</span>
+            <div class="text-2xl font-extrabold text-red-900 mt-1" id="totalB">-12.60 억원</div>
+            <p class="text-xs text-slate-500 mt-1">최종 단일 정산액: <strong class="text-red-700" id="maxB">-12.60억 원</strong></p>
+            <div class="mt-3 text-xs bg-white rounded p-2 border border-red-100 text-red-800">
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> 만기일에 정산 부담이 <strong>일시 집중</strong>됩니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Visual Graph -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200">
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4"><i class="fa-solid fa-timeline mr-1.5 text-blue-500"></i>주기별 정산 현금흐름 타임라인 비교</h4>
+          
+          <div class="space-y-6">
+            <!-- Timeline A (Quarterly) -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-600">전략 A (3M 롤오버)</span>
+                <span class="text-[10px] text-slate-400">매 3개월마다 실물 분할 정산</span>
+              </div>
+              <div class="grid grid-cols-4 gap-2">
+                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
+                  <div class="text-[10px] text-slate-400">T=0.25 (3M)</div>
+                  <div class="text-xs font-bold text-red-600 mt-0.5" id="flowA1">-3.15억</div>
+                </div>
+                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
+                  <div class="text-[10px] text-slate-400">T=0.50 (6M)</div>
+                  <div class="text-xs font-bold text-red-600 mt-0.5" id="flowA2">-3.16억</div>
+                </div>
+                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
+                  <div class="text-[10px] text-slate-400">T=0.75 (9M)</div>
+                  <div class="text-xs font-bold text-red-600 mt-0.5" id="flowA3">-3.17억</div>
+                </div>
+                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center bg-blue-50/30 border-blue-100">
+                  <div class="text-[10px] text-slate-400">T=1.00 (12M)</div>
+                  <div class="text-xs font-bold text-red-600 mt-0.5" id="flowA4">-3.19억</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Timeline B (Annual) -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-600">전략 B (12M 헤지)</span>
+                <span class="text-[10px] text-slate-400">만기 시점 일시 정산</span>
+              </div>
+              <div class="grid grid-cols-4 gap-2">
+                <div class="bg-slate-50 p-2 rounded border-dashed border-slate-200 text-center flex flex-col justify-center h-12">
+                  <div class="text-[10px] text-slate-400">T=0.25</div>
+                  <div class="text-xs font-semibold text-slate-400 mt-0.5">0</div>
+                </div>
+                <div class="bg-slate-50 p-2 rounded border-dashed border-slate-200 text-center flex flex-col justify-center h-12">
+                  <div class="text-[10px] text-slate-400">T=0.50</div>
+                  <div class="text-xs font-semibold text-slate-400 mt-0.5">0</div>
+                </div>
+                <div class="bg-slate-50 p-2 rounded border-dashed border-slate-200 text-center flex flex-col justify-center h-12">
+                  <div class="text-[10px] text-slate-400">T=0.75</div>
+                  <div class="text-xs font-semibold text-slate-400 mt-0.5">0</div>
+                </div>
+                <div class="bg-red-50/50 p-2 rounded border border-red-200 text-center flex flex-col justify-center h-12">
+                  <div class="text-[10px] text-red-600 font-bold">T=1.00 (12M)</div>
+                  <div class="text-sm font-black text-red-700 mt-0.5" id="flowB">-12.60억</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputAsset = document.getElementById('inputAsset');
+    const inputSwap = document.getElementById('inputSwap');
+    const inputInitSpot = document.getElementById('inputInitSpot');
+    const inputFinalSpot = document.getElementById('inputFinalSpot');
+
+    const assetVal = document.getElementById('assetVal');
+    const swapVal = document.getElementById('swapVal');
+    const initSpotVal = document.getElementById('initSpotVal');
+    const finalSpotVal = document.getElementById('finalSpotVal');
+
+    const totalA = document.getElementById('totalA');
+    const avgA = document.getElementById('avgA');
+    const totalB = document.getElementById('totalB');
+    const maxB = document.getElementById('maxB');
+
+    const flowA1 = document.getElementById('flowA1');
+    const flowA2 = document.getElementById('flowA2');
+    const flowA3 = document.getElementById('flowA3');
+    const flowA4 = document.getElementById('flowA4');
+    const flowB = document.getElementById('flowB');
+
+    function formatEok(val) {
+      // Inputs: Value in KRW (e.g. 1,260,000,000)
+      // Return eok formatted string: -12.60억 원
+      const isNegative = val < 0;
+      const absVal = Math.abs(val);
+      const eok = absVal / 100000000;
+      return `${isNegative ? '-' : ''}${eok.toFixed(2)}억 원`;
+    }
+
+    function calculate() {
+      const asset = parseFloat(inputAsset.value) * 1000000; // in USD
+      const annualSwapRate = parseFloat(inputSwap.value) / 100; // negative decimal
+      const initSpot = parseFloat(inputInitSpot.value);
+      const finalSpot = parseFloat(inputFinalSpot.value);
+
+      // Update Slider Label Text
+      assetVal.innerText = `$${(asset / 1000000).toLocaleString()}M`;
+      swapVal.innerText = `${(annualSwapRate * 100).toFixed(2)}%`;
+      initSpotVal.innerText = `${initSpot.toLocaleString()}원`;
+      finalSpotVal.innerText = `${finalSpot.toLocaleString()}원`;
+
+      // 1. STRATEGY B (12 Months)
+      // Contract rate: S0 * (1 + SwapRate)
+      const contractRateB = initSpot * (1 + annualSwapRate);
+      const settlementB = (contractRateB - finalSpot) * asset;
+
+      // 2. STRATEGY A (3 Months * 4)
+      // Standard linear step-up path for exchange rate
+      const step = (finalSpot - initSpot) / 4;
+      const spotQ = [
+        initSpot,
+        initSpot + step,
+        initSpot + step * 2,
+        initSpot + step * 3,
+        finalSpot
+      ];
+
+      // Quarterly Swap rate
+      const quarterlySwapRate = annualSwapRate / 4;
+
+      const settlementsA = [];
+      for(let i = 0; i < 4; i++) {
+        const contractRateA = spotQ[i] * (1 + quarterlySwapRate);
+        const nextSpot = spotQ[i+1];
+        const settlement = (contractRateA - nextSpot) * asset;
+        settlementsA.push(settlement);
+      }
+
+      const totalSettlementA = settlementsA.reduce((sum, val) => sum + val, 0);
+      const avgSettlementA = totalSettlementA / 4;
+
+      // Update UI elements
+      totalA.innerText = formatEok(totalSettlementA);
+      avgA.innerText = formatEok(avgSettlementA);
+      totalB.innerText = formatEok(settlementB);
+      maxB.innerText = formatEok(settlementB);
+
+      flowA1.innerText = formatEok(settlementsA[0]).replace(' 원', '');
+      flowA2.innerText = formatEok(settlementsA[1]).replace(' 원', '');
+      flowA3.innerText = formatEok(settlementsA[2]).replace(' 원', '');
+      flowA4.innerText = formatEok(settlementsA[3]).replace(' 원', '');
+      flowB.innerText = formatEok(settlementB).replace(' 원', '');
+
+      // Optional text coloring based on gain/loss
+      const list = [totalA, totalB, flowA1, flowA2, flowA3, flowA4, flowB, maxB, avgA];
+      const vals = [totalSettlementA, settlementB, settlementsA[0], settlementsA[1], settlementsA[2], settlementsA[3], settlementB, settlementB, avgSettlementA];
+      
+      list.forEach((el, index) => {
+        const val = vals[index];
+        if (val < 0) {
+          el.className = el.className.replace('text-emerald-600', 'text-red-600').replace('text-emerald-700', 'text-red-700');
+          if (!el.className.includes('text-red')) {
+            el.classList.add('text-red-600');
+          }
+        } else {
+          el.className = el.className.replace('text-red-600', 'text-emerald-600').replace('text-red-700', 'text-emerald-700');
+          if (!el.className.includes('text-emerald')) {
+            el.classList.add('text-emerald-600');
+          }
+        }
+      });
+    }
+
+    [inputAsset, inputSwap, inputInitSpot, inputFinalSpot].forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+
+    // Initial Calculation
+    calculate();
+  </script>
+</body>
+</html>

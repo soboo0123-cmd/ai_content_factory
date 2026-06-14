@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>롤오버 환율 궤적 및 회계처리 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+        <!-- Title Header -->
+        <div class="bg-slate-900 p-6 text-white">
+            <h1 class="text-2xl font-bold">대화형 롤오버 환율 궤적 및 회계처리 시뮬레이터</h1>
+            <p class="text-slate-400 text-sm mt-1">자국(한국)과 투자국(미국)의 금리를 조정하여 분기별 롤오버 정산 시 발생하는 현금 흐름과 회계 기준별 당기순이익 변동성을 실시간으로 확인하세요.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
+            <!-- Controls Panel (Left) -->
+            <div class="lg:col-span-4 bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-6">
+                <h2 class="text-lg font-bold text-slate-800 border-b pb-2">시뮬레이션 조건 설정</h2>
+                
+                <!-- Sliders -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700">원화 무위험 금리 (<span class="text-blue-600">한국</span>)</label>
+                            <span id="krw-rate-val" class="text-sm font-bold text-blue-600">3.50%</span>
+                        </div>
+                        <input type="range" id="krw-rate" min="0.5" max="8" step="0.1" value="3.5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700">달러 무위험 금리 (<span class="text-emerald-600">미국</span>)</label>
+                            <span id="usd-rate-val" class="text-sm font-bold text-emerald-600">5.50%</span>
+                        </div>
+                        <input type="range" id="usd-rate" min="0.5" max="8" step="0.1" value="5.5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-semibold text-slate-700">투자 원금 (달러)</label>
+                            <span class="text-sm font-bold text-slate-800">$10,000,000</span>
+                        </div>
+                        <input type="text" value="$10,000,000" disabled class="w-full bg-slate-100 border border-slate-200 text-slate-500 rounded px-3 py-1.5 text-sm font-medium">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 block mb-1">환율 변동 시나리오 선택</label>
+                        <select id="scenario" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="rise">상승 궤적 (원화 약세 / $1,300 → $1,420)</option>
+                            <option value="fall">하락 궤적 (원화 강세 / $1,300 → $1,180)</option>
+                            <option value="flat">박스권 횡보 ($1,300 내외 등락)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Run Button -->
+                <button id="run-btn" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-95">
+                    시뮬레이션 새로고침
+                </button>
+
+                <!-- Calculations Info Block -->
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-blue-800 mb-1">💡 실시간 분석 요약</h3>
+                    <p class="text-xs text-blue-700 leading-relaxed">
+                        현재 금리차는 <span id="summary-diff" class="font-bold"></span>%p 입니다. 
+                        원화 금리가 달러 금리보다 낮기 때문에, 롤오버 시마다 약 <span id="summary-swap" class="font-bold"></span>원의 스왑포인트 <span id="summary-dir" class="font-bold">비용</span>이 발생합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Dashboard Panel (Right) -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Visual Chart -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200">
+                    <h3 class="text-md font-bold text-slate-800 mb-2">환율 및 선물 계약 궤적 (12개월)</h3>
+                    <div class="relative h-64">
+                        <canvas id="chart-canvas"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mt-2">각 분기별 포인트(Q1, Q2, Q3, Q4)를 클릭하면 해당 시점의 상세 거래 내역을 하단에서 볼 수 있습니다.</p>
+                </div>
+
+                <!-- Event Details Panel -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Event 1 Cards -->
+                    <div class="bg-rose-50/50 p-4 rounded-xl border border-rose-200">
+                        <div class="flex items-center space-x-2 text-rose-800 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-600 block"></span>
+                            <h4 class="text-sm font-bold">사건 ①: 기존 계약의 정산 결과</h4>
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-700">
+                            <div class="flex justify-between"><span>체결되었던 약정환율 (A):</span> <span id="card-old-f" class="font-semibold">-</span></div>
+                            <div class="flex justify-between"><span>정산 시점 현물환율 (B):</span> <span id="card-spot" class="font-semibold">-</span></div>
+                            <div class="flex justify-between border-t border-rose-200 pt-1.5 font-bold">
+                                <span>정산 손익 (A - B):</span> 
+                                <span id="card-settle-pnl" class="text-sm">-</span>
+                            </div>
+                            <p class="text-[11px] text-rose-600 font-medium leading-relaxed mt-1">※ 이 금액은 장부상 수치가 아닌 실제 영업일 내에 은행과 정산해야 하는 실현 현금 흐름입니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- Event 2 Cards -->
+                    <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-200">
+                        <div class="flex items-center space-x-2 text-emerald-800 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 block"></span>
+                            <h4 class="text-sm font-bold">사건 ②: 신규 계약 체결 결과</h4>
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-700">
+                            <div class="flex justify-between"><span>신규 진입 기준환율 (S):</span> <span id="card-new-s" class="font-semibold">-</span></div>
+                            <div class="flex justify-between"><span>조정된 3개월 스왑포인트:</span> <span id="card-swap-pt" class="font-semibold">-</span></div>
+                            <div class="flex justify-between border-t border-emerald-200 pt-1.5 font-bold">
+                                <span>신규 선물환율 (F):</span> 
+                                <span id="card-new-f" class="text-sm">-</span>
+                            </div>
+                            <p class="text-[11px] text-emerald-600 font-medium leading-relaxed mt-1">※ 내외 금리차와 마찰 비용이 반영되어 자동으로 차기 디스카운트/프리미엄 환율이 계산됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Table of Accounting Treatments -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-800 mb-3">📊 적용 회계처리별 당기순이익(P&L) 영향 대조 (분기누적)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left text-slate-500">
+                            <thead class="text-slate-700 bg-slate-100 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-3 rounded-l-lg">적용 방식</th>
+                                    <th class="p-3 text-center">자산 평가 손익</th>
+                                    <th class="p-3 text-center">선물환 평가/정산 손익</th>
+                                    <th class="p-3 text-right rounded-r-lg">보고 당기순이익 (P&L 변동폭)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-800">1. 일반 당기손익법 (헤지 비적용)</td>
+                                    <td id="table-raw-asset" class="p-3 text-center">-</td>
+                                    <td id="table-raw-deriv" class="p-3 text-center">-</td>
+                                    <td id="table-raw-pnl" class="p-3 text-right font-bold text-rose-600">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-800">2. 현금흐름위험회피회계 적용 (K-GAAP/IFRS)</td>
+                                    <td id="table-hedge-asset" class="p-3 text-center">-</td>
+                                    <td id="table-hedge-deriv" class="p-3 text-center">-</td>
+                                    <td id="table-hedge-pnl" class="p-3 text-right font-bold text-emerald-600">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set Default parameters
+        const principal = 10000000; // $10M
+        let activeQuarter = 1;
+        let chartInstance = null;
+        let simData = {};
+
+        // DOM elements
+        const krwSlider = document.getElementById('krw-rate');
+        const usdSlider = document.getElementById('usd-rate');
+        const krwVal = document.getElementById('krw-rate-val');
+        const usdVal = document.getElementById('usd-rate-val');
+        const scenarioSelect = document.getElementById('scenario');
+        const runBtn = document.getElementById('run-btn');
+
+        // Sidebar elements
+        const sumDiff = document.getElementById('summary-diff');
+        const sumSwap = document.getElementById('summary-swap');
+        const sumDir = document.getElementById('summary-dir');
+
+        // Cards elements
+        const cardOldF = document.getElementById('card-old-f');
+        const cardSpot = document.getElementById('card-spot');
+        const cardSettlePnl = document.getElementById('card-settle-pnl');
+        const cardNewS = document.getElementById('card-new-s');
+        const cardSwapPt = document.getElementById('card-swap-pt');
+        const cardNewF = document.getElementById('card-new-f');
+
+        // Table elements
+        const tRawAsset = document.getElementById('table-raw-asset');
+        const tRawDeriv = document.getElementById('table-raw-deriv');
+        const tRawPnl = document.getElementById('table-raw-pnl');
+        const tHedgeAsset = document.getElementById('table-hedge-asset');
+        const tHedgeDeriv = document.getElementById('table-hedge-deriv');
+        const tHedgePnl = document.getElementById('table-hedge-pnl');
+
+        // Event listener for sliders
+        krwSlider.addEventListener('input', (e) => {
+            krwVal.innerText = parseFloat(e.target.value).toFixed(2) + '%';
+            updateSummary();
+        });
+        usdSlider.addEventListener('input', (e) => {
+            usdVal.innerText = parseFloat(e.target.value).toFixed(2) + '%';
+            updateSummary();
+        });
+
+        runBtn.addEventListener('click', runSimulation);
+        scenarioSelect.addEventListener('change', runSimulation);
+
+        function updateSummary() {
+            const krw = parseFloat(krwSlider.value) / 100;
+            const usd = parseFloat(usdSlider.value) / 100;
+            const diff = (krw - usd) * 100;
+            sumDiff.innerText = diff.toFixed(2);
+            
+            // 3-month swap point approximation: S * diff * (90/365)
+            const approxSwapPoint = 1300 * (krw - usd) * (90 / 365);
+            sumSwap.innerText = Math.abs(approxSwapPoint).toFixed(2);
+            sumDir.innerText = diff >= 0 ? "이익(프리미엄)" : "비용(디스카운트)";
+            sumDir.className = diff >= 0 ? "text-emerald-600 font-bold" : "text-rose-600 font-bold";
+        }
+
+        function runSimulation() {
+            updateSummary();
+            const krw = parseFloat(krwSlider.value) / 100;
+            const usd = parseFloat(usdSlider.value) / 100;
+            const scenario = scenarioSelect.value;
+
+            // Generate Spot Rate path
+            let spots = [1300]; // 0, Q1, Q2, Q3, Q4
+            if (scenario === 'rise') {
+                spots = [1300, 1335, 1360, 1395, 1420];
+            } else if (scenario === 'fall') {
+                spots = [1300, 1260, 1240, 1205, 1180];
+            } else {
+                spots = [1300, 1315, 1285, 1320, 1290];
+            }
+
+            // Calculate Forward Rates dynamically using IRP for 3 months (91 days)
+            let forwards = []; // F_0_1, F_1_2, F_2_3, F_3_4
+            for (let i = 0; i < 4; i++) {
+                const spot = spots[i];
+                const swapPoint = spot * (krw - usd) * (91 / 365);
+                forwards.push(spot + swapPoint);
+            }
+
+            // Cache data
+            simData = {
+                spots: spots,
+                forwards: forwards,
+                krw: krw,
+                usd: usd
+            };
+
+            updateChart(spots, forwards);
+            selectQuarter(1);
+        }
+
+        function selectQuarter(q) {
+            activeQuarter = q;
+            const spotAtSettle = simData.spots[q];
+            const originalF = simData.forwards[q - 1];
+            
+            // Event 1 Calculations
+            const settlePnlUnit = originalF - spotAtSettle;
+            const settlePnlWon = settlePnlUnit * principal;
+
+            cardOldF.innerText = originalF.toFixed(2) + " 원";
+            cardSpot.innerText = spotAtSettle.toFixed(2) + " 원";
+            cardSettlePnl.innerText = (settlePnlWon >= 0 ? "+" : "") + formatNumber(settlePnlWon) + " 원";
+            cardSettlePnl.className = settlePnlWon >= 0 ? "text-emerald-600 font-bold text-sm" : "text-rose-600 font-bold text-sm";
+
+            // Event 2 Calculations
+            const newSpot = spotAtSettle;
+            const swapPt = newSpot * (simData.krw - simData.usd) * (91 / 365);
+            const newForward = newSpot + swapPt;
+
+            cardNewS.innerText = newSpot.toFixed(2) + " 원";
+            cardSwapPt.innerText = (swapPt >= 0 ? "+" : "") + swapPt.toFixed(2) + " 원";
+            cardNewF.innerText = newForward.toFixed(2) + " 원";
+
+            // Table Comparison (Accumulated to Selected Quarter)
+            // Raw Asset Valuation change
+            const rawAssetChg = (spotAtSettle - simData.spots[0]) * principal;
+            // Derivative Gain/Loss up to selected quarter (settled ones + current market valuation)
+            let settledPnlWon = 0;
+            for (let i = 1; i <= q; i++) {
+                settledPnlWon += (simData.forwards[i-1] - simData.spots[i]) * principal;
+            }
+
+            tRawAsset.innerText = (rawAssetChg >= 0 ? "+" : "") + formatNumber(rawAssetChg) + " 원";
+            tRawAsset.className = rawAssetChg >= 0 ? "p-3 text-center text-emerald-600 font-semibold" : "p-3 text-center text-rose-600 font-semibold";
+            
+            tRawDeriv.innerText = (settledPnlWon >= 0 ? "+" : "") + formatNumber(settledPnlWon) + " 원";
+            tRawDeriv.className = settledPnlWon >= 0 ? "p-3 text-center text-emerald-600 font-semibold" : "p-3 text-center text-rose-600 font-semibold";
+
+            const rawNetPnl = rawAssetChg + settledPnlWon;
+            tRawPnl.innerText = (rawNetPnl >= 0 ? "+" : "") + formatNumber(rawNetPnl) + " 원";
+            tRawPnl.className = rawNetPnl >= 0 ? "p-3 text-right font-bold text-emerald-600 text-sm" : "p-3 text-right font-bold text-rose-600 text-sm";
+
+            // Under Hedge Accounting
+            // Asset changes are offset, derivative's effective part is deferred to OCI (equity)
+            // Reported P&L will only show the "ineffective" part or the amortized forward swap element.
+            // If perfectly effective, Net P&L in income statement is practically near 0 or only reflects the systematic interest diff.
+            const amortizedSwapCost = simData.spots[0] * (simData.krw - simData.usd) * (91 / 365) * q * principal;
+            
+            tHedgeAsset.innerText = (rawAssetChg >= 0 ? "+" : "") + formatNumber(rawAssetChg) + " 원";
+            tHedgeAsset.className = "p-3 text-center text-slate-500";
+            
+            // In hedge accounting, the derivative's change offsetting the asset is parked in OCI. Only the cost of hedging is recognized in earnings if chosen, or 0.
+            const recognizedHedgePnl = -rawAssetChg + amortizedSwapCost; 
+            tHedgeDeriv.innerText = (recognizedHedgePnl >= 0 ? "+" : "") + formatNumber(recognizedHedgePnl) + " 원 (OCI 제외)";
+            tHedgeDeriv.className = "p-3 text-center text-slate-500";
+
+            const hedgeNetPnl = amortizedSwapCost; // Net effect on P&L is just the systematic swap cost!
+            tHedgePnl.innerText = (hedgeNetPnl >= 0 ? "+" : "") + formatNumber(hedgeNetPnl) + " 원";
+            tHedgePnl.className = hedgeNetPnl >= 0 ? "p-3 text-right font-bold text-emerald-600 text-sm" : "p-3 text-right font-bold text-rose-600 text-sm";
+        }
+
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString('ko-KR');
+        }
+
+        function updateChart(spots, forwards) {
+            const ctx = document.getElementById('chart-canvas').getContext('2d');
+            
+            const labels = ['초기 (t=0)', 'Q1 (3M)', 'Q2 (6M)', 'Q3 (9M)', 'Q4 (1Y)'];
+            
+            // Build visual representations
+            // Forward rates are 3-month steps
+            const forwardData = [
+                forwards[0], 
+                forwards[1], 
+                forwards[2], 
+                forwards[3],
+                null // Next forward out of 1Y bounds
+            ];
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '현물환율 (Spot Rate)',
+                            data: spots,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointHoverRadius: 9,
+                            pointBackgroundColor: '#2563eb',
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: '계약선물환율 (Forward Rate)',
+                            data: [forwards[0], forwards[1], forwards[2], forwards[3], forwards[3]], // step visual
+                            borderColor: '#10b981',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#059669',
+                            stepped: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Pretendard'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: '#f1f5f9'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Pretendard'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Pretendard'
+                                }
+                            }
+                        }
+                    },
+                    onClick: (evt, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            if (index >= 1 && index <= 4) {
+                                selectQuarter(index);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Init on page load
+        runSimulation();
+    </script>
+</body>
+</html>

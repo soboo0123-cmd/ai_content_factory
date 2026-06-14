@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .border-line { stroke: #e2e8f0; stroke-width: 1; fill: none; }
+      .node-bg-krw { fill: #eff6ff; stroke: #3b82f6; stroke-width: 2; }
+      .node-bg-usd { fill: #ecfdf5; stroke: #10b981; stroke-width: 2; }
+      .node-bg-warn { fill: #fff1f2; stroke: #f43f5e; stroke-width: 2; }
+      .node-bg-neutral { fill: #f1f5f9; stroke: #64748b; stroke-width: 2; }
+      .text-title { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #1e293b; }
+      .text-sub { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; fill: #64748b; }
+      .text-bold { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: bold; }
+      .arrow { stroke: #475569; stroke-width: 2; fill: none; stroke-dasharray: 4,4; }
+      .arrow-solid { stroke: #1e293b; stroke-width: 2; fill: none; }
+      .arrow-highlight { stroke: #3b82f6; stroke-width: 3; fill: none; }
+      .marker-cap { fill: #475569; }
+      .marker-cap-highlight { fill: #3b82f6; }
+      .badge-bg { fill: #e0f2fe; rx: 4; }
+      .badge-text { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #0369a1; text-anchor: middle; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" class="marker-cap" />
+    </marker>
+    <marker id="arrowhead-highlight" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" class="marker-cap-highlight" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" rx="12" />
+  <rect x="10" y="10" width="780" height="430" class="border-line" rx="8" />
+
+  <!-- Flow Lines Backing -->
+  <!-- Outer Loop: No-Arbitrage Flow -->
+  <path d="M 170,120 L 630,120 A 20,20 0 0 1 650,140 L 650,290 A 20,20 0 0 1 630,310 L 170,310 A 20,20 0 0 1 150,290 L 150,140 A 20,20 0 0 1 170,120 Z" class="arrow" marker-end="url(#arrowhead)" />
+
+  <!-- Node 1: KRW Borrowing (T=0) -->
+  <g transform="translate(60, 150)">
+    <rect width="180" height="80" rx="8" class="node-bg-krw" />
+    <text x="90" y="28" class="text-title" text-anchor="middle">1단계: 원화 차입</text>
+    <text x="90" y="48" class="text-sub" text-anchor="middle">한국 은행에서 조달 (T=0)</text>
+    <text x="90" y="66" class="text-bold" fill="#2563eb" text-anchor="middle">1,300,000원 (연 3.0%)</text>
+  </g>
+
+  <!-- Node 2: Spot FX Conversion (T=0) -->
+  <g transform="translate(310, 50)">
+    <rect width="180" height="80" rx="8" class="node-bg-neutral" />
+    <text x="90" y="28" class="text-title" text-anchor="middle">2단계: 현물환 환전</text>
+    <text x="90" y="48" class="text-sub" text-anchor="middle">현물환율 S = 1,300원 적용</text>
+    <text x="90" y="66" class="text-bold" fill="#475569" text-anchor="middle">1,000달러(USD) 확보</text>
+  </g>
+
+  <!-- Node 3: USD Deposit (T=0 -> T=3m) -->
+  <g transform="translate(560, 150)">
+    <rect width="180" height="80" rx="8" class="node-bg-usd" />
+    <text x="90" y="28" class="text-title" text-anchor="middle">3단계: 미국 예금</text>
+    <text x="90" y="48" class="text-sub" text-anchor="middle">미국 은행에 예치 (3개월)</text>
+    <text x="90" y="66" class="text-bold" fill="#059669" text-anchor="middle">연 5.025% 고금리 수취</text>
+  </g>
+
+  <!-- Node 4: Forward Return / Arbitrage Check (T=3m) -->
+  <g transform="translate(310, 270)">
+    <rect width="180" height="110" rx="8" class="node-bg-warn" />
+    <text x="90" y="25" class="text-title" fill="#e11d48" text-anchor="middle">4단계: 선물환 회수</text>
+    <text x="90" y="45" class="text-sub" text-anchor="middle">약정 선물환율 F에 교환</text>
+    <path x="10" y="55" width="160" height="1" class="border-line" />
+    <text x="90" y="70" class="text-bold" fill="#1e293b" text-anchor="middle">F = 1,300원 시 (불균형)</text>
+    <text x="90" y="86" class="text-bold" fill="#e11d48" text-anchor="middle">공짜 이익: +6,581원</text>
+  </g>
+
+  <!-- Center balance weight indicator -->
+  <g transform="translate(400, 205)">
+    <rect x="-100" y="-12" width="200" height="24" class="badge-bg" />
+    <text y="4" class="badge-text">만약 스왑포인트가 0이라면?</text>
+  </g>
+
+  <!-- Connection Arrows -->
+  <!-- Node 1 -> Node 2 -->
+  <path d="M 150,150 L 150,90 L 310,90" class="arrow-solid" marker-end="url(#arrowhead)" />
+  <!-- Node 2 -> Node 3 -->
+  <path d="M 490,90 L 650,90 L 650,150" class="arrow-solid" marker-end="url(#arrowhead)" />
+  <!-- Node 3 -> Node 4 -->
+  <path d="M 650,230 L 650,325 L 490,325" class="arrow-solid" marker-end="url(#arrowhead)" />
+  <!-- Node 4 -> Node 1 -->
+  <path d="M 310,325 L 150,325 L 150,230" class="arrow-highlight" marker-end="url(#arrowhead-highlight)" />
+
+  <!-- Description note on highlighted path -->
+  <text x="230" y="350" class="text-sub" font-weight="bold" fill="#2563eb" text-anchor="middle">차입 원리금 상환 후 잔여 이익 발생</text>
+</svg>

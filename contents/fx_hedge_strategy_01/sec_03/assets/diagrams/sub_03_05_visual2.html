@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>만기 사다리(Maturity Ladder) 인터랙티브 가이드</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+    <!-- Header -->
+    <div class="mb-4">
+      <h2 class="text-lg font-bold text-slate-800 mb-1">분산 만기 사다리(Maturity Ladder) 작동 인터랙티브</h2>
+      <p class="text-xs text-slate-500">시간 경과에 따라 도래한 단기 계약이 어떻게 새로운 만기 계약으로 '롤오버'되며 사다리를 이어가는지 단계별로 확인해 보세요.</p>
+    </div>
+
+    <!-- Stepper Navigation -->
+    <div class="flex justify-between border-b border-slate-100 pb-4 mb-6">
+      <button onclick="goToStep(0)" id="btn-step-0" class="flex-1 py-2 text-xs font-semibold text-center border-b-2 border-indigo-600 text-indigo-600 transition-all">시작 단계 (T=0)</button>
+      <button onclick="goToStep(1)" id="btn-step-1" class="flex-1 py-2 text-xs font-semibold text-center border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">3개월 경과 (T=3M)</button>
+      <button onclick="goToStep(2)" id="btn-step-2" class="flex-1 py-2 text-xs font-semibold text-center border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition-all">6개월 경과 (T=6M)</button>
+    </div>
+
+    <!-- Main Dynamic Display Box -->
+    <div class="bg-slate-50 border border-slate-100 rounded-xl p-5 mb-6 min-h-[160px]">
+      <h3 id="step-title" class="text-sm font-bold text-slate-800 mb-3">T=0 : 초기 포트폴리오 구축 상태</h3>
+      <p id="step-desc" class="text-xs text-slate-600 mb-5 leading-relaxed">
+        전체 대상 외화자산 $10,000,000에 대해 각각 만기가 다른 3개의 트렌치로 환선도를 체결해 만기 사다리를 최초로 세웁니다.
+      </p>
+
+      <!-- Horizontal Ladder Diagram Dynamic -->
+      <div class="grid grid-cols-4 gap-3 text-center">
+        <div id="ladder-box-0" class="p-3 bg-white border rounded-lg shadow-xs transition-all duration-300">
+          <div class="text-[10px] font-bold text-slate-400">트렌치 A (30%)</div>
+          <div id="ladder-title-0" class="text-xs font-extrabold mt-1 text-emerald-600">3M 만기</div>
+          <div id="ladder-badge-0" class="inline-block px-1.5 py-0.5 mt-1 bg-emerald-50 text-[9px] text-emerald-600 font-semibold rounded">F = 1,293.5원</div>
+        </div>
+
+        <div id="ladder-box-1" class="p-3 bg-white border rounded-lg shadow-xs transition-all duration-300">
+          <div class="text-[10px] font-bold text-slate-400">트렌치 B (40%)</div>
+          <div id="ladder-title-1" class="text-xs font-extrabold mt-1 text-amber-500">6M 만기</div>
+          <div id="ladder-badge-1" class="inline-block px-1.5 py-0.5 mt-1 bg-amber-50 text-[9px] text-amber-600 font-semibold rounded">F = 1,287.0원</div>
+        </div>
+
+        <div id="ladder-box-2" class="p-3 bg-white border rounded-lg shadow-xs transition-all duration-300">
+          <div class="text-[10px] font-bold text-slate-400">트렌치 C (30%)</div>
+          <div id="ladder-title-2" class="text-xs font-extrabold mt-1 text-violet-500">12M 만기</div>
+          <div id="ladder-badge-2" class="inline-block px-1.5 py-0.5 mt-1 bg-violet-50 text-[9px] text-violet-600 font-semibold rounded">F = 1,274.0원</div>
+        </div>
+
+        <div id="ladder-box-3" class="p-3 bg-white border rounded-lg shadow-xs transition-all border-dashed border-slate-300 flex items-center justify-center">
+          <span class="text-[10px] text-slate-400 font-medium">대기 상태</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary metrics panel -->
+    <div class="grid grid-cols-2 gap-4 bg-indigo-50/50 border border-indigo-100 rounded-xl p-4">
+      <div>
+        <div class="text-[10px] font-bold text-indigo-500">포트폴리오 평균 잔존 만기</div>
+        <div id="avg-maturity-badge" class="text-lg font-extrabold text-indigo-900 mt-0.5">6.9 개월</div>
+      </div>
+      <div>
+        <div class="text-[10px] font-bold text-indigo-500">실시간 누적 확정 현금 유출</div>
+        <div id="real-cash-badge" class="text-lg font-extrabold text-red-600 mt-0.5">0 원</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const steps = [
+      {
+        title: "T=0 : 초기 포트폴리오 구축 상태",
+        desc: "전체 자산 $10M에 대비하여 3M(30%), 6M(40%), 12M(30%) 만기를 쪼개어 균형 잡힌 환 헤지를 체결했습니다. 평균 만기는 약 6.9개월로 시작됩니다.",
+        avgMaturity: "6.9 개월",
+        cashOut: "0 원",
+        ladder: [
+          { name: "트렌치 A (30%)", sub: "3M 만기", badge: "F = 1,293.5원", style: "border-emerald-300", tColor: "text-emerald-600", bStyle: "bg-emerald-50 text-emerald-600" },
+          { name: "트렌치 B (40%)", sub: "6M 만기", badge: "F = 1,287.0원", style: "border-amber-300", tColor: "text-amber-500", bStyle: "bg-amber-50 text-amber-600" },
+          { name: "트렌치 C (30%)", sub: "12M 만기", badge: "F = 1,274.0원", style: "border-violet-300", tColor: "text-violet-500", bStyle: "bg-violet-50 text-violet-600" },
+          { empty: true }
+        ]
+      },
+      {
+        title: "T=3M : 트렌치 A 만기 및 신규 9M 롤오버",
+        desc: "3개월 차에 도달하여 트렌치 A($3M 분량)가 만기 정산되어 -0.95억 원의 현금이 유출됩니다. 정산된 트렌치 A는 12개월(T=1.00) 시점 목표에 맞춰 잔여 9개월 계약으로 롤오버됩니다.",
+        avgMaturity: "6.3 개월",
+        cashOut: "-94,500,000 원",
+        ladder: [
+          { name: "트렌치 B (40%)", sub: "잔여 3M 만기", badge: "T=6M 청산 준비", style: "border-amber-300", tColor: "text-amber-500", bStyle: "bg-amber-50 text-amber-600" },
+          { name: "트렌치 C (30%)", sub: "잔여 9M 만기", badge: "지속 유지", style: "border-violet-300", tColor: "text-violet-500", bStyle: "bg-violet-50 text-violet-600" },
+          { name: "트렌치 A (롤오버)", sub: "9M 신규 만기", badge: "F = 1,305.1원", style: "border-indigo-400 bg-indigo-50/10", tColor: "text-indigo-600", bStyle: "bg-indigo-100 text-indigo-700" },
+          { empty: true }
+        ]
+      },
+      {
+        title: "T=6M : 트렌치 B 만기 및 신규 6M 롤오버",
+        desc: "6개월 차에 도달해 기존 트렌치 B($4M 분량)가 만기 정산되어 -2.52억 원이 유출됩니다. 이후 트렌치 B는 다시 남은 6개월 만기의 선도 계약으로 롤오버해 만기 균형을 연장합니다.",
+        avgMaturity: "6.0 개월",
+        cashOut: "-346,500,000 원 (누적)",
+        ladder: [
+          { name: "트렌치 C (30%)", sub: "잔여 6M 만기", badge: "지속 유지", style: "border-violet-300", tColor: "text-violet-500", bStyle: "bg-violet-50 text-violet-600" },
+          { name: "트렌치 A (롤오버)", sub: "잔여 6M 만기", badge: "F = 1,305.1원", style: "border-indigo-300", tColor: "text-indigo-600", bStyle: "bg-indigo-50 text-indigo-600" },
+          { name: "트렌치 B (롤오버)", sub: "6M 신규 만기", badge: "F = 1,336.5원", style: "border-amber-400 bg-amber-50/10", tColor: "text-amber-600", bStyle: "bg-amber-100 text-amber-700" },
+          { empty: true }
+        ]
+      }
+    ];
+
+    function goToStep(stepIndex) {
+      // Button states
+      for (let i = 0; i < 3; i++) {
+        const btn = document.getElementById('btn-step-' + i);
+        if (i === stepIndex) {
+          btn.classList.add('border-indigo-600', 'text-indigo-600');
+          btn.classList.remove('border-transparent', 'text-slate-400');
+        } else {
+          btn.classList.remove('border-indigo-600', 'text-indigo-600');
+          btn.classList.add('border-transparent', 'text-slate-400');
+        }
+      }
+
+      // Display Texts
+      const step = steps[stepIndex];
+      document.getElementById('step-title').textContent = step.title;
+      document.getElementById('step-desc').textContent = step.desc;
+      document.getElementById('avg-maturity-badge').textContent = step.avgMaturity;
+      document.getElementById('real-cash-badge').textContent = step.cashOut;
+
+      // Draw Ladder Boxes
+      for (let j = 0; j < 4; j++) {
+        const box = document.getElementById('ladder-box-' + j);
+        const lInfo = step.ladder[j];
+
+        if (!lInfo || lInfo.empty) {
+          box.innerHTML = `<span class="text-[10px] text-slate-400 font-medium">대기 상태</span>`;
+          box.className = "p-3 bg-white border rounded-lg shadow-xs border-dashed border-slate-300 flex items-center justify-center transition-all duration-300";
+        } else {
+          box.innerHTML = `
+            <div class="text-[10px] font-bold text-slate-400">${lInfo.name}</div>
+            <div class="text-xs font-extrabold mt-1 ${lInfo.tColor}">${lInfo.sub}</div>
+            <div class="inline-block px-1.5 py-0.5 mt-1 ${lInfo.bStyle} text-[9px] font-semibold rounded">${lInfo.badge}</div>
+          `;
+          box.className = `p-3 bg-white border rounded-lg shadow-xs transition-all duration-300 ${lInfo.style}`;
+        }
+      }
+    }
+
+    goToStep(0);
+  </script>
+</body>
+</html>

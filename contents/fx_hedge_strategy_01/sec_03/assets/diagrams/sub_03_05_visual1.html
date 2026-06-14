@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>헤지 전략별 정산 현금흐름 비교 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+    <!-- Header -->
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-slate-800 mb-1">헤지 전략별 현금 정산액 대조 시뮬레이터</h2>
+      <p class="text-xs text-slate-500">외화자산의 환율 우상향 시나리오하에서 각 헤지 전략의 분기별 실물 현금 유출입을 비교해 보세요.</p>
+    </div>
+
+    <!-- Interface Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Sliders Column -->
+      <div class="md:col-span-1 space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">보유 자산 규모 ($)</label>
+          <div class="flex items-center justify-between text-xs font-bold text-blue-600 mb-1">
+            <span id="asset-val-display">$10,000,000</span>
+          </div>
+          <input id="asset-slider" type="range" min="1" max="50" value="10" step="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">초기 환율 ($S_0$, 원)</label>
+          <div class="flex items-center justify-between text-xs font-bold text-blue-600 mb-1">
+            <span id="fx-val-display">1,300 원</span>
+          </div>
+          <input id="fx-slider" type="range" min="1000" max="1500" value="1300" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">연간 내외 금리차 (KRW - USD)</label>
+          <div class="flex items-center justify-between text-xs font-bold text-red-600 mb-1">
+            <span id="ir-val-display">-2.0 %p</span>
+          </div>
+          <input id="ir-slider" type="range" min="-5" max="2" value="-2" step="0.5" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">12개월 최종 환율 (원)</label>
+          <div class="flex items-center justify-between text-xs font-bold text-slate-800 mb-1">
+            <span id="final-fx-display">1,400 원</span>
+          </div>
+          <input id="final-fx-slider" type="range" min="1200" max="1600" value="1400" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800">
+        </div>
+      </div>
+
+      <!-- Visualization Area -->
+      <div class="md:col-span-2 flex flex-col justify-between">
+        <div class="border border-slate-100 rounded-xl p-4 bg-white shadow-sm flex-1">
+          <h3 class="text-xs font-bold text-slate-700 mb-4">분기별 현금 유출액 대조 (단위: 억 원)</h3>
+          
+          <!-- Bar Graph Area -->
+          <div class="space-y-4 h-64 flex flex-col justify-around">
+            <!-- 3M Cash flow bars -->
+            <div id="timeline-chart" class="space-y-3">
+              <!-- Q1 -->
+              <div>
+                <div class="flex justify-between text-[11px] text-slate-500 mb-1">
+                  <span>3개월차 (T=0.25)</span>
+                  <span id="q1-desc" class="font-bold"></span>
+                </div>
+                <div class="h-4 flex rounded overflow-hidden bg-slate-100">
+                  <div id="q1-bar-a" class="bg-gray-400 transition-all duration-300" style="width: 25%"></div>
+                  <div id="q1-bar-b" class="bg-red-400 transition-all duration-300" style="width: 0%"></div>
+                  <div id="q1-bar-c" class="bg-indigo-500 transition-all duration-300" style="width: 8%"></div>
+                </div>
+              </div>
+
+              <!-- Q2 -->
+              <div>
+                <div class="flex justify-between text-[11px] text-slate-500 mb-1">
+                  <span>6개월차 (T=0.50)</span>
+                  <span id="q2-desc" class="font-bold"></span>
+                </div>
+                <div class="h-4 flex rounded overflow-hidden bg-slate-100">
+                  <div id="q2-bar-a" class="bg-gray-400 transition-all duration-300" style="width: 25%"></div>
+                  <div id="q2-bar-b" class="bg-red-400 transition-all duration-300" style="width: 0%"></div>
+                  <div id="q2-bar-c" class="bg-indigo-500 transition-all duration-300" style="width: 20%"></div>
+                </div>
+              </div>
+
+              <!-- Q3 -->
+              <div>
+                <div class="flex justify-between text-[11px] text-slate-500 mb-1">
+                  <span>9개월차 (T=0.75)</span>
+                  <span id="q3-desc" class="font-bold"></span>
+                </div>
+                <div class="h-4 flex rounded overflow-hidden bg-slate-100">
+                  <div id="q3-bar-a" class="bg-gray-400 transition-all duration-300" style="width: 25%"></div>
+                  <div id="q3-bar-b" class="bg-red-400 transition-all duration-300" style="width: 0%"></div>
+                  <div id="q3-bar-c" class="bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Q4 -->
+              <div>
+                <div class="flex justify-between text-[11px] text-slate-500 mb-1">
+                  <span>12개월차 (T=1.00)</span>
+                  <span id="q4-desc" class="font-bold"></span>
+                </div>
+                <div class="h-4 flex rounded overflow-hidden bg-slate-100">
+                  <div id="q4-bar-a" class="bg-gray-400 transition-all duration-300" style="width: 25%"></div>
+                  <div id="q4-bar-b" class="bg-red-400 transition-all duration-300" style="width: 80%"></div>
+                  <div id="q4-bar-c" class="bg-indigo-500 transition-all duration-300" style="width: 60%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex items-center justify-center gap-4 mt-4 pt-2 border-t border-slate-50 text-[10px]">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-2 bg-gray-400 rounded-sm"></span>
+              <span class="text-slate-600">전략 A (3M 단기롤 100%)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-2 bg-red-400 rounded-sm"></span>
+              <span class="text-slate-600">전략 B (12M 고정 100%)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-2 bg-indigo-500 rounded-sm"></span>
+              <span class="text-slate-600">전략 C (분산 만기 3:4:3)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparative Table Summary -->
+    <div class="border border-slate-100 rounded-xl overflow-hidden bg-white">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-600">
+            <th class="p-3">성과 지표 (단위: 억 원)</th>
+            <th class="p-3 text-right">전략 A (3M 단기)</th>
+            <th class="p-3 text-right">전략 B (12M 고정)</th>
+            <th class="p-3 text-right text-indigo-600">전략 C (분산 만기)</th>
+          </tr>
+        </thead>
+        <tbody class="text-xs text-slate-700 divide-y divide-slate-50">
+          <tr>
+            <td class="p-3 font-medium">최종 누적 정산 유출액</td>
+            <td id="accum-a" class="p-3 text-right font-semibold text-slate-800">0.0 억</td>
+            <td id="accum-b" class="p-3 text-right font-semibold text-slate-800">0.0 억</td>
+            <td id="accum-c" class="p-3 text-right font-semibold text-indigo-600">0.0 억</td>
+          </tr>
+          <tr>
+            <td class="p-3 font-medium">단일 시점 최대 유출 충격 (Max Drawdown)</td>
+            <td id="max-a" class="p-3 text-right text-red-500">0.0 억</td>
+            <td id="max-b" class="p-3 text-right text-red-600 font-bold">0.0 억</td>
+            <td id="max-c" class="p-3 text-right text-emerald-600 font-bold">0.0 억</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const assetSlider = document.getElementById('asset-slider');
+    const fxSlider = document.getElementById('fx-slider');
+    const irSlider = document.getElementById('ir-slider');
+    const finalFxSlider = document.getElementById('final-fx-slider');
+
+    const assetDisplay = document.getElementById('asset-val-display');
+    const fxDisplay = document.getElementById('fx-val-display');
+    const irDisplay = document.getElementById('ir-val-display');
+    const finalFxDisplay = document.getElementById('final-fx-display');
+
+    function formatKRW(valInEok) {
+      return (valInEok).toFixed(2) + "억 원";
+    }
+
+    function calculate() {
+      const asset = parseFloat(assetSlider.value) * 1000000; // in USD
+      const S0 = parseFloat(fxSlider.value);
+      const irDiff = parseFloat(irSlider.value) / 100.0;
+      const S12 = parseFloat(finalFxSlider.value);
+
+      // Interpolate FX Path
+      const S3 = S0 + (S12 - S0) * 0.25;
+      const S6 = S0 + (S12 - S0) * 0.50;
+      const S9 = S0 + (S12 - S0) * 0.75;
+
+      // Swap Rates
+      const sr12 = irDiff;
+      const sr9 = irDiff * 0.75;
+      const sr6 = irDiff * 0.50;
+      const sr3 = irDiff * 0.25;
+
+      // 1. Strategy A: 3M Rollovers
+      const F0_a = S0 * (1 + sr3);
+      const CF3_a = (F0_a - S3) * asset;
+
+      const F3_a = S3 * (1 + sr3);
+      const CF6_a = (F3_a - S6) * asset;
+
+      const F6_a = S6 * (1 + sr3);
+      const CF9_a = (F6_a - S9) * asset;
+
+      const F9_a = S9 * (1 + sr3);
+      const CF12_a = (F9_a - S12) * asset;
+
+      const accum_a = (CF3_a + CF6_a + CF9_a + CF12_a) / 100000000.0; // to eok
+      const max_a = Math.min(CF3_a, CF6_a, CF9_a, CF12_a) / 100000000.0;
+
+      // 2. Strategy B: 12M Fixed
+      const F0_b = S0 * (1 + sr12);
+      const CF12_b = (F0_b - S12) * asset;
+      const accum_b = CF12_b / 100000000.0;
+      const max_b = CF12_b / 100000000.0;
+
+      // 3. Strategy C: Staggered (3:4:3)
+      const assetA = asset * 0.3;
+      const assetB = asset * 0.4;
+      const assetC = asset * 0.3;
+
+      // Initial contracts
+      const F0_3M = S0 * (1 + sr3);
+      const F0_6M = S0 * (1 + sr6);
+      const F0_12M = S0 * (1 + sr12);
+
+      // T=0.25: Tranche A matures
+      const CF3_c = (F0_3M - S3) * assetA;
+      // Re-enter 9M contract
+      const F3_new = S3 * (1 + sr9);
+
+      // T=0.50: Tranche B matures
+      const CF6_c = (F0_6M - S6) * assetB;
+      // Re-enter 6M contract
+      const F6_new = S6 * (1 + sr6);
+
+      // T=0.75: No matures
+      const CF9_c = 0.0;
+
+      // T=1.00: All mature
+      const CF12_c_trancheA = (F3_new - S12) * assetA;
+      const CF12_c_trancheB = (F6_new - S12) * assetB;
+      const CF12_c_trancheC = (F0_12M - S12) * assetC;
+      const CF12_c = CF12_c_trancheA + CF12_c_trancheB + CF12_c_trancheC;
+
+      const accum_c = (CF3_c + CF6_c + CF9_c + CF12_c) / 100000000.0;
+      const max_c = Math.min(CF3_c, CF6_c, CF9_c, CF12_c) / 100000000.0;
+
+      // Update Slider Display Text
+      assetDisplay.textContent = "$" + (asset/1000000).toFixed(0) + ",000,000";
+      fxDisplay.textContent = S0.toLocaleString() + " 원";
+      irDisplay.textContent = (irDiff*100).toFixed(1) + " %p";
+      finalFxDisplay.textContent = S12.toLocaleString() + " 원";
+
+      // Display Descriptions of cashflows per period
+      document.getElementById('q1-desc').textContent = `A: ${Math.abs(CF3_a/1e8).toFixed(1)}억 / B: 0 / C: ${Math.abs(CF3_c/1e8).toFixed(1)}억`;
+      document.getElementById('q2-desc').textContent = `A: ${Math.abs(CF6_a/1e8).toFixed(1)}억 / B: 0 / C: ${Math.abs(CF6_c/1e8).toFixed(1)}억`;
+      document.getElementById('q3-desc').textContent = `A: ${Math.abs(CF9_a/1e8).toFixed(1)}억 / B: 0 / C: 0`;
+      document.getElementById('q4-desc').textContent = `A: ${Math.abs(CF12_a/1e8).toFixed(1)}억 / B: ${Math.abs(CF12_b/1e8).toFixed(1)}억 / C: ${Math.abs(CF12_c/1e8).toFixed(1)}억`;
+
+      // Update Bars (Width relative to maximum absolute value generated across entire scenarios)
+      const absMax = Math.max(Math.abs(CF12_b), Math.abs(CF12_a), Math.abs(CF6_a), Math.abs(CF12_c));
+      const getW = (v) => absMax === 0 ? 0 : (Math.abs(v) / absMax * 100).toFixed(1) + "%";
+
+      document.getElementById('q1-bar-a').style.width = getW(CF3_a);
+      document.getElementById('q1-bar-b').style.width = getW(0);
+      document.getElementById('q1-bar-c').style.width = getW(CF3_c);
+
+      document.getElementById('q2-bar-a').style.width = getW(CF6_a);
+      document.getElementById('q2-bar-b').style.width = getW(0);
+      document.getElementById('q2-bar-c').style.width = getW(CF6_c);
+
+      document.getElementById('q3-bar-a').style.width = getW(CF9_a);
+      document.getElementById('q3-bar-b').style.width = getW(0);
+      document.getElementById('q3-bar-c').style.width = getW(0);
+
+      document.getElementById('q4-bar-a').style.width = getW(CF12_a);
+      document.getElementById('q4-bar-b').style.width = getW(CF12_b);
+      document.getElementById('q4-bar-c').style.width = getW(CF12_c);
+
+      // Update Summary Table
+      document.getElementById('accum-a').textContent = (accum_a).toFixed(2) + " 억 원";
+      document.getElementById('accum-b').textContent = (accum_b).toFixed(2) + " 억 원";
+      document.getElementById('accum-c').textContent = (accum_c).toFixed(2) + " 억 원";
+
+      document.getElementById('max-a').textContent = (max_a).toFixed(2) + " 억 원";
+      document.getElementById('max-b').textContent = (max_b).toFixed(2) + " 억 원";
+      document.getElementById('max-c').textContent = (max_c).toFixed(2) + " 억 원";
+    }
+
+    [assetSlider, fxSlider, irSlider, finalFxSlider].forEach(slider => {
+      slider.addEventListener('input', calculate);
+    });
+
+    calculate();
+  </script>
+</body>
+</html>

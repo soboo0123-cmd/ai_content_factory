@@ -1,20 +1,20 @@
 * [🏠 환 헤지 전략 재검토를 위한 해설서](home.md)
 
 * **1장. 환 헤지란 무엇인가**
-  * [1.1 해외 채권 투자 시 환 위험의 본질](contents/fx_hedge_strategy_01/sec_01/sub_01_01_v1.md)
-  * [1.2 선물환 매도를 통한 헤지 메커니즘](contents/fx_hedge_strategy_01/sec_01/sub_01_02_v1.md)
+  * [1.1 해외 채권 투자 시 환 위험의 본질](contents/fx_hedge_strategy_01/sec_01/sub_01_01_final.md)
+  * [1.2 선물환 매도를 통한 헤지 메커니즘](contents/fx_hedge_strategy_01/sec_01/sub_01_02_final.md)
 
 * **2장. 헤지 비용의 구조: 스왑포인트**
-  * [2.1 스왑포인트의 정의](contents/fx_hedge_strategy_01/sec_02/sub_02_01_v1.md)
-  * [2.2 금리평가이론(IRP)으로 설명하는 스왑포인트](contents/fx_hedge_strategy_01/sec_02/sub_02_02_v1.md)
-  * [2.3 실제 헤지 비용에 영향을 미치는 세 가지 요인](contents/fx_hedge_strategy_01/sec_02/sub_02_03_v1.md)
+  * [2.1 스왑포인트의 정의](contents/fx_hedge_strategy_01/sec_02/sub_02_01_final.md)
+  * [2.2 금리평가이론(IRP)으로 설명하는 스왑포인트](contents/fx_hedge_strategy_01/sec_02/sub_02_02_final.md)
+  * [2.3 실제 헤지 비용에 영향을 미치는 세 가지 요인](contents/fx_hedge_strategy_01/sec_02/sub_02_03_final.md)
 
 * **3장. 헤지 기간과 롤오버**
-  * [3.1 자산 만기와 헤지 계약 만기의 구조적 미스매치](contents/fx_hedge_strategy_01/sec_03/sub_03_01_v1.md)
-  * [3.2 롤오버의 개념과 비용 발생 원리](contents/fx_hedge_strategy_01/sec_03/sub_03_02_v1.md)
-  * [3.3 롤오버 시 고정 환율의 재결정](contents/fx_hedge_strategy_01/sec_03/sub_03_03_v1.md)
-  * [3.4 롤오버 주기 선택의 트레이드오프](contents/fx_hedge_strategy_01/sec_03/sub_03_04_v1.md)
-  * [3.5 분산 만기(Staggered Maturity) 전략](contents/fx_hedge_strategy_01/sec_03/sub_03_05_v1.md)
+  * [3.1 자산 만기와 헤지 계약 만기의 구조적 미스매치](contents/fx_hedge_strategy_01/sec_03/sub_03_01_final.md)
+  * [3.2 롤오버의 개념과 비용 발생 원리](contents/fx_hedge_strategy_01/sec_03/sub_03_02_final.md)
+  * [3.3 롤오버 시 고정 환율의 재결정](contents/fx_hedge_strategy_01/sec_03/sub_03_03_final.md)
+  * [3.4 롤오버 주기 선택의 트레이드오프](contents/fx_hedge_strategy_01/sec_03/sub_03_04_final.md)
+  * [3.5 분산 만기(Staggered Maturity) 전략](contents/fx_hedge_strategy_01/sec_03/sub_03_05_final.md)
 
 * **4장. 헤지와 회계 처리**
   * [4.1 결산 시점의 선물환 평가손익 처리](contents/fx_hedge_strategy_01/sec_04/sub_04_01_v1.md)

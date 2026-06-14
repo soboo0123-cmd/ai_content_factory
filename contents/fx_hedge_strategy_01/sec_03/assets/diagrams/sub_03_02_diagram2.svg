@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8fafc" rx="12"/>
+  
+  <!-- Outer Border -->
+  <rect x="2" y="2" width="796" height="356" fill="none" stroke="#e2e8f0" stroke-width="2" rx="12"/>
+
+  <!-- Timeline Axis -->
+  <line x1="80" y1="200" x2="720" y2="200" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="720,195 735,200 720,205" fill="#94a3b8"/>
+  <text x="735" y="225" fill="#64748b" font-family="'Pretendard', 'Inter', sans-serif" font-size="12" font-weight="bold" text-anchor="middle">시간 (Time)</text>
+
+  <!-- Point t = 0 -->
+  <circle cx="120" cy="200" r="6" fill="#3b82f6" stroke="#ffffff" stroke-width="2"/>
+  <text x="120" y="230" fill="#334155" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" font-weight="bold" text-anchor="middle">t = 0 (초기 투자)</text>
+  <text x="120" y="170" fill="#2563eb" font-family="'Pretendard', 'Inter', sans-serif" font-size="12" font-weight="bold" text-anchor="middle">환 헤지 개시</text>
+
+  <!-- Point t = 1 (Rollover) -->
+  <circle cx="360" cy="200" r="8" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+  <text x="360" y="230" fill="#334155" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" font-weight="bold" text-anchor="middle">t = 1 (롤오버)</text>
+  
+  <!-- Box above t = 1 (Temporary Deferral) -->
+  <rect x="250" y="50" width="220" height="90" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="360" y="75" fill="#991b1b" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" font-weight="bold" text-anchor="middle">정산 손익 발생 (-8억 원)</text>
+  <line x1="265" y1="85" x2="455" y2="85" stroke="#fca5a5" stroke-width="1"/>
+  <text x="360" y="105" fill="#475569" font-family="'Pretendard', 'Inter', sans-serif" font-size="11" text-anchor="middle">당기손익(P&amp;L) 반영 금지</text>
+  <text x="360" y="125" fill="#b91c1c" font-family="'Pretendard', 'Inter', sans-serif" font-size="12" font-weight="bold" text-anchor="middle">기타포괄손익(OCI) 자본 이연</text>
+
+  <!-- Flow Arrow from t=1 to Box, and Box to t=T -->
+  <path d="M 360 190 L 360 148" fill="none" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+  <!-- Point t = T (Asset Disposal) -->
+  <circle cx="640" cy="200" r="6" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
+  <text x="640" y="230" fill="#334155" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" font-weight="bold" text-anchor="middle">t = T (최종 만기)</text>
+  
+  <!-- Box above t = T (Reclassification) -->
+  <rect x="530" y="50" width="220" height="90" rx="6" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5"/>
+  <text x="640" y="75" fill="#065f46" font-family="'Pretendard', 'Inter', sans-serif" font-size="13" font-weight="bold" text-anchor="middle">외화 자산 매각/정산 완료</text>
+  <line x1="545" y1="85" x2="735" y2="85" stroke="#a7f3d0" stroke-width="1"/>
+  <text x="640" y="105" fill="#475569" font-family="'Pretendard', 'Inter', sans-serif" font-size="11" text-anchor="middle">자본에 이연되었던 누적 손익을</text>
+  <text x="640" y="125" fill="#047857" font-family="'Pretendard', 'Inter', sans-serif" font-size="12" font-weight="bold" text-anchor="middle">당기손익(P&amp;L)으로 재분류 조정</text>
+
+  <!-- Path showing transfer of OCI to P&L at T -->
+  <path d="M 478 95 L 522 95" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="3 3"/>
+  <polygon points="518,91 528,95 518,99" fill="#10b981"/>
+
+  <!-- Markers -->
+  <defs>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+    </marker>
+  </defs>
+</svg>

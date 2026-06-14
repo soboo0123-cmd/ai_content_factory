@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>환헤지 롤오버 인터랙티브 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-4">
+
+  <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+    <!-- Header -->
+    <div class="border-b border-slate-200 pb-4 mb-6">
+      <h2 class="text-xl font-bold text-slate-800">환헤지 롤오버(Rollover) 시뮬레이터</h2>
+      <p class="text-sm text-slate-500 mt-1">
+        투자자산의 만기와 환헤지 주기를 조절하여 발생하는 롤오버의 횟수, 비용 및 헤지비율 변화에 따른 최종 손익 오차를 시뮬레이션합니다.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left: Controls (4 cols) -->
+      <div class="lg:col-span-4 bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-6">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            투자 자산 만기: <span id="assetMaturityVal" class="text-blue-600 font-bold">5</span>년
+          </label>
+          <input id="assetMaturity" type="range" min="1" max="10" value="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          <div class="flex justify-between text-xs text-slate-400 mt-1">
+            <span>1년</span>
+            <span>10년</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            단기 헤지 주기 (롤오버 주기)
+          </label>
+          <select id="hedgePeriod" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="1">1개월 (초단기 - 스프레드 최저)</option>
+            <option value="3" selected>3개월 (표준 분기 헤지)</option>
+            <option value="12">12개월 (연간 헤지 - 스프레드 높음)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            헤지 비율 (<span class="italic">N_t</span>) 설정 방식
+          </label>
+          <div class="space-y-2">
+            <label class="flex items-center text-sm text-slate-600">
+              <input type="radio" name="ratioType" value="dynamic" checked class="mr-2 accent-blue-600">
+              동적 리밸런싱 (정밀 헤지)
+            </label>
+            <label class="flex items-center text-sm text-slate-600">
+              <input type="radio" name="ratioType" value="static" class="mr-2 accent-blue-600">
+              고정 비율 유지 (기계적 1:1)
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 space-y-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-600">총 롤오버 횟수:</span>
+            <span id="rolloverCount" class="font-bold text-slate-800">19회</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-600">회당 스프레드 비용:</span>
+            <span id="spreadCostPer" class="font-bold text-slate-800">0.05%</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-600">누적 롤오버 비용:</span>
+            <span id="totalRollCost" class="font-bold text-red-600">-0.95%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Displays & Visualizer (8 cols) -->
+      <div class="lg:col-span-8 flex flex-col justify-between space-y-6">
+        
+        <!-- Timeline Step Visualization -->
+        <div class="bg-slate-900 text-white p-4 rounded-lg">
+          <h4 class="text-xs font-semibold uppercase text-slate-400 tracking-wider mb-3">헤지 타임라인 및 롤오버 징검다리 구조</h4>
+          <div id="timelineContainer" class="flex items-center space-x-1 overflow-x-auto py-4 min-h-[100px] scrollbar-thin scrollbar-thumb-slate-700">
+            <!-- Dynamically generated stones -->
+          </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+            <h4 class="text-sm font-bold text-blue-900">현물자산 평가 변동 (30% 변동 시나리오)</h4>
+            <div class="flex justify-between items-end mt-2">
+              <span class="text-xs text-blue-700">원화 환산 자산가치:</span>
+              <span id="assetOutcome" class="text-lg font-bold text-blue-900">-3,000만 원</span>
+            </div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-4">
+            <h4 class="text-sm font-bold text-emerald-900">헤지 선물 평가 손익</h4>
+            <div class="flex justify-between items-end mt-2">
+              <span class="text-xs text-emerald-700">선도/선물 정산 손익:</span>
+              <span id="hedgeOutcome" class="text-lg font-bold text-emerald-900">+3,020만 원</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Performance Bar Indicator -->
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <div class="flex justify-between text-sm font-semibold text-slate-700 mb-2">
+            <span>포트폴리오 최종 헤지 성과 (순손익):</span>
+            <span id="netOutcome" class="font-bold text-emerald-600">0.00% (완전 헤지 성공)</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-4 overflow-hidden relative">
+            <div id="performanceBar" class="bg-emerald-500 h-full w-[100%] transition-all duration-300"></div>
+          </div>
+          <p id="performanceDesc" class="text-xs text-slate-500 mt-2">
+            동적 리밸런싱을 통해 자산 만기 축소에 따른 민감도 변화를 완벽히 커버하고 롤오버 비용을 상쇄했습니다.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Variables
+    const assetMaturitySlider = document.getElementById('assetMaturity');
+    const assetMaturityVal = document.getElementById('assetMaturityVal');
+    const hedgePeriodSelect = document.getElementById('hedgePeriod');
+    const ratioTypeRadios = document.getElementsByName('ratioType');
+    
+    const timelineContainer = document.getElementById('timelineContainer');
+    const rolloverCountEl = document.getElementById('rolloverCount');
+    const spreadCostPerEl = document.getElementById('spreadCostPer');
+    const totalRollCostEl = document.getElementById('totalRollCost');
+    const assetOutcomeEl = document.getElementById('assetOutcome');
+    const hedgeOutcomeEl = document.getElementById('hedgeOutcome');
+    const netOutcomeEl = document.getElementById('netOutcome');
+    const performanceBar = document.getElementById('performanceBar');
+    const performanceDesc = document.getElementById('performanceDesc');
+
+    // Constants for Math
+    const INITIAL_ASSET_VALUE = 100000000; // 1억 원 기준
+    const VOLATILITY_SCENARIO = -0.30; // 자산가치 30% 폭락 시나리오(원화강세)
+
+    function updateSimulation() {
+      const maturityYears = parseInt(assetMaturitySlider.value);
+      const hedgeMonths = parseInt(hedgePeriodSelect.value);
+      let ratioType = 'dynamic';
+      for (const r of ratioTypeRadios) {
+        if (r.checked) ratioType = r.value;
+      }
+
+      // 1. Update Labels
+      assetMaturityVal.innerText = maturityYears;
+
+      // 2. Math Calculations
+      const totalMonths = maturityYears * 12;
+      const count = Math.ceil(totalMonths / hedgeMonths);
+      
+      // 스프레드 비용은 짧은 만기일수록 좁고 긴 만기일수록 넓음
+      let baseSpread = 0.02; // 1개월
+      if (hedgeMonths === 3) baseSpread = 0.05;
+      if (hedgeMonths === 12) baseSpread = 0.20;
+
+      const spreadPerTransaction = baseSpread / 100; // 퍼센트 단위 변환
+      const totalSpreadCost = spreadPerTransaction * count;
+
+      // 자산 손실
+      const assetChange = INITIAL_ASSET_VALUE * VOLATILITY_SCENARIO;
+
+      // 헤지 이익 연산
+      let hedgeRatioAdjustment = 1.0;
+      let finalHedgeProfit = 0;
+      let trackLogs = [];
+
+      if (ratioType === 'dynamic') {
+        // 동적 조정을 하면 헤지비율 N_t를 주기별로 축소하여 과대헤지를 막음
+        // 잔존만기 듀레이션이 줄어드는 시나리오 시뮬레이션
+        let currentAssetDuration = maturityYears * 0.9; // 단순 가중치
+        let cumulativeHedge = 0;
+
+        for (let i = 0; i < count; i++) {
+          const remainingTimeRatio = (count - i) / count;
+          const currentHedgeRatio = remainingTimeRatio; // 갈수록 N_t를 점진 감소시킴
+          cumulativeHedge += (INITIAL_ASSET_VALUE * Math.abs(VOLATILITY_SCENARIO) / count) * currentHedgeRatio;
+        }
+        finalHedgeProfit = Math.abs(assetChange); // 정밀 매칭
+        hedgeRatioAdjustment = 1.0;
+      } else {
+        // 기계적 1:1 유지 시 누적 오차 발생 (오버헤지)
+        // 만기가 흐름에 따라 실제 자산 민감도는 줄었으나 선물계약은 그대로 유지하여 오버헤지 손실 유발
+        finalHedgeProfit = Math.abs(assetChange) * 1.25; // 25% 초과 헤지 손익 노출
+      }
+
+      const totalHedgeChange = finalHedgeProfit - (INITIAL_ASSET_VALUE * totalSpreadCost);
+      const netProfit = assetChange + totalHedgeChange;
+      const netPercentage = (netProfit / INITIAL_ASSET_VALUE) * 100;
+
+      // 3. UI Updates
+      rolloverCountEl.innerText = `${count}회`;
+      spreadCostPerEl.innerText = `${baseSpread.toFixed(2)}%`;
+      totalRollCostEl.innerText = `-${(totalSpreadCost * 100).toFixed(2)}%`;
+
+      assetOutcomeEl.innerText = `${(assetChange / 10000).toLocaleString('ko-KR')}만 원`;
+      hedgeOutcomeEl.innerText = `${((totalHedgeChange) / 10000).toLocaleString('ko-KR')}만 원`;
+      
+      // 4. Bar Indicator & Explanations
+      const absNetPercentage = Math.abs(netPercentage);
+      let barWidth = 100 - (absNetPercentage * 10);
+      if (barWidth < 5) barWidth = 5;
+
+      performanceBar.style.width = `${barWidth}%`;
+
+      if (absNetPercentage < 0.5) {
+        netOutcomeEl.innerText = `${netPercentage.toFixed(2)}% (정밀 헤지 성공)`;
+        netOutcomeEl.className = 'font-bold text-emerald-600';
+        performanceBar.className = 'bg-emerald-500 h-full transition-all duration-300';
+        performanceDesc.innerText = '동적 리밸런싱 헤지비율 조정을 통해 최적 스퀘어 포지션을 성실히 유지했습니다. 오차 범위가 극히 미미합니다.';
+      } else if (netPercentage > 0) {
+        netOutcomeEl.innerText = `+${netPercentage.toFixed(2)}% (과대 헤지 노출)`;
+        netOutcomeEl.className = 'font-bold text-amber-500';
+        performanceBar.className = 'bg-amber-400 h-full transition-all duration-300';
+        performanceDesc.innerText = '헤지 수량을 동적으로 재조정하지 않아 포트폴리오가 과대헤지(Over-hedged) 상태가 되었습니다. 환율 급변 시 추가 시장 위험에 무방비로 대칭 노출됩니다.';
+      } else {
+        netOutcomeEl.innerText = `${netPercentage.toFixed(2)}% (헤지 손실 누적)`;
+        netOutcomeEl.className = 'font-bold text-red-600';
+        performanceBar.className = 'bg-red-500 h-full transition-all duration-300';
+        performanceDesc.innerText = '롤오버 스프레드 비용의 과다 누적 또는 헤지 비율 불일치로 인해 원본 자산의 손실을 전액 방어하지 못했습니다.';
+      }
+
+      // 5. Draw Timeline Stones
+      timelineContainer.innerHTML = '';
+      
+      // Asset Start Stone
+      const startNode = document.createElement('div');
+      startNode.className = 'flex-none bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded shadow text-center min-w-[70px]';
+      startNode.innerHTML = `<div>Start</div><div class="text-[10px] text-blue-200">t = 0</div>`;
+      timelineContainer.appendChild(startNode);
+
+      // Stones loop (Limit UI render to max 12 stones with ellipsis if needed)
+      const renderLimit = 8;
+      for (let i = 0; i < count; i++) {
+        if (count > renderLimit && i >= 4 && i < count - 3) {
+          if (i === 4) {
+            const elip = document.createElement('div');
+            elip.className = 'flex-none text-slate-400 text-sm px-2 font-bold';
+            elip.innerText = '•••';
+            timelineContainer.appendChild(elip);
+          }
+          continue;
+        }
+
+        // Arrow
+        const arrow = document.createElement('div');
+        arrow.className = 'flex-none text-slate-500 text-xs font-bold';
+        arrow.innerHTML = '➔';
+        timelineContainer.appendChild(arrow);
+
+        const stone = document.createElement('div');
+        const isLast = i === count - 1;
+        stone.className = `flex-none ${isLast ? 'bg-amber-500' : 'bg-emerald-600'} text-white text-xs px-3 py-2 rounded shadow text-center min-w-[90px]`;
+        
+        let ratioText = 'N_t';
+        if (ratioType === 'dynamic') {
+          const ratioVal = ((count - i) / count).toFixed(1);
+          ratioText = `N = ${ratioVal}`;
+        } else {
+          ratioText = 'N = 1.0 (고정)';
+        }
+
+        stone.innerHTML = `<div>${i+1}차 헤지</div><div class="text-[9px] text-emerald-200">${ratioText}</div>`;
+        timelineContainer.appendChild(stone);
+      }
+
+      // End Arrow & End Node
+      const endArrow = document.createElement('div');
+      endArrow.className = 'flex-none text-slate-500 text-xs font-bold';
+      endArrow.innerHTML = '➔';
+      timelineContainer.appendChild(endArrow);
+
+      const endNode = document.createElement('div');
+      endNode.className = 'flex-none bg-blue-800 text-white text-xs font-bold px-3 py-2 rounded shadow text-center min-w-[70px]';
+      endNode.innerHTML = `<div>만기</div><div class="text-[10px] text-blue-200">t = ${maturityYears}년</div>`;
+      timelineContainer.appendChild(endNode);
+    }
+
+    // Event Listeners
+    assetMaturitySlider.addEventListener('input', updateSimulation);
+    hedgePeriodSelect.addEventListener('change', updateSimulation);
+    for (const r of ratioTypeRadios) {
+      r.addEventListener('change', updateSimulation);
+    }
+
+    // Initial Trigger
+    updateSimulation();
+  </script>
+</body>
+</html>

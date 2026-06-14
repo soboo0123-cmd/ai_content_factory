@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선물환 헤지 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-slate-100 p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-slate-100">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">선물환 매도 헤지 시뮬레이터</h2>
+                <p class="text-sm text-slate-500">만기 환율 변동에 따른 채권 가치와 선물환 손익의 상쇄 메커니즘을 확인해 보세요.</p>
+            </div>
+            <div class="mt-2 md:mt-0 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                원리금 합계: $1,050
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 입력 컨트롤러 -->
+            <div class="space-y-5 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1 flex justify-between">
+                        <span>초기 환율 (S₀)</span>
+                        <span class="text-blue-600 font-bold" id="s0-val">1,300원</span>
+                    </label>
+                    <input type="range" id="s0" min="1100" max="1500" step="10" value="1300" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1 flex justify-between">
+                        <span>약정 선물환율 (F₀)</span>
+                        <span class="text-indigo-600 font-bold" id="f0-val">1,300원</span>
+                    </label>
+                    <input type="range" id="f0" min="1100" max="1500" step="10" value="1300" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1 flex justify-between">
+                        <span>만기 시점 환율 (S₁)</span>
+                        <span class="text-emerald-600 font-bold" id="s1-val">1,235원</span>
+                    </label>
+                    <input type="range" id="s1" min="1100" max="1500" step="10" value="1235" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                </div>
+
+                <div class="pt-2 border-t border-slate-200 text-xs text-slate-500 space-y-1">
+                    <p>• 초기 원화 투자금: <span id="init-krw" class="font-semibold text-slate-700">1,300,000원</span></p>
+                    <p>• 채권 달러 수익률: <span class="font-semibold text-slate-700">연 5.0%</span></p>
+                </div>
+            </div>
+
+            <!-- 그래프 영역 -->
+            <div class="md:col-span-2 h-[260px] relative">
+                <canvas id="hedgeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 실시간 정산 지표 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+            <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                <p class="text-xs text-blue-600 font-medium">A. 채권 회수 원화 가치</p>
+                <p class="text-lg font-bold text-blue-900 mt-1" id="val-a">1,296,750원</p>
+                <p class="text-xs text-blue-500 mt-0.5">$1,050 × S₁</p>
+            </div>
+            <div class="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
+                <p class="text-xs text-indigo-600 font-medium">B. 선물환 계약 손익</p>
+                <p class="text-lg font-bold text-indigo-900 mt-1" id="val-b">+68,250원</p>
+                <p class="text-xs text-indigo-500 mt-0.5">$1,050 × (F₀ - S₁)</p>
+            </div>
+            <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                <p class="text-xs text-emerald-600 font-medium">최종 합산 회수금 (A + B)</p>
+                <p class="text-lg font-bold text-emerald-900 mt-1" id="val-total">1,365,000원</p>
+                <p class="text-xs text-emerald-700 mt-0.5">최종 원화 수익률: <span id="final-roi" class="font-bold">+5.00%</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('hedgeChart').getContext('2d');
+        
+        // 데이터 및 컨트롤 선언
+        const s0Input = document.getElementById('s0');
+        const f0Input = document.getElementById('f0');
+        const s1Input = document.getElementById('s1');
+
+        const s0Val = document.getElementById('s0-val');
+        const f0Val = document.getElementById('f0-val');
+        const s1Val = document.getElementById('s1-val');
+
+        const initKrwEl = document.getElementById('init-krw');
+        const valAEl = document.getElementById('val-a');
+        const valBEl = document.getElementById('val-b');
+        const valTotalEl = document.getElementById('val-total');
+        const finalRoiEl = document.getElementById('final-roi');
+
+        const usdAmount = 1050; // 원리금 합계
+
+        // 차트 인스턴스 초기화
+        let chart;
+
+        function formatNum(num) {
+            return new Intl.NumberFormat('ko-KR').format(Math.round(num)) + '원';
+        }
+
+        function calculateData() {
+            const s0 = parseFloat(s0Input.value);
+            const f0 = parseFloat(f0Input.value);
+            const s1 = parseFloat(s1Input.value);
+
+            s0Val.innerText = s0 + '원';
+            f0Val.innerText = f0 + '원';
+            s1Val.innerText = s1 + '원';
+
+            const initKrw = 1000 * s0;
+            initKrwEl.innerText = formatNum(initKrw);
+
+            const valA = usdAmount * s1;
+            const valB = usdAmount * (f0 - s1);
+            const total = valA + valB;
+            const roi = ((total - initKrw) / initKrw) * 100;
+
+            valAEl.innerText = formatNum(valA);
+            valBEl.innerText = (valB >= 0 ? '+' : '') + formatNum(valB);
+            valTotalEl.innerText = formatNum(total);
+            
+            finalRoiEl.innerText = (roi >= 0 ? '+' : '') + roi.toFixed(2) + '%';
+            if(roi < 5.0) {
+                finalRoiEl.className = "font-bold text-red-600";
+            } else if (roi > 5.0) {
+                finalRoiEl.className = "font-bold text-blue-600";
+            } else {
+                finalRoiEl.className = "font-bold text-emerald-600";
+            }
+
+            // 차트 데이터 갱신을 위한 범위 설정 (S1 변동범위 1100원~1500원)
+            const labelRange = [];
+            const dataA = [];
+            const dataB = [];
+            const dataTotal = [];
+
+            for (let i = 1100; i <= 1500; i += 50) {
+                labelRange.push(i + '원');
+                dataA.push(usdAmount * i);
+                dataB.push(usdAmount * (f0 - i));
+                dataTotal.push(usdAmount * i + usdAmount * (f0 - i));
+            }
+
+            return { labelRange, dataA, dataB, dataTotal, s1, valA, valB, total };
+        }
+
+        function updateChart() {
+            const { labelRange, dataA, dataB, dataTotal, s1, valA, valB, total } = calculateData();
+
+            chart.data.labels = labelRange;
+            chart.data.datasets[0].data = dataA;
+            chart.data.datasets[1].data = dataB;
+            chart.data.datasets[2].data = dataTotal;
+
+            // 현재 S1 위치 표시용 더미 데이터 설정
+            const s1Index = (s1 - 1100) / 50;
+            chart.data.datasets[3].data = Array(9).fill(null);
+            chart.data.datasets[3].data[s1Index] = total;
+
+            chart.update();
+        }
+
+        // 최초 차트 생성
+        const initialData = calculateData();
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: initialData.labelRange,
+                datasets: [
+                    {
+                        label: '채권 원화 가치 (A)',
+                        data: initialData.dataA,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.1
+                    },
+                    {
+                        label: '선물환 손익 (B)',
+                        data: initialData.dataB,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        borderDash: [5, 5],
+                        tension: 0.1
+                    },
+                    {
+                        label: '합산 최종 가치 (A+B)',
+                        data: initialData.dataTotal,
+                        borderColor: '#10b981',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.1
+                    },
+                    {
+                        label: '현재 상태',
+                        data: [],
+                        borderColor: '#e11d48',
+                        backgroundColor: '#e11d48',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        showLine: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            font: { size: 10 },
+                            callback: function(value) {
+                                return value.toLocaleString() + '원';
+                            }
+                        },
+                        grid: {
+                            color: '#f1f5f9'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { size: 10 }
+                        },
+                        grid: {
+                            color: '#f1f5f9'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 이벤트 리스너 연결
+        s0Input.addEventListener('input', updateChart);
+        f0Input.addEventListener('input', updateChart);
+        s1Input.addEventListener('input', updateChart);
+
+        updateChart();
+    </script>
+</body>
+</html>

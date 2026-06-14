@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>롤오버 환율 단계적 상승 및 누적 효과 시뮬레이터</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+        .step-transition {
+            transition: all 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-6 flex justify-center items-center min-h-[650px]">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 w-full max-w-5xl">
+        <!-- Header -->
+        <div class="border-b border-slate-100 pb-4 mb-6">
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md text-sm">3.3절</span>
+                롤오버 환율 단계적 상승(Step-up) & 상쇄 효과 시뮬레이터
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">
+                사용자가 시간축에 따른 시나리오를 넘기며, 시장환율 변동에 따라 롤오버 약정 환율이 재설정되는 경로와 최종 현금흐름의 수학적 상쇄를 실시간 관측합니다.
+            </p>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left Panel: Interactive Controller and Core Board -->
+            <div class="lg:col-span-4 flex flex-col justify-between bg-slate-50 rounded-xl p-5 border border-slate-100">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-700 mb-4">📊 시나리오 제어판</h2>
+                    
+                    <!-- Steps Buttons -->
+                    <div class="grid grid-cols-4 gap-2 mb-6">
+                        <button onclick="setStep(0)" id="btn-step-0" class="py-2.5 rounded-lg text-xs font-bold step-transition bg-indigo-600 text-white shadow-md">T = 0<br><span class="font-normal">최초 계약</span></button>
+                        <button onclick="setStep(1)" id="btn-step-1" class="py-2.5 rounded-lg text-xs font-bold step-transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-100">T = 1<br><span class="font-normal">1차 롤오버</span></button>
+                        <button onclick="setStep(2)" id="btn-step-2" class="py-2.5 rounded-lg text-xs font-bold step-transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-100">T = 2<br><span class="font-normal">2차 롤오버</span></button>
+                        <button onclick="setStep(3)" id="btn-step-3" class="py-2.5 rounded-lg text-xs font-bold step-transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-100">T = 3<br><span class="font-normal">만기 정산</span></button>
+                    </div>
+
+                    <!-- Conditions Summary Card -->
+                    <div class="bg-white rounded-lg p-3.5 border border-slate-200 text-xs space-y-2">
+                        <div class="flex justify-between"><span class="text-slate-500">포트폴리오 자산:</span><span class="font-bold text-slate-800">$10,000,000 (달러 매도 헤지)</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">기초 매입 환율 (S₀):</span><span class="font-bold text-slate-800">1,300 원</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">내외 금리 격차:</span><span class="font-bold text-red-500">-2.00% (헤지 비용)</span></div>
+                    </div>
+                </div>
+
+                <!-- Current Step Live Status Info -->
+                <div class="mt-6 bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+                    <h3 class="text-xs font-bold text-indigo-800 mb-2">💡 현 시점 요약 브리핑</h3>
+                    <p id="brief-text" class="text-xs text-indigo-950 leading-relaxed">
+                        초기 $1,300원 현물환율에서 연 -2.00%의 금리차가 감안된 1년 뒤 약정 선물환율 F₀ = 1,274원에 매도 계약을 설정합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Panel: Visual Graph & Mathematics Math Board -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Graphical Area -->
+                <div class="bg-white rounded-xl border border-slate-200 p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-sm font-bold text-slate-800">📈 3개년 롤오버 궤적 모니터 (현물 vs 선물환율)</h2>
+                        <div class="flex gap-4 text-xs font-medium">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-red-400 rounded-full inline-block"></span>현물환율 (S_t)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span>신규 고정 환율 (F_t)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- SVG Chart Container -->
+                    <div class="w-full h-56 bg-slate-900 rounded-lg relative overflow-hidden flex items-center justify-center p-2">
+                        <svg id="chart-svg" viewBox="0 0 600 220" class="w-full h-full">
+                            <!-- Horizontal Grid Lines -->
+                            <line x1="40" y1="180" x2="560" y2="180" stroke="#334155" stroke-dasharray="2,2"/>
+                            <line x1="40" y1="130" x2="560" y2="130" stroke="#334155" stroke-dasharray="2,2"/>
+                            <line x1="40" y1="80" x2="560" y2="80" stroke="#334155" stroke-dasharray="2,2"/>
+                            <line x1="40" y1="30" x2="560" y2="30" stroke="#334155" stroke-dasharray="2,2"/>
+
+                            <!-- Grid labels -->
+                            <text x="15" y="184" fill="#94a3b8" font-size="10" font-family="sans-serif">1,200</text>
+                            <text x="15" y="134" fill="#94a3b8" font-size="10" font-family="sans-serif">1,300</text>
+                            <text x="15" y="84" fill="#94a3b8" font-size="10" font-family="sans-serif">1,400</text>
+                            <text x="15" y="34" fill="#94a3b8" font-size="10" font-family="sans-serif">1,500</text>
+
+                            <!-- Timeline Markers -->
+                            <text x="60" y="210" fill="#cbd5e1" font-size="10" text-anchor="middle">T=0 (진입)</text>
+                            <text x="210" y="210" fill="#cbd5e1" font-size="10" text-anchor="middle">T=1 (1차)</text>
+                            <text x="360" y="210" fill="#cbd5e1" font-size="10" text-anchor="middle">T=2 (2차)</text>
+                            <text x="510" y="210" fill="#cbd5e1" font-size="10" text-anchor="middle">T=3 (만기)</text>
+
+                            <!-- S_t Spot line (Path) -->
+                            <path id="spot-path" d="M 60,130 L 210,80 L 360,30 L 510,10" fill="none" stroke="#f87171" stroke-width="3" stroke-dasharray="500" stroke-dashoffset="500" class="step-transition" />
+                            
+                            <!-- F_t Forward line (Step-up Path) -->
+                            <path id="forward-path" d="M 60,143 L 210,143 L 210,94 L 360,94 L 360,45 L 510,45" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="500" stroke-dashoffset="500" class="step-transition" />
+
+                            <!-- Active Interactive Points will be placed dynamically by JS -->
+                            <g id="dynamic-dots"></g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Mathematical / Accounting Board -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Settlement Box -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">💸 누적 손익 정산 및 OCI 현황</h3>
+                        <div class="space-y-2 mt-3">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500">당기 정산 손익 (원화):</span>
+                                <span id="current-pnl" class="font-extrabold text-slate-800">0 원</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500">기타포괄손익누계액(OCI) 이연:</span>
+                                <span id="oci-status" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold">대기 중</span>
+                            </div>
+                            <div class="border-t border-slate-200 pt-2 flex justify-between items-center text-sm">
+                                <span class="font-bold text-slate-700">총 누적 현금유출:</span>
+                                <span id="cumulative-pnl" class="font-black text-red-500">0 원</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Magic of Math Box -->
+                    <div class="bg-indigo-950 text-white rounded-xl p-4">
+                        <h3 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">💫 수학적 상쇄 검증 대조</h3>
+                        <div class="mt-3 space-y-1">
+                            <div class="text-[11px] text-indigo-200 font-mono">
+                                Net CF = [(F₀ - <span class="text-red-300 font-bold">S₁</span>) + (<span class="text-red-300 font-bold">S₁</span> + SP₂ - <span class="text-blue-300 font-bold">S₂</span>) + (<span class="text-blue-300 font-bold">S₂</span> + SP₃)] × Q
+                            </div>
+                            <div class="text-[11px] text-emerald-300 font-mono mt-1">
+                                ➔ 실질 환율 = S₀ + ∑ SP
+                            </div>
+                            <div class="border-t border-indigo-800 pt-2 mt-2">
+                                <p class="text-xs text-indigo-100">
+                                    최종 실질 수취 환율:<br>
+                                    <span id="effective-rate-display" class="text-lg font-black text-emerald-400">1,274 원 (T=0 기준)</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        const scenarioData = [
+            {
+                step: 0,
+                spot: 1300,
+                forward: 1274,
+                brief: "T=0 시점: 최초 투자 실행일입니다. 기초 매입 환율 $S_0$은 1,300원이며, 1년 동안 안고 갈 약정 선물환율 $F_0$은 -2.00%의 스왑레이트가 차감된 1,274원에 조율 및 닻을 내렸습니다.",
+                pnl: "0 원",
+                oci: "0 원 (신규 체결)",
+                cumPnl: "0 원",
+                effRate: "1,274 원 (F₀)",
+                spotOffset: 250,
+                forwardOffset: 250,
+                dots: `<circle cx="60" cy="130" r="5" fill="#f87171" stroke="#fff" stroke-width="2"/>
+                       <circle cx="60" cy="143" r="5" fill="#10b981" stroke="#fff" stroke-width="2"/>
+                       <text x="60" y="115" fill="#fff" font-size="9" text-anchor="middle">S₀=1,300</text>
+                       <text x="60" y="162" fill="#fff" font-size="9" text-anchor="middle">F₀=1,274</text>`
+            },
+            {
+                step: 1,
+                spot: 1400,
+                forward: 1372,
+                brief: "T=1 시점: 1차 롤오버 만기입니다. 환율이 1,400원까지 돌파하여, 구 계약(1,274원 매도약정)에서 -12.6억 원의 현금 손실이 정산되어 현금으로 나갑니다. 그러나 다음 연도 신규 계약의 약정 단가(F₁)는 1,372원으로 대폭 상향 리셋(Step-up) 조정됩니다.",
+                pnl: "-12.6억 원 (실현 손실)",
+                oci: "12.6억 원 (OCI 자본 이연)",
+                cumPnl: "-12.6억 원",
+                effRate: "1,216 원 (중간 경로 합산)",
+                spotOffset: 150,
+                forwardOffset: 150,
+                dots: `<circle cx="60" cy="130" r="4" fill="#64748b"/>
+                       <circle cx="60" cy="143" r="4" fill="#64748b"/>
+                       <circle cx="210" cy="80" r="5" fill="#f87171" stroke="#fff" stroke-width="2"/>
+                       <circle cx="210" cy="143" r="5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                       <circle cx="210" cy="94" r="5" fill="#10b981" stroke="#fff" stroke-width="2"/>
+                       <text x="210" y="65" fill="#fff" font-size="9" text-anchor="middle">S₁=1,400</text>
+                       <text x="215" y="125" fill="#10b981" font-size="9" text-anchor="start">F₁=1,372</text>`
+            },
+            {
+                step: 2,
+                spot: 1500,
+                forward: 1470,
+                brief: "T=2 시점: 2차 롤오버 일입니다. 시장 환율이 1,500원까지 가속 전진하면서 직전 계약 대비 추가적으로 -12.8억 원의 정산 손실이 계좌에서 빠져나갔습니다. 대신 차기 계약의 고정 환율은 1,470원까지 점진 상향 갱신 완료되었습니다.",
+                pnl: "-12.8억 원 (실현 손실)",
+                oci: "25.4억 원 (OCI 누적 적립)",
+                cumPnl: "-25.4억 원",
+                effRate: "1,216 원 (중간 환율 무관 고정)",
+                spotOffset: 50,
+                forwardOffset: 50,
+                dots: `<circle cx="210" cy="80" r="4" fill="#64748b"/>
+                       <circle cx="210" cy="94" r="4" fill="#64748b"/>
+                       <circle cx="360" cy="30" r="5" fill="#f87171" stroke="#fff" stroke-width="2"/>
+                       <circle cx="360" cy="94" r="5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                       <circle cx="360" cy="45" r="5" fill="#10b981" stroke="#fff" stroke-width="2"/>
+                       <text x="360" y="15" fill="#fff" font-size="9" text-anchor="middle">S₂=1,500</text>
+                       <text x="365" y="75" fill="#10b981" font-size="9" text-anchor="start">F₂=1,470</text>`
+            },
+            {
+                step: 3,
+                spot: 1550,
+                forward: null,
+                brief: "T=3 시점: 최종 자산 매각 및 정산일입니다. 누적 정산 현금 유출 -33.4억 원이 확정되었으나, 자산을 최고점인 1,550원에 매도 정산하여 들어오는 환전 차익(+25억 원)과 완벽하게 조우·상쇄가 발동합니다. 최종 수취 환율은 S₀ + ∑ SP = 1,216원으로 일치 정렬 수렴합니다.",
+                pnl: "-8.0억 원 (최종 정산)",
+                oci: "0 원 (자본에서 꺼내 처분손익과 최종 매칭)",
+                cumPnl: "-33.4억 원",
+                effRate: "★ 1,216 원 (수학적 완전상쇄 필터링)",
+                spotOffset: 0,
+                forwardOffset: 0,
+                dots: `<circle cx="360" cy="30" r="4" fill="#64748b"/>
+                       <circle cx="360" cy="45" r="4" fill="#64748b"/>
+                       <circle cx="510" cy="10" r="5" fill="#f87171" stroke="#fff" stroke-width="2"/>
+                       <circle cx="510" cy="45" r="5" fill="#10b981" stroke="#fff" stroke-width="2"/>
+                       <text x="510" y="-2" fill="#fff" font-size="9" text-anchor="middle">S₃=1,550</text>
+                       <text x="510" y="62" fill="#ef4444" font-size="9" text-anchor="middle">최종 누적 정산</text>`
+            }
+        ];
+
+        function setStep(stepIndex) {
+            const data = scenarioData[stepIndex];
+            
+            // Buttons UI Reset
+            for(let i=0; i<4; i++) {
+                const btn = document.getElementById(`btn-step-${i}`);
+                if (i === stepIndex) {
+                    btn.className = "py-2.5 rounded-lg text-xs font-bold step-transition bg-indigo-600 text-white shadow-md";
+                } else {
+                    btn.className = "py-2.5 rounded-lg text-xs font-bold step-transition bg-white text-slate-600 border border-slate-200 hover:bg-slate-100";
+                }
+            }
+
+            // Fill text values
+            document.getElementById("brief-text").innerText = data.brief;
+            document.getElementById("current-pnl").innerText = data.pnl;
+            document.getElementById("oci-status").innerText = data.oci;
+            
+            const ociBadge = document.getElementById("oci-status");
+            if (stepIndex === 3) {
+                ociBadge.className = "bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold text-xs";
+            } else if (stepIndex > 0) {
+                ociBadge.className = "bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold text-xs";
+            } else {
+                ociBadge.className = "bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold text-xs";
+            }
+
+            document.getElementById("cumulative-pnl").innerText = data.cumPnl;
+            document.getElementById("effective-rate-display").innerText = data.effRate;
+
+            // Chart Animation Path manipulation
+            const spotPath = document.getElementById("spot-path");
+            const forwardPath = document.getElementById("forward-path");
+            
+            // Render path dynamically with SVG stroke-dashoffset trick
+            spotPath.style.strokeDashoffset = data.spotOffset;
+            forwardPath.style.strokeDashoffset = data.forwardOffset;
+
+            // Render Dynamic Interactive Dots
+            document.getElementById("dynamic-dots").innerHTML = data.dots;
+        }
+
+        // Initialize at Step 0
+        window.onload = () => {
+            setStep(0);
+        };
+    </script>
+</body>
+</html>

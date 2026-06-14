@@ -2113,9 +2113,9 @@
             {
               "sub_id": "sub_01_01",
               "sub_title": "1.1 해외 채권 투자 시 환 위험의 본질",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_01/sub_01_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2128,9 +2128,9 @@
                   "created_at": "2026-06-14T01:57:50.674530"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_01/sub_01_01_v3.md",
+                  "created_at": "2026-06-14T14:12:49.756592",
                   "user_feedback": "v1을 채택하되, 2. 친숙한 개념에서 공식으로의 연결 (수식 유도)에서 수식이 깨져있으므로 v2의 동일한 서술의 수식을 참고해. 그리고 v2의 4. 손익분기 환율(Break-even Exchange Rate)의 계산을 포함시켜줘."
                 }
               },
@@ -2141,9 +2141,9 @@
             {
               "sub_id": "sub_01_02",
               "sub_title": "1.2 선물환 매도를 통한 헤지 메커니즘",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_01/sub_01_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2156,9 +2156,9 @@
                   "created_at": "2026-06-14T01:59:54.483361"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_01/sub_01_02_v3.md",
+                  "created_at": "2026-06-14T14:14:02.627110",
                   "user_feedback": "v1을 채택하되, 'D사에 있어 선물환 계약은 투기 도구가 아니라, 자산의 성격을 '불확실한 외화 채권'에서 '확정된 원화 채권'으로 바꾸어 주는 연금술이었던 셈입니다.'을 '선물환 매도 헤지는 수익을 극대화하는 도구가 아닙니다. **\"예측할 수 없는 시장의 도박판에서 내 자산을 격리시켜, 원래 목표로 했던 비즈니스나 채권 본연의 이자 수익에만 집중하겠다\"**는 의사결정의 결과물입니다.'으로 바꿔줘."
                 }
               },
@@ -2175,9 +2175,9 @@
             {
               "sub_id": "sub_02_01",
               "sub_title": "2.1 스왑포인트의 정의",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_02/sub_02_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2190,9 +2190,9 @@
                   "created_at": "2026-06-14T02:01:36.281009"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_02/sub_02_01_v3.md",
+                  "created_at": "2026-06-14T14:15:03.759806",
                   "user_feedback": "v1을 채택해줘."
                 }
               },
@@ -2203,9 +2203,9 @@
             {
               "sub_id": "sub_02_02",
               "sub_title": "2.2 금리평가이론(IRP)으로 설명하는 스왑포인트",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_02/sub_02_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2218,9 +2218,9 @@
                   "created_at": "2026-06-14T02:03:39.447805"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_02/sub_02_02_v3.md",
+                  "created_at": "2026-06-14T14:16:19.332329",
                   "user_feedback": "v1을 채택하되, 3. 왜 \"미국 금리가 높으면 선물환율이 낮아지는가\"의 직관적 해석에서 '고금리 혜택을 누린 사람에게 일종의 **'패널티(비용)'**를 부과'은 오해할 수 있으니까 스왑포인트는 거래 당사자간 유불리를 없애는 장치라는 점을 강조하는 것으로 서술 방향을 수정해줘."
                 }
               },
@@ -2231,9 +2231,9 @@
             {
               "sub_id": "sub_02_03",
               "sub_title": "2.3 실제 헤지 비용에 영향을 미치는 세 가지 요인",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_02/sub_02_03_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2246,9 +2246,9 @@
                   "created_at": "2026-06-14T02:05:46.434755"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_02/sub_02_03_v3.md",
+                  "created_at": "2026-06-14T14:17:40.194107",
                   "user_feedback": "v1을 채택하되, 미국 채권 Yield Curve 모양에 따라 헤지 만기 장기, 단기별 요율에 대한 비교를 추가해줘. 장기로 하는 것이 환율 상승에 대한 대응력은 떨어지지만 헤지 비용은 어떤 경우든 유리한 것이 맞는지 궁금해."
                 }
               },
@@ -2265,9 +2265,9 @@
             {
               "sub_id": "sub_03_01",
               "sub_title": "3.1 자산 만기와 헤지 계약 만기의 구조적 미스매치",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_01_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2280,9 +2280,9 @@
                   "created_at": "2026-06-14T02:07:34.016763"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_01_v3.md",
+                  "created_at": "2026-06-14T14:18:44.148028",
                   "user_feedback": "v2를 채택하되, 현재는 만기가 길어질 수록 거래량이 감소하는 예시를 보여주는데 이것으로는 설명이 부족하니까 왜 장기 선도 계약은 공급자가 부족한지 설명을 추가해줘. 4. 수학적 이해: 롤오버 헤지의 분해에서 헤지 비율 N_t에 대한 설명을 더 자세하게 해줘."
                 }
               },
@@ -2293,9 +2293,9 @@
             {
               "sub_id": "sub_03_02",
               "sub_title": "3.2 롤오버의 개념과 비용 발생 원리",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_02_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2308,9 +2308,9 @@
                   "created_at": "2026-06-14T02:09:31.802107"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_02_v3.md",
+                  "created_at": "2026-06-14T14:19:51.450001",
                   "user_feedback": "v1을 채택하되, ② 거래 마찰 비용: 비드-오스크 스프레드 (Bid-Ask Spread)에 Roll-over Transaction Cost 수식을 추가해줘. v2의 '5. 일반기업회계기준(K-GAAP)의 관점 부분'을 추가해줘."
                 }
               },
@@ -2321,9 +2321,9 @@
             {
               "sub_id": "sub_03_03",
               "sub_title": "3.3 롤오버 시 고정 환율의 재결정",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_03_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2336,9 +2336,9 @@
                   "created_at": "2026-06-14T02:11:54.958960"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_03_v3.md",
+                  "created_at": "2026-06-14T14:21:13.994016",
                   "user_feedback": "v2를 채택해줘."
                 }
               },
@@ -2349,9 +2349,9 @@
             {
               "sub_id": "sub_03_04",
               "sub_title": "3.4 롤오버 주기 선택의 트레이드오프",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_04_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2364,9 +2364,9 @@
                   "created_at": "2026-06-14T02:14:04.123419"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_04_v3.md",
+                  "created_at": "2026-06-14T14:22:38.886633",
                   "user_feedback": "v2를 채택하되, 4. 실패 사례 vs 성공 사례 대조: 주기를 무시한 선택의 결과은 삭제해줘. 삭제 사유는 앞에서 부터 계속 반복적으로 나오는 내용이기 때문이야.  2x2 매트릭스 가이드는 유지해줘. 대신 가로축이 현재는 계약가능인데 환율전망의 정확성도 고려해야 하는지 검토해줘."
                 }
               },
@@ -2377,9 +2377,9 @@
             {
               "sub_id": "sub_03_05",
               "sub_title": "3.5 분산 만기(Staggered Maturity) 전략",
-              "status": "Review_Pending",
-              "current_version_code": "v2",
-              "final_file_path": null,
+              "status": "Published",
+              "current_version_code": "v3",
+              "final_file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_05_final.md",
               "history": {
                 "v1": {
                   "status": "Completed",
@@ -2392,9 +2392,9 @@
                   "created_at": "2026-06-14T02:16:11.180152"
                 },
                 "v3": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null,
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_03/sub_03_05_v3.md",
+                  "created_at": "2026-06-14T14:24:01.884117",
                   "user_feedback": "v1을 채택해줘. 다만, 'MTAA의 교환'은 오타니까 '교훈'으로 수정해줘."
                 }
               },

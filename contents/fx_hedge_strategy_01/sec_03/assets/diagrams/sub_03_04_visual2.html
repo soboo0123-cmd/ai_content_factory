@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>최적 헤지 주기 선택 매트릭스</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Pretendard', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-teal-800 to-teal-950 p-6 text-white">
+      <div class="flex items-center space-x-3">
+        <div class="p-2.5 bg-teal-500/20 rounded-lg border border-teal-500/30">
+          <i class="fa-solid fa-arrows-split-up-and-left text-teal-400 text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">헤지 의사결정 전략 매트릭스</h1>
+          <p class="text-xs text-teal-200 mt-1">기업의 현금유동성과 실물 계약의 확실성을 기준으로 최적의 헤지 수단을 판단합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Left side: Interactive Quadrant Container -->
+      <div>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-bold text-slate-800">1. 기업 여건 포지셔닝</h3>
+          <span class="text-[11px] text-slate-500"><i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>아래 그리드를 클릭하여 이동</span>
+        </div>
+
+        <!-- 2x2 Grid Visualizer -->
+        <div class="relative w-full aspect-square bg-slate-100 border-2 border-slate-300 rounded-xl overflow-hidden cursor-crosshair select-none" id="gridContainer">
+          <!-- Crosshair Lines -->
+          <div class="absolute inset-y-0 left-1/2 w-0.5 bg-slate-300/80"></div>
+          <div class="absolute inset-x-0 top-1/2 h-0.5 bg-slate-300/80"></div>
+
+          <!-- Y-axis Label -->
+          <div class="absolute left-3 top-3 text-[10px] font-bold text-slate-500 flex items-center">
+            <i class="fa-solid fa-arrow-up mr-1 text-teal-600"></i> 가용 현금 유동성 (High)
+          </div>
+          <div class="absolute left-3 bottom-3 text-[10px] font-bold text-slate-500 flex items-center">
+            <i class="fa-solid fa-arrow-down mr-1 text-red-600"></i> 가용 현금 유동성 (Low)
+          </div>
+
+          <!-- X-axis Label -->
+          <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-500 flex flex-col items-end">
+            <span>이행/전망 확실성 (High) <i class="fa-solid fa-arrow-right text-teal-600"></i></span>
+          </div>
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-500 flex flex-col items-start">
+            <span><i class="fa-solid fa-arrow-left text-red-600"></i> 이행/전망 확실성 (Low)</span>
+          </div>
+
+          <!-- Quadrant Names in Background -->
+          <div class="absolute top-[20%] left-[25%] -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+            <span class="text-xs font-bold text-slate-400 opacity-60">제 2 사분면</span>
+            <div class="text-[10px] text-slate-400 opacity-60 font-semibold mt-0.5">단기 롤오버 추천</div>
+          </div>
+          <div class="absolute top-[20%] left-[75%] -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+            <span class="text-xs font-bold text-teal-600 opacity-50">제 1 사분면</span>
+            <div class="text-[10px] text-teal-600 opacity-50 font-semibold mt-0.5">레이어드 헤지 추천</div>
+          </div>
+          <div class="absolute bottom-[20%] left-[25%] -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+            <span class="text-xs font-bold text-slate-400 opacity-60">제 3 사분면</span>
+            <div class="text-[10px] text-slate-400 opacity-60 font-semibold mt-0.5">헤지축소 / 옵션</div>
+          </div>
+          <div class="absolute bottom-[20%] left-[75%] -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+            <span class="text-xs font-bold text-slate-400 opacity-60">제 4 사분면</span>
+            <div class="text-[10px] text-slate-400 opacity-60 font-semibold mt-0.5">장기 고정 헤지 추천</div>
+          </div>
+
+          <!-- Draggable Tracker Dot -->
+          <div class="absolute w-6 h-6 bg-teal-600 rounded-full border-4 border-white shadow-lg -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-out flex items-center justify-center text-white text-[8px]" id="tracker" style="left: 75%; top: 25%;">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </div>
+        </div>
+
+        <!-- Sliders alternative inputs -->
+        <div class="mt-4 grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">가용 현금 유동성</label>
+            <input type="range" id="sliderLiquidity" min="0" max="100" value="75" class="w-full accent-teal-600 h-1 bg-slate-200 rounded">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">이행 및 전망 확실성</label>
+            <input type="range" id="sliderCertainty" min="0" max="100" value="75" class="w-full accent-teal-600 h-1 bg-slate-200 rounded">
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Real-time Strategy Prescription -->
+      <div class="flex flex-col justify-between bg-slate-50 p-5 rounded-xl border border-slate-200">
+        <div>
+          <div class="flex items-center space-x-2 mb-3">
+            <span class="px-2.5 py-0.5 text-xs font-bold text-teal-800 bg-teal-100 rounded-full" id="resultQuadrant">제 1 사분면</span>
+            <span class="text-xs font-bold text-slate-700" id="resultStrategyTitle">레이어드 헤지 (Layered Hedge)</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed mb-4 border-b border-slate-200 pb-4" id="resultDesc">
+            현금 여력과 실물 거래의 이행 확실성이 모두 뛰어난 초우량 시나리오입니다. 단기와 장기의 조합을 통하여 환 헤지의 안정성을 완벽하게 지배할 수 있습니다.
+          </p>
+
+          <h4 class="text-xs font-bold text-slate-800 mb-2"><i class="fa-solid fa-shield text-teal-600 mr-1"></i>추천 세부 실행 방안</h4>
+          <ul class="text-xs text-slate-600 space-y-2 list-none pl-0" id="actionPlans">
+            <li class="flex items-start"><i class="fa-solid fa-check text-teal-500 mr-2 mt-0.5"></i>전체 헤지 필요 물량 중 70%는 12개월 장기 선도계약으로 고정하여 확정마진 확보.</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-teal-500 mr-2 mt-0.5"></i>나머지 30%는 3개월 롤오버 계약을 취해 현업 대금 변동에 따른 유연한 상환 지원.</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-teal-500 mr-2 mt-0.5"></i>이자율 스프레드를 주기적으로 추적하여 헤지 비율 가중 조절.</li>
+          </ul>
+        </div>
+
+        <div class="mt-5 p-3 rounded-lg bg-teal-50 border border-teal-100 text-[11px] text-teal-900 flex items-start">
+          <i class="fa-solid fa-lightbulb text-teal-600 mr-2 mt-0.5"></i>
+          <div>
+            <strong class="font-bold">재무 전략 가이드:</strong>
+            <span id="guideTip">회사는 유동성 위기 발생 가능성이 극히 낮으므로, 지나치게 한쪽 수단에만 매몰되기보다 포트폴리오 다각화 전략이 유리합니다.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const gridContainer = document.getElementById('gridContainer');
+    const tracker = document.getElementById('tracker');
+    const sliderLiquidity = document.getElementById('sliderLiquidity');
+    const sliderCertainty = document.getElementById('sliderCertainty');
+
+    const resultQuadrant = document.getElementById('resultQuadrant');
+    const resultStrategyTitle = document.getElementById('resultStrategyTitle');
+    const resultDesc = document.getElementById('resultDesc');
+    const actionPlans = document.getElementById('actionPlans');
+    const guideTip = document.getElementById('guideTip');
+
+    const strategyPrescriptions = {
+      Q1: {
+        quadrant: '제 1 사분면',
+        title: '레이어드 헤지 (Layered Hedge)',
+        desc: '유동성 체력과 사업 확실성이 모두 가장 우수한 상태입니다. 리스크의 완전 제거와 운용 효율성을 동시에 얻기 위해 단기 및 장기 선도계약을 입체적으로 배분하는 최상의 복합 전략이 가능합니다.',
+        actions: [
+          '전체 헤지 목표 물량의 60~70%는 6M~12M 만기 장기 선도를 채택하여 완전 고정',
+          '잔여 30~40%는 3M 단기 롤오버로 매칭하여 사업 계획 변경 및 외화 집행 시점의 유연성에 실시간 대응',
+          '장부 평가 및 만기 관리를 동시에 정렬하기 위해 일반기업회계기준(K-GAAP) 현금흐름위험회피 상시 지정관리'
+        ],
+        tip: '여유 자본을 외화 MMF나 단기 자산에 일부 매치해 둔 후 롤오버 중도 정산금으로 대응함으로써 헤지 완벽성을 실현해내기 쉬운 환경입니다.'
+      },
+      Q2: {
+        quadrant: '제 2 사분면',
+        title: '단기 롤오버 위주 (Flexible Rollover)',
+        desc: '회사의 유동성 버퍼는 든든하지만, 수출입 계약 기일의 미스매치나 시장 환율 방향에 대한 노이즈가 강합니다. 이 시기에는 장기 계약에 발이 묶이는 것은 치명적입니다. 신속하게 구조를 변경할 수 있는 단기 계약이 훨씬 유리합니다.',
+        actions: [
+          '롤오버 주기를 1개월 내지 최대 3개월 범위 내로 축소하여 운영',
+          '대금 정산 기일이 확정되기 전까지는 단기 선도의 계약을 갱신하면서 만기 도래와 동시에 연장/해지 통제',
+          '환율 급하락 시기에는 중도 정산이 가능한 만큼 추가 거래 한도를 적극 활용해 헤지 효과 극대화'
+        ],
+        tip: '중간 정산으로 자본 통장에서 현금이 들락날락하는 것에 대비하여, 현금 자산 대비 과도한 헤지가 들어가지 않도록 상시 점검이 요구됩니다.'
+      },
+      Q3: {
+        quadrant: '제 3 사분면',
+        title: '헤지 비율 보수적 감축 및 옵션 활용',
+        desc: '현업 계약의 이행 여부 자체가 미지수이고, 환 손실 정산금을 메워줄 회사의 여유 현금 또한 크게 부족합니다. 이 상황에서 고정 선물환을 대규모로 진입시키는 행위는 기업 부도를 자초하는 자살 행위와 같습니다.',
+        actions: [
+          '실물 헤지 비율을 기존 목표(예: 80%) 대비 30~40% 수준으로 하향 조정',
+          '강제 중도 정산 의무가 없고 오직 매수권리만 지니는 풋/콜 옵션(Premium 지불형) 적극 고려',
+          '수출 대금 수취 또는 수입 대금 지출을 일차적으로 매치하는 "매칭(Matching)" 내부 통제 최우선'
+        ],
+        tip: '이 상황에서는 선물환을 통해 환율을 완벽히 잡으려 하기보다는 기업의 일시적 도산(Margin Call)을 방어하기 위해 유동성 지킴에 최우선 가치를 부여해야 합니다.'
+      },
+      Q4: {
+        quadrant: '제 4 사분면',
+        title: '장기 고정 헤지 우선 (Lump-sum Lock-in)',
+        desc: '거래는 한 치의 오차 없이 확실히 이행될 것이고 환율 전망도 뚜렷하지만, 회사의 유동성 버퍼가 극단적으로 메말라 있습니다. 매 분기 찾아오는 롤오버 정산 손실(Margin Call)을 메우다 흑자 도산할 리스크가 있습니다. 중간 유출을 완전히 잠그는 전략이 요구됩니다.',
+        actions: [
+          '계약 성사일 당일 만기일에 일시 지급하는 6개월~1년 만기 장기 고정 선물환 즉각 집행',
+          '만기 시까지 현금 유출입을 $0$으로 완벽히 통제하여 중간 유동성 리스크 원천 차단',
+          '은행 여신 한도(FX Line)를 사전에 확보하고 잔존 만기가 길어짐에 따른 PFE 가산 관리에 만전'
+        ],
+        tip: '도중에 단 한번도 현금 유출이 없으므로 회계 장부상으로만 평가액이 변합니다. 만기 당일 실물 매출/매입 대금이 완벽하게 들어와 결제되는 톱니바퀴 매칭을 확실하게 챙겨야 합니다.'
+      }
+    };
+
+    function updatePrescription(certainty, liquidity) {
+      let key = 'Q1';
+      if (certainty >= 50 && liquidity >= 50) {
+        key = 'Q1';
+      } else if (certainty < 50 && liquidity >= 50) {
+        key = 'Q2';
+      } else if (certainty < 50 && liquidity < 50) {
+        key = 'Q3';
+      } else if (certainty >= 50 && liquidity < 50) {
+        key = 'Q4';
+      }
+
+      const info = strategyPrescriptions[key];
+      
+      // Select appropriate color scheme
+      let badgeClass = 'px-2.5 py-0.5 text-xs font-bold rounded-full ';
+      if (key === 'Q1') badgeClass += 'text-teal-800 bg-teal-100';
+      else if (key === 'Q2') badgeClass += 'text-blue-800 bg-blue-100';
+      else if (key === 'Q3') badgeClass += 'text-red-800 bg-red-100';
+      else if (key === 'Q4') badgeClass += 'text-amber-800 bg-amber-100';
+
+      resultQuadrant.className = badgeClass;
+      resultQuadrant.innerText = info.quadrant;
+      resultStrategyTitle.innerText = info.title;
+      resultDesc.innerText = info.desc;
+      guideTip.innerText = info.tip;
+
+      // Render Bullet Actions
+      actionPlans.innerHTML = '';
+      info.actions.forEach(act => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start';
+        li.innerHTML = `<i class="fa-solid fa-check text-teal-500 mr-2 mt-0.5"></i><span>${act}</span>`;
+        actionPlans.appendChild(li);
+      });
+    }
+
+    function moveTracker(xPercent, yPercent) {
+      // Clamping
+      xPercent = Math.max(0, Math.min(100, xPercent));
+      yPercent = Math.max(0, Math.min(100, yPercent));
+
+      tracker.style.left = `${xPercent}%`;
+      tracker.style.top = `${yPercent}%`;
+
+      // Update Sliders to match tracker position
+      // Notice: yPercent in visual coordinate is 0 at Top (Liquidity High) and 100 at Bottom (Liquidity Low)
+      sliderCertainty.value = xPercent;
+      sliderLiquidity.value = 100 - yPercent;
+
+      updatePrescription(xPercent, 100 - yPercent);
+    }
+
+    // Grid Click / Drag Events
+    let isDragging = false;
+    
+    function handlePositionEvent(e) {
+      const rect = gridContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const xPercent = (x / rect.width) * 100;
+      const yPercent = (y / rect.height) * 100;
+      moveTracker(xPercent, yPercent);
+    }
+
+    gridContainer.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      handlePositionEvent(e);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        handlePositionEvent(e);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Touch support
+    gridContainer.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      if (e.touches.length > 0) {
+        handlePositionEvent(e.touches[0]);
+      }
+    }, {passive: true});
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches.length > 0) {
+        handlePositionEvent(e.touches[0]);
+      }
+    }, {passive: true});
+
+    window.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    // Sliders Inputs
+    sliderLiquidity.addEventListener('input', () => {
+      const xPercent = parseFloat(sliderCertainty.value);
+      const yPercent = 100 - parseFloat(sliderLiquidity.value);
+      tracker.style.left = `${xPercent}%`;
+      tracker.style.top = `${yPercent}%`;
+      updatePrescription(xPercent, parseFloat(sliderLiquidity.value));
+    });
+
+    sliderCertainty.addEventListener('input', () => {
+      const xPercent = parseFloat(sliderCertainty.value);
+      const yPercent = 100 - parseFloat(sliderLiquidity.value);
+      tracker.style.left = `${xPercent}%`;
+      tracker.style.top = `${yPercent}%`;
+      updatePrescription(xPercent, parseFloat(sliderLiquidity.value));
+    });
+
+    // Initialize position
+    moveTracker(75, 25);
+  </script>
+</body>
+</html>
