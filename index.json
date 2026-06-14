@@ -3125,8 +3125,8 @@
             {
               "sub_id": "sub_11_05",
               "sub_title": "부록 E. 공정가치 위험회피회계와 현금흐름 위험회피회계의 비교 및 실무 적용",
-              "status": "Drafting_V2",
-              "current_version_code": "v1",
+              "status": "Review_Pending",
+              "current_version_code": "v2",
               "final_file_path": null,
               "history": {
                 "v1": {
@@ -3135,9 +3135,9 @@
                   "created_at": "2026-06-14T06:15:52.056761"
                 },
                 "v2": {
-                  "status": "Pending",
-                  "file_path": null,
-                  "created_at": null
+                  "status": "Completed",
+                  "file_path": "contents/fx_hedge_strategy_01/sec_11/sub_11_05_v2.md",
+                  "created_at": "2026-06-14T06:25:19.228431"
                 },
                 "v3": {
                   "status": "Pending",
