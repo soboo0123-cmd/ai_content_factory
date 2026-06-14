@@ -1,3 +1,5 @@
+api 수정 필요
+
 ~~다음은 수정 필요함~~
 
 ~~$\hat{{\sigma}}_{\textcolor{#e53935}{n}}^{2} {=} \text{{V}{a}{r}}{(}{R}_{{t}{o}{t}{a}{l}}{)} {=} {\textcolor{#e53935}{n}} {\cdot} \hat{{\sigma}}^{2} {=} {\textcolor{#e53935}{n}} {\cdot} \left\{ {q}{(}{1}{-}{q}{)} \left[ \ln\left(\frac{{u}}{{d}}\right) \right]^{2} \right\}$~~
