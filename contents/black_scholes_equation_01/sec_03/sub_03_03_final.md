@@ -84,7 +84,7 @@ $$C = \frac{p C_u + (1-p) C_d}{1+r}$$
 
 아래의 인터랙티브 트리 계산기에서 각 변수($S_0, K, u, d, r$)를 직접 조절하여 노드별 주가와 옵션 가격이 역방향으로 어떻게 계산되는지 실시간으로 확인해 보세요.
 
-<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_03_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_03_visual1.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
@@ -189,7 +189,7 @@ $$d < 1+r < u$$
 
 아래 시뮬레이터에서 $u, d, r$ 값을 변경하며 이항 확률분포의 변화와 $d < 1+r < u$ 조건이 깨졌을 때의 경고 메시지를 확인해 보세요.
 
-<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_03_visual2.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_03_visual2.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
