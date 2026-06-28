@@ -19,7 +19,7 @@
 
 여기서 주목할 점은 **"누가 맨 앞에 서든, 그 뒤에 따라오는 경우의 수는 6가지로 모두 동일하다"**는 사실입니다. 즉, 전체 경우의 수는 '6개씩 들어있는 동일한 크기의 묶음이 총 4개' 있는 셈입니다. 
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual1.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 이처럼 동일한 크기의 패턴이 반복된다는 것을 깨닫는 순간, 우리는 덧셈을 곱셈으로 압축할 수 있게 됩니다.
 $$6 + 6 + 6 + 6 = 6 \times 4 = 24$$
@@ -35,7 +35,7 @@ $$6 + 6 + 6 + 6 = 6 \times 4 = 24$$
 첫 번째 선택에서 4개의 가지가 뻗어 나오고, 그 각각의 가지 끝에서 다시 3개, 또 그 끝에서 2개... 이런 식으로 가지가 뻗어 나가는 형태가 됩니다. 
 
 ![선택의 트리 구조 개념도](assets/diagrams/sub_01_01_diagram1.svg)
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual2.html" width="100%" height="530px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual2.html" width="100%" height="530px" frameborder="0" scrolling="yes"></iframe>
 
 ### 2.3 곱의 법칙의 탄생
 위의 트리 구조를 수식으로 옮기면 우리가 익히 아는 곱셈이 됩니다. 
@@ -57,7 +57,7 @@ $$6 + 6 + 6 + 6 = 6 \times 4 = 24$$
 
 따라서 **$n$명을 일렬로 나열하는 경우의 수는 $n!$** 입니다. 4명을 나열한다면 $4! = 4 \times 3 \times 2 \times 1 = 24$가 되는 것이죠. 팩토리얼은 $n$이 커짐에 따라 그 값이 매우 가파르게 증가하는 특징이 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual3.html" width="100%" height="500px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_01_visual3.html" width="100%" height="500px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
