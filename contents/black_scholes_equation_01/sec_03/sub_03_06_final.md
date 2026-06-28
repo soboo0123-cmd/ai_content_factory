@@ -152,7 +152,7 @@ $$C = S_0 \cdot \Phi(a; n, p') - K(1+r)^{-n} \cdot \Phi(a; n, p)$$
 
 이 공식은 겉보기에는 극도로 단순해 보이지만, 그 안에는 금융 시장의 작동 원리가 농축되어 있습니다. 아래의 인터랙티브 시뮬레이터를 통해 상승 배수 $u$와 하락 배수 $d$, 그리고 여러 시장 변수를 직접 변형하면서 두 개의 누적 확률 분포인 $\Phi(a; n, p')$와 $\Phi(a; n, p)$가 이루는 동적 대조를 시각적으로 감상해 보십시오.
 
-<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_06_visual1.html" width="100%" height="580px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_06_visual1.html" width="100%" height="580px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
