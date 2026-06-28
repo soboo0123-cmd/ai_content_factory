@@ -31,7 +31,7 @@
 
 이 단순한 매핑 테이블이 바로 모든 금융 공학 확률 모형의 출발점입니다. 동전 던지기, 옵션의 행사 여부, 채권의 부도 여부 등 세상의 모든 이분법적 위험 요소들은 이 베르누이 구조로 치환되어 수학적 분석의 대상이 됩니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_06_visual1.html" width="100%" height="480px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_06_visual1.html" width="100%" height="480px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
@@ -89,7 +89,7 @@ $$Var(X) = 0.6 \times 0.4 = 0.24$$
 
 최대 불확실성인 $0.25$보다는 살짝 아래에 위치해 있습니다. 이는 상승 확률이 $60\%$로 약간 치우쳐져 있기 때문에, 완벽한 반반($50\%$) 상태보다 결과 예측이 미세하게나마 쉬워졌음을 정량적으로 보여주는 증거입니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_06_visual2.html" width="100%" height="510px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_06_visual2.html" width="100%" height="510px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
