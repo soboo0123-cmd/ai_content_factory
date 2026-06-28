@@ -35,7 +35,7 @@
 
 이 간단한 수치 전개 속에 이항분포 일반화의 모든 비밀이 숨겨져 있습니다. 우리는 매번 테이블을 그리지 않고도, 이 '6'이라는 경로의 개수와 '개별 경로의 확률'을 수식으로 즉각 도출해내야 합니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_05_visual1.html" width="100%" height="480px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_05_visual1.html" width="100%" height="480px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
@@ -172,7 +172,7 @@ print(f"우주적 가짓수 속에서 한 번에 도출된 확률: {large_prob:.
 
 만약 $2^{100}$개의 경로를 하나씩 밟아가며 확률을 구하려 했다면 우주가 멸망할 때까지 컴퓨터가 계산을 완료하지 못했을 것입니다. 하지만 대수적 일반화 공식을 활용한 덕분에, 컴퓨터는 단 0.0001초 만에 `0.081219`라는 정밀한 확률을 계산해 냈습니다. 이것이 바로 우리가 수학을 공부하고 공식을 정립하는 진짜 이유이자 힘입니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_05_visual2.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_05_visual2.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
