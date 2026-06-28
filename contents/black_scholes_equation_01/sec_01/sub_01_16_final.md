@@ -60,7 +60,7 @@ $$C_t = e^{-r(T-t)} \mathbb{E}^Q [ \max(S_T - K, 0) ]$$
 
 아래의 실시간 인터랙티브 시뮬레이터를 통해 시간의 흐름이 옵션 가격에 미치는 가혹한 영향력을 직접 체험해 보십시오. 만기 잔존 기간($T-t$) 슬라이더를 왼쪽으로 당겨 만기가 임박해올수록, 곡선 형태를 그리던 부드러운 오늘날의 옵션 가치 그래프가 시간 가치를 모두 소실하고 결국 V자 형태의 뾰족한 '만기 페이오프 꺾인 선'으로 완전히 밀착하는 **시간 가치 잠식(Time Decay)** 현상을 직관적으로 관찰할 수 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_16_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_16_visual1.html" width="100%" height="600px" frameborder="0" scrolling="yes"></iframe>
 
 #### 옵션 행사와 보유 비교
  r>1일 때 C>S-K라는 건 옵션에 시간가치가 있음로 옵션을 그냥 시장에 내다 파는 가격($C$)이 지금 당장 행사해서 얻는 이득($S-K$)보다 무조건 크다는 뜻입니다.
@@ -114,7 +114,7 @@ $$\lim_{m \to \infty} \left(1 + \frac{r}{m}\right)^{-m \cdot t} = e^{-rt}$$
 
 이처럼 사방으로 뻗어 나가는 무수히 많은 미래 주가 경로들의 끝에는, 각기 다른 만기 주가 $S_T$가 기다리고 있으며, 그에 대응하는 옵션의 페이오프 또한 천차만별로 벌어집니다. 아래의 몬테카를로 시뮬레이션 위젯을 실행하여, 현재 주가에서 뻗어 나가는 수많은 주가 경로와 만기 시점에 형성되는 페이오프 분포의 복잡성을 직접 눈으로 확인해 보십시오.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_16_visual2.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_16_visual2.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 우리가 오늘 콜옵션의 공정 가치 $C_t = e^{-r(T-t)} \mathbb{E}^Q [ \max(S_T - K, 0) ]$를 단 하나의 완벽한 정답으로 계산해 내기 위해서는, 위 시뮬레이션에서 펼쳐진 무수히 많은 만기 주가들의 확률적 분포 지도를 수학적으로 단 한 치의 오차도 없이 그려내고 완벽히 제어할 수 있어야 합니다.
 
