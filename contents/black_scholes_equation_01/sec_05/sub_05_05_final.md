@@ -180,7 +180,7 @@ $$q' = q \cdot \frac{u}{R} \quad (\text{단, } R = 1+r \text{ 은 무위험 수�
 
 아래의 실시간 인터랙티브 시뮬레이터를 통해, 이산 세계의 주가 상승 격자들과 연속 세계의 표준정규분포 곡선이 어떻게 한 치의 오차도 없이 맞물려 돌아가는지 직접 변수들을 조작하며 눈으로 확인해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_05_visual1.html" width="100%" height="560px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_05_visual1.html" width="100%" height="560px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
