@@ -54,7 +54,7 @@ $$X = \{1, 2, 3\}$$
     $$Var(Y) = \frac{2}{3}$$
     *   **발견:** 모든 데이터에 $1$을 더했음에도 불구하고, 분산은 원본 분산인 $\frac{2}{3}$에서 **단 0.001도 변하지 않고 그대로 유지**되었습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_08_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_08_visual1.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
@@ -144,7 +144,7 @@ $$Var(aX + b) = a^2 Var(X)$$
 
 제곱의 마법에 의해 배율 상수 $a$는 제곱되어 $a^2$의 형태로 분산에 영향을 미치게 됩니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_08_visual2.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_08_visual2.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
