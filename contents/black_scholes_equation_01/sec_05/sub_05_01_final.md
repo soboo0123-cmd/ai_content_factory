@@ -153,7 +153,7 @@ $$R_{log} = \ln(1+r)$$
 
 아래의 반응형 시뮬레이션을 통해, 복리 정산 횟수 $n$이 증가함에 따라 거칠게 도약하던 이산 가치 궤적(파란색)이 어떻게 매끄러운 연속 가치 지수 곡선(녹색)으로 아름답게 수렴하는지 직접 확인해 보세요. 슬라이더를 통해 이자율을 바꿀 때 실시간으로 등가 변환되는 이산율과 연속율의 상호 일관성 역시 검증할 수 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_01_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_01_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
