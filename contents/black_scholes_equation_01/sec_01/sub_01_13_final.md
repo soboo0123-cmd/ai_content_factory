@@ -95,7 +95,7 @@ $$p + (1-p) = \frac{(1+r)-d}{u-d} + \frac{u-(1+r)}{u-d} = \frac{(1+r) - d + u - 
 
 이로써 위험중립확률 $p$와 $1-p$는 실제 시장 참여자의 주관을 배제하고도, 시장에 주어지는 이자율($r$)과 자산의 변동성($u, d$)이라는 객관적인 뼈대만으로 설계할 수 있는 완벽한 가상의 확률 분포가 됩니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_13_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_13_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
