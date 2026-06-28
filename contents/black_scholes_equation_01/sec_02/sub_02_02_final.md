@@ -108,7 +108,7 @@ $$ 1.25B = -7.5 \implies B = \frac{-7.5}{1.25} = -6 \text{ (달러)} $$
 
 아래의 인터랙티브 시뮬레이터를 통해 직접 주식 보유량($\Delta$)과 이자율($r$)을 실시간으로 바꾸어 보며, 오직 수학적으로 정교하게 계산된 균형점에서만 만기 상승/하락 손익이 일치하여 무위험 상태가 구축되는 과정을 시각적으로 체험해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_02/assets/diagrams/sub_02_02_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_02/assets/diagrams/sub_02_02_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
