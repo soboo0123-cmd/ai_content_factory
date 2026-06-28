@@ -28,7 +28,7 @@ $$Y = X_1 + X_2 + \dots + X_n = \sum_{i=1}^{n} X_i$$
 
 ![베르누이 블록들의 결합과 이항분포 변수 Y의 형성](assets/diagrams/sub_01_07_diagram1.svg)
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_07_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_07_visual1.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
@@ -79,7 +79,7 @@ $$Var(Y) = nq(1-q)$$
         $$Var(Y) = 10 \times 0.6 \times 0.4 = 2.4$$
     *   만약 $q=0.5$였다면 분산은 $2.5$였을 것입니다. 성공 확률이 60%로 한쪽으로 다소 치우침에 따라, 전체 시스템의 불확실성이 $2.5$에서 $2.4$로 미세하게 감소했음을 수치가 명확히 보여줍니다. 단일 베르누이 시행의 물리적 분산 범위가 $[0, 0.25]$이듯, 이를 $n$개 결합한 이항분포의 물리적 분산 범위는 완결된 확률계 내에서 철저하게 **$[0, 0.25n]$**으로 제어됩니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_07_visual2.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_07_visual2.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
