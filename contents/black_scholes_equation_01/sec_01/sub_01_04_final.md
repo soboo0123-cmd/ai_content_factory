@@ -34,7 +34,7 @@
 
 아래의 인터랙티브 시뮬레이터를 통해, 매년 주가가 등락하는 2기간 확률 트리에서 상승 확률 $q$를 변경해 가며 미시적 경로 확률과 최종 거시적 상태 분포가 어떻게 정교하게 연동되는지 실시간으로 확인해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_04_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_04_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
