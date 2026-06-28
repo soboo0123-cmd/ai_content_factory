@@ -62,7 +62,7 @@ $$\text{포트폴리오 순가치} = (\text{보유 주식 가치}) - (\text{차�
 
 반면, 귀찮다는 이유로 초기의 델타 포지션을 끝까지 방치한 **'고정 헤징(리밸런싱 생략)'** 모드에서는 주가 변동에 따라 포트폴리오가 파괴적 수준의 손실을 보는 대조 상황을 직관적으로 보실 수 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_04_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_04_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
