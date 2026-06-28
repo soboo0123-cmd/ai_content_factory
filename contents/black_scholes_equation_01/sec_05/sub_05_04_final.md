@@ -105,7 +105,7 @@ $$\lim_{n \to \infty} \gamma = C \times 0 = 0$$
 
 수식의 극한이 현실 세계에서 작동하는 경이로운 역동성을 직접 제어하고 확인하기 위해 아래의 인터랙티브 시뮬레이터를 활용해 보세요. 상승 확률($p$)과 단계 수($n$)를 조절하며, 찌그러진 이항 막대들이 $\sqrt{n}$의 제어를 통해 정규분포의 곡선 속으로 매끄럽게 포개어 수렴하는 변화 과정을 실시간으로 확인하실 수 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_04_visual1.html" width="100%" height="480px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_04_visual1.html" width="100%" height="480px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
