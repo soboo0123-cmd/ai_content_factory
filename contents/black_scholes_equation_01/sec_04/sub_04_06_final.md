@@ -55,7 +55,7 @@ $$V_{\text{American}}(S_t, t) \ge \max(S_t - K, 0) \quad \text{(콜옵션의 경
 
 아래 시뮬레이션을 통해 잔존 만기($T-t$)와 이자율($r$)이 변할 때 미국식 옵션 가치 곡선과 조기 행사 영역이 어떻게 역동적으로 상호작용하는지 관찰해 보십시오.
 
-<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_06_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_06_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
