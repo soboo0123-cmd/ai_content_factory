@@ -245,7 +245,7 @@ $$C = 48.0061 - 111.6278 \times 0.951229 \times 0.363169 \approx 48.0061 - 38.56
 
 아래의 반응형 터미널에서 5대 핵심 변수를 슬라이더로 실시간 조정해 보며, 연속시간 블랙-숄즈 곡선의 변동 및 주요 한계 상황(Limit Cases) 프리셋에서의 수식 압축과 기하학적 수렴 메커니즘을 직접 실험해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_09_visual1.html" width="100%" height="650px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_09_visual1.html" width="100%" height="650px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
