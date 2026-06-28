@@ -184,7 +184,7 @@ $$\lim_{n \to \infty} \hat{\sigma}_n^2 = \lim_{n \to \infty} n \cdot \left\{ q(1
 
 '매개변수 시간 보정' 장치를 꺼둔 상태에서 단계를 늘릴 때 분포가 사방으로 찢어지듯 폭발하는 모순과, 보정 장치를 켰을 때 비로소 총 변동성이 우아하게 통제되며 부드러운 로그정규분포 곡선으로 안착하는 수학적 정합성을 실시간으로 대조할 수 있습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_02_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_02_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
