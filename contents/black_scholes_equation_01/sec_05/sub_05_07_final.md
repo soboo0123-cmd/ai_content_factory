@@ -133,7 +133,7 @@ $$q = \frac{e^{r \Delta t} - d}{u - d} = \frac{e^{0.0005} - e^{-0.03}}{e^{0.03} 
 
 아래의 실시간 인터랙티브 시뮬레이터를 통해 시간 격자 $\Delta t$가 $0$에 가깝게 작아질 때, 실제 비선형 확률 곡선이 우리가 유도한 테일러 1차 선형 근사선과 어떻게 완벽히 일치하는지, 그리고 두 세계의 형태적 유사성(왜도 소멸)과 중심축 평행 이동을 직접 제어해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_07_visual1.html" width="100%" height="560px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_05/assets/diagrams/sub_05_07_visual1.html" width="100%" height="560px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
