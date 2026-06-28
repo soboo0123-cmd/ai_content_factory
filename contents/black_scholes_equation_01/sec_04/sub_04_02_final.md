@@ -70,7 +70,7 @@ $$\begin{cases} 120 \cdot \Delta + 1.1 \cdot B = 58.44 & (\text{주가 상승 �
 
 투자자는 거래를 시작하자마자 아무런 리스크 없이 $1.940$의 순수 현금 수익을 주머니에 넣고, 만기($t=1$)에는 완벽히 상쇄되는 포지션을 청산하기만 하면 됩니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_02_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_02_visual1.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
@@ -97,7 +97,7 @@ $$0 \le \Delta \le 1$$
 
 이 피드백 루프는 시장의 가격이 왜 궁극적으로 우리가 계산한 이항 트리 모델의 이론 가격을 추종할 수밖에 없는지를 보여주는 가장 강력한 증거입니다. 시장 참여자들의 이기적이고 합리적인 이윤 추구 행위가 역설적으로 시장을 가장 효율적인 상태로 되돌려놓는 '자정 작용'을 수행하는 것입니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_02_visual2.html" width="100%" height="480px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_02_visual2.html" width="100%" height="480px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
