@@ -42,7 +42,7 @@ $$\frac{4 \times 3 \times 2 \times 1}{2 \times 1} = \frac{4!}{2!} = 12$$
 
 다음의 인터랙티브 시뮬레이터를 통해 슬라이더를 조절하며, 선택된 인원 뒤에 남겨진 낙선자들의 무의미한 순서 바꾸기가 수식에서 어떻게 실시간으로 약분(소거)되는지 시각적으로 직접 확인해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_02_visual1.html" width="100%" height="540px" frameborder="0" scrolling="yes"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_01/assets/diagrams/sub_01_02_visual1.html" width="100%" height="570px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
