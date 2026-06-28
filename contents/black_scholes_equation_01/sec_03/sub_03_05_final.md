@@ -76,7 +76,7 @@ $$a = \left\lceil \frac{\ln\left(\frac{K}{S_0 \cdot d^n}\right)}{\ln\left(\frac{
 
 아래의 대화형 인포그래픽을 활용하여 다양한 시장 변수가 변할 때 이 최소 상승 허들인 $a$가 어떻게 동적으로 이동하고, 전체 이항 사건을 가치 영역별로 분리해 내는지 조작해 보십시오.
 
-<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_05_visual1.html" width="100%" height="450px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_03/assets/diagrams/sub_03_05_visual1.html" width="100%" height="450px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
