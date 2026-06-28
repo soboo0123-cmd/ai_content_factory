@@ -25,7 +25,7 @@
 ### 1.2 [성공하는 경로] 델타 변동에 맞춘 정밀 리밸런싱
 리스크를 상시 '0'으로 통제하기 위해서는 주가 변동 경로에 따라 매 기간 델타 값을 새로 계산하고, 부족하거나 남는 주식을 즉각적으로 사고팔아야 합니다. 이를 **동적 델타 헷징(Dynamic Delta Hedging)**이라고 합니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_03_visual1.html" width="100%" height="520px" frameborder="0" scrolling="no"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_04/assets/diagrams/sub_04_03_visual1.html" width="100%" height="520px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
