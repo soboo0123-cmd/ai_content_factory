@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -15,11 +15,100 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/darcula.min.css" />
 
+  <!-- 수학 수식(LaTeX) 복사 지원 설정 -->
+  <script>
+    // 1. MathJax 설정 (복사용 원본 텍스트를 DOM에 기록)
+    window.MathJax = {
+      options: {
+        renderActions: {
+          addCopyText: [155,
+            (doc) => {
+              for (const math of doc.math) MathJax.config.addCopyText(math, doc);
+            },
+            (math, doc) => MathJax.config.addCopyText(math, doc)
+          ]
+        }
+      },
+      addCopyText(math, doc) {
+        const adaptor = doc.adaptor;
+        // 중복 렌더링 방지
+        if (adaptor.getAttribute(math.typesetRoot, 'data-copytext-added')) return;
+        adaptor.setAttribute(math.typesetRoot, 'data-copytext-added', 'true');
+
+        // 수식 안에 원본 텍스트(mjx-copytext)를 생성해둠
+        const text = adaptor.node('mjx-copytext', {}, [
+          adaptor.text(math.start.delim + math.math + math.end.delim)
+        ]);
+        adaptor.append(math.typesetRoot, text);
+      }
+    };
+
+    // 2. ★ 핵심: 브라우저 복사(Copy) 이벤트 가로채기 ★
+    document.addEventListener('copy', function(event) {
+      const selection = window.getSelection();
+      // 선택 영역이 없거나, 일반 버튼 클릭인 경우 무시
+      if (!selection || selection.isCollapsed) return;
+
+      // 사용자가 드래그한 영역을 메모리상에 복제
+      const div = document.createElement('div');
+      for (let i = 0; i < selection.rangeCount; i++) {
+        div.appendChild(selection.getRangeAt(i).cloneContents());
+      }
+
+      // 드래그한 영역 안에 수식(mjx-container)이 있는지 확인
+      const mathElements = div.querySelectorAll('mjx-container');
+      if (mathElements.length === 0) return; // 수식이 없으면 브라우저 기본 복사 진행
+
+      // 수식이 있다면, 복사용 텍스트(LaTeX)를 추출해서 수식 요소 자체를 텍스트로 싹 교체함
+      mathElements.forEach(mjx => {
+        const copyTextNode = mjx.querySelector('mjx-copytext');
+        if (copyTextNode) {
+          // 수식 덩어리를 순수 텍스트(예: $\frac{L}{E}$)로 바꿔치기 (줄바꿈 원천 차단)
+          mjx.replaceWith(document.createTextNode(copyTextNode.textContent));
+        }
+      });
+
+      // 브라우저가 문맥(띄어쓰기, 문단)을 완벽하게 계산하도록 화면 밖에 임시 부착
+      div.style.position = 'fixed';
+      div.style.left = '-9999px';
+      div.style.top = '0';
+      document.body.appendChild(div);
+      
+      const textToCopy = div.innerText; // 완성된 순수 텍스트 추출
+      
+      document.body.removeChild(div);
+
+      // 클립보드에 수정된 텍스트 덮어쓰기 및 기본 복사 차단
+      if (event.clipboardData) {
+        event.clipboardData.setData('text/plain', textToCopy);
+        event.preventDefault(); 
+      }
+    });
+  </script>
   <!-- 수학 수식(LaTeX)을 위한 필수 엔진 -->
   <script src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <!-- 커스텀 스타일 -->
   <style>
+    /* 1. 수식 컨테이너를 상대 위치로 잡아줌 */
+    mjx-container {
+      position: relative !important;
+    }
+
+    /* 화면에 렌더링된 수식은 드래그되지 않도록 차단 (글씨 깨짐 방지) */
+    mjx-container > mjx-math,
+    mjx-container > svg {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+    }
+
+    /* 복사용 숨김 텍스트를 인라인(inline) 요소로 변경하여 줄바꿈 방지 */
+    mjx-copytext {
+      display: none !important;
+    }
+
     .markdown-section pre>code {
       font-size: 1.05rem !important;
       line-height: 1.5 !important;
@@ -57,7 +146,7 @@
       sidebarDisplayLevel: 1,
       subMaxLevel: 3,
       auto2top: true,
-      homepage: 'docsify.md',
+      homepage: 'home.md',
       relativePath: false,
 
       // 다크 모드 상세 설정
