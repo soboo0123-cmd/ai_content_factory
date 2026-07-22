@@ -13,7 +13,7 @@ from google import genai
 
 # 환경 변수 로드 및 정제
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL = 'gemini-3.5-flash'
+GEMINI_MODEL = 'gemini-3.6-flash'
 
 # 경로 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
