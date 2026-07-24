@@ -39,6 +39,8 @@ uv run ai_content_factory/orchestrator.py
 pip install -r ai_content_factory/requirements.txt
 python ai_content_factory/orchestrator.py
 ```
+index.html 코드에는 메인 화면 문서로 homepage: 'docsify.md를 불러오도록 설정되어 있습니다.
+(home.md으로 하면 404에러 발생) 
 
 ## 🔄 주요 프로세스
 1. **v1 (Drafting_V1)**: 기본 지침을 준수한 초안 생성
