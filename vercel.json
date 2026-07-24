@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/orchestrator.py"
+      "destination": "/index.html"
     }
   ]
 }
