@@ -1,0 +1,92 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 360" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0f172a" rx="10"/>
+  
+  <!-- Outer Border -->
+  <rect x="2" y="2" width="846" height="356" fill="none" stroke="#1e293b" stroke-width="3" rx="8"/>
+  
+  <!-- Section Titles -->
+  <text x="30" y="35" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="16" font-weight="bold" fill="#f8fafc">IFRS 17 부채 롤포워드 &amp; 손익(P&amp;L) 흐름 시스템</text>
+  
+  <!-- Box 1: Input Liabilities -->
+  <rect x="30" y="70" width="200" height="230" fill="#1e293b" stroke="#334155" stroke-width="2" rx="6"/>
+  <text x="45" y="98" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#38bdf8">기초 부채 잔액 (t-1)</text>
+  
+  <!-- CSM Component -->
+  <rect x="45" y="115" width="170" height="65" fill="#0284c7" opacity="0.3" rx="4"/>
+  <rect x="45" y="115" width="170" height="65" fill="none" stroke="#0284c7" stroke-width="1.5" rx="4"/>
+  <text x="55" y="138" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="bold" fill="#e0f2fe">계약서비스마진 (CSM)</text>
+  <text x="55" y="160" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#38bdf8">300.0 만원</text>
+  
+  <!-- RA Component -->
+  <rect x="45" y="195" width="170" height="65" fill="#d97706" opacity="0.3" rx="4"/>
+  <rect x="45" y="195" width="170" height="65" fill="none" stroke="#d97706" stroke-width="1.5" rx="4"/>
+  <text x="55" y="218" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="bold" fill="#fef3c7">위험조정 (RA)</text>
+  <text x="55" y="240" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#fbbf24">200.0 만원</text>
+
+  <!-- Connectors from Input to Calculations -->
+  <path d="M 230 147 L 290 147" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+  <path d="M 230 227 L 380 227" stroke="#fbbf24" stroke-width="2" fill="none" marker-end="url(#arrow-orange)"/>
+
+  <!-- Box 2: Interest Accretion (CSM only) -->
+  <rect x="290" y="115" width="120" height="65" fill="#0f172a" stroke="#0284c7" stroke-width="2" stroke-dasharray="3,3" rx="6"/>
+  <text x="300" y="135" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#94a3b8">시간가치 반영</text>
+  <text x="300" y="152" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="bold" fill="#38bdf8">이자 가산 (+5%)</text>
+  <text x="300" y="170" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" font-style="italic" fill="#94a3b8">+15.0 만원</text>
+
+  <path d="M 410 147 L 440 147" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+
+  <!-- Box 3: Release & Amortization Engine -->
+  <rect x="440" y="70" width="160" height="230" fill="#1e293b" stroke="#475569" stroke-width="2" rx="6"/>
+  <text x="455" y="98" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#94a3b8">마진 소거 엔진 (t)</text>
+  
+  <!-- CSM Amortization Block -->
+  <rect x="455" y="115" width="130" height="65" fill="#0284c7" opacity="0.15" rx="4"/>
+  <rect x="455" y="115" width="130" height="65" fill="none" stroke="#0284c7" stroke-width="1.5" rx="4"/>
+  <text x="465" y="135" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#e0f2fe">CSM 상각 (1/3)</text>
+  <text x="465" y="158" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#38bdf8">105.0 만원</text>
+
+  <!-- RA Release Block -->
+  <rect x="455" y="195" width="130" height="65" fill="#d97706" opacity="0.15" rx="4"/>
+  <rect x="455" y="195" width="130" height="65" fill="none" stroke="#d97706" stroke-width="1.5" rx="4"/>
+  <text x="465" y="215" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#fef3c7">RA 환입 (1/3)</text>
+  <text x="465" y="238" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#fbbf24">66.67 만원</text>
+
+  <!-- Connection to P&L -->
+  <path d="M 600 147 L 650 147" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)"/>
+  <path d="M 600 230 C 625 230 635 180 650 180" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+  
+  <!-- Box 4: P&L Statement -->
+  <rect x="650" y="70" width="170" height="230" fill="#064e3b" stroke="#059669" stroke-width="2" rx="6"/>
+  <text x="665" y="98" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="bold" fill="#34d399">보험손익계산서 (P&amp;L)</text>
+
+  <!-- Expected claims inflow -->
+  <text x="665" y="130" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#a7f3d0">예상지출효과: +70.0</text>
+  <text x="665" y="148" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#38bdf8">CSM 상각액: +105.0</text>
+  <text x="665" y="166" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#fbbf24">RA 환입액:  +66.67</text>
+  
+  <line x1="665" y1="175" x2="805" y2="175" stroke="#059669" stroke-width="1"/>
+  
+  <!-- Insurance Revenue -->
+  <text x="665" y="195" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="bold" fill="#f8fafc">보험수익: 241.67</text>
+  <text x="665" y="215" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#fca5a5">보험비용: -70.0</text>
+  
+  <line x1="665" y1="225" x2="805" y2="225" stroke="#059669" stroke-width="2"/>
+  
+  <!-- Net Operating Profit -->
+  <text x="665" y="248" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="bold" fill="#34d399">영업이익:</text>
+  <text x="665" y="272" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="18" font-weight="bold" fill="#34d399">171.67 만원</text>
+
+  <!-- Markers for arrows -->
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
+    </marker>
+  </defs>
+</svg>

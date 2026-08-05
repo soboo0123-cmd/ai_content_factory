@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSM Roll-forward Interactive Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; }
+        .transition-all-custom { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="p-4 md:p-6 text-slate-800">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-slate-900 text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
+                    CSM 롤포워드(Roll-forward) 실시간 시뮬레이터
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">K-IFRS 1117호 후속측정 단계별 잔액 변동 및 손실조정 메커니즘</p>
+            </div>
+            <div id="statusBadge" class="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                정상 마진 유지
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
+            <!-- Controls Panel -->
+            <div class="lg:col-span-5 bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col justify-between gap-4">
+                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200 pb-2">시나리오 파라미터</h2>
+
+                <!-- Input 1: 기초 CSM -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <label for="initCsm">기초 CSM ($CSM_{t-1}$)</label>
+                        <span id="valInitCsm" class="font-bold text-blue-600">1,000 원</span>
+                    </div>
+                    <input type="range" id="initCsm" min="100" max="3000" step="50" value="1000" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+
+                <!-- Input 2: 고정 할인율 -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <label for="lockedRate">고정 할인율 ($r_L$)</label>
+                        <span id="valLockedRate" class="font-bold text-blue-600">5.0 %</span>
+                    </div>
+                    <input type="range" id="lockedRate" min="0" max="15" step="0.5" value="5" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+
+                <!-- Input 3: 미래 서비스 가정 변경 -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <label for="changeCf">미래 서비스 가정 변경 ($\Delta CF$)</label>
+                        <span id="valChangeCf" class="font-bold text-indigo-600">+150 원</span>
+                    </div>
+                    <input type="range" id="changeCf" min="-2000" max="1000" step="50" value="150" class="w-full accent-indigo-600 cursor-pointer">
+                    <p class="text-[11px] text-slate-400 mt-1">* 양수(+): 현금유출 감소(호재) / 음수(-): 유출 증가(악재)</p>
+                </div>
+
+                <!-- Input 4: 당기 상각률 -->
+                <div>
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <label for="amortRate">당기 상각률 ($\alpha$)</label>
+                        <span id="valAmortRate" class="font-bold text-blue-600">10.0 %</span>
+                    </div>
+                    <input type="range" id="amortRate" min="1" max="50" step="1" value="10" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="pt-2 border-t border-slate-200">
+                    <span class="text-xs font-semibold text-slate-500 block mb-2">프리셋 시나리오:</span>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button onclick="applyPreset(1000, 5, 150, 10)" class="px-2 py-1.5 bg-white hover:bg-slate-200 text-slate-700 text-xs font-medium rounded border border-slate-300 transition">기본 시나리오</button>
+                        <button onclick="applyPreset(1000, 5, -400, 10)" class="px-2 py-1.5 bg-white hover:bg-slate-200 text-slate-700 text-xs font-medium rounded border border-slate-300 transition">경로 A (완충)</button>
+                        <button onclick="applyPreset(1000, 5, -1500, 10)" class="px-2 py-1.5 bg-white hover:bg-slate-200 text-slate-700 text-xs font-medium rounded border border-slate-300 transition">경로 B (손실)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Waterfall & Summary -->
+            <div class="lg:col-span-7 flex flex-col justify-between gap-4">
+                <!-- Chart Area -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex-1 flex flex-col justify-end min-h-[220px]">
+                    <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase">단계별 잔액 변화 (Waterfall Visual)</h3>
+                    
+                    <div id="waterfallBars" class="flex items-end justify-between gap-2 h-44 pt-6 pb-2 px-2 border-b border-slate-300 relative">
+                        <!-- Bars dynamically rendered here -->
+                    </div>
+
+                    <!-- X Axis Labels -->
+                    <div class="flex justify-between text-[11px] font-medium text-slate-500 mt-2 px-1 text-center">
+                        <div class="w-1/5">기초</div>
+                        <div class="w-1/5">이자부리</div>
+                        <div class="w-1/5">가정변동</div>
+                        <div class="w-1/5">당기상각</div>
+                        <div class="w-1/5">기말잔액</div>
+                    </div>
+                </div>
+
+                <!-- Calculated Metric Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-blue-50/80 p-3 rounded-lg border border-blue-100">
+                        <span class="text-[11px] text-blue-600 font-medium block">이자부리 (+원)</span>
+                        <span id="metricAccretion" class="text-base font-bold text-blue-900">+50</span>
+                    </div>
+                    <div class="bg-indigo-50/80 p-3 rounded-lg border border-indigo-100">
+                        <span class="text-[11px] text-indigo-600 font-medium block">상각전 잔액</span>
+                        <span id="metricPreAmort" class="text-base font-bold text-indigo-900">1,200</span>
+                    </div>
+                    <div class="bg-emerald-50/80 p-3 rounded-lg border border-emerald-100">
+                        <span class="text-[11px] text-emerald-600 font-medium block">당기상각 (수익)</span>
+                        <span id="metricAmort" class="text-base font-bold text-emerald-900">120</span>
+                    </div>
+                    <div id="metricLossCard" class="bg-slate-100 p-3 rounded-lg border border-slate-200 transition-all-custom">
+                        <span id="metricLossTitle" class="text-[11px] text-slate-500 font-medium block">기말 CSM</span>
+                        <span id="metricLossVal" class="text-base font-bold text-slate-800">1,080</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const initCsmInput = document.getElementById('initCsm');
+        const lockedRateInput = document.getElementById('lockedRate');
+        const changeCfInput = document.getElementById('changeCf');
+        const amortRateInput = document.getElementById('amortRate');
+
+        function formatNum(num) {
+            return new Intl.NumberFormat('ko-KR').format(Math.round(num));
+        }
+
+        function applyPreset(csm, rate, cf, amort) {
+            initCsmInput.value = csm;
+            lockedRateInput.value = rate;
+            changeCfInput.value = cf;
+            amortRateInput.value = amort;
+            update();
+        }
+
+        function update() {
+            const initCsm = parseFloat(initCsmInput.value);
+            const rate = parseFloat(lockedRateInput.value) / 100;
+            const changeCf = parseFloat(changeCfInput.value);
+            const amortRate = parseFloat(amortRateInput.value) / 100;
+
+            // Labels
+            document.getElementById('valInitCsm').innerText = `${formatNum(initCsm)} 원`;
+            document.getElementById('valLockedRate').innerText = `${(rate * 100).toFixed(1)} %`;
+            document.getElementById('valChangeCf').innerText = `${changeCf >= 0 ? '+' : ''}${formatNum(changeCf)} 원`;
+            document.getElementById('valAmortRate').innerText = `${(amortRate * 100).toFixed(1)} %`;
+
+            // Calculations
+            const accretion = initCsm * rate;
+            const preAmortBeforeCf = initCsm + accretion;
+            const preAmortTotal = preAmortBeforeCf + changeCf;
+
+            let finalCsm = 0;
+            let amortization = 0;
+            let lossComponent = 0;
+            let isDeficit = false;
+
+            if (preAmortTotal >= 0) {
+                amortization = preAmortTotal * amortRate;
+                finalCsm = preAmortTotal - amortization;
+            } else {
+                lossComponent = Math.abs(preAmortTotal);
+                finalCsm = 0;
+                amortization = 0;
+                isDeficit = true;
+            }
+
+            // Status Badge & Metric Update
+            const badge = document.getElementById('statusBadge');
+            const lossCard = document.getElementById('metricLossCard');
+            const lossTitle = document.getElementById('metricLossTitle');
+            const lossVal = document.getElementById('metricLossVal');
+
+            if (isDeficit) {
+                badge.className = "self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse";
+                badge.innerText = `손실계약 전환 (손실조정: ${formatNum(lossComponent)}원)`;
+                
+                lossCard.className = "bg-rose-50 p-3 rounded-lg border border-rose-200 transition-all-custom";
+                lossTitle.className = "text-[11px] text-rose-600 font-medium block";
+                lossTitle.innerText = "손실조정(LC) 적립";
+                lossVal.className = "text-base font-bold text-rose-900";
+                lossVal.innerText = `${formatNum(lossComponent)} 원`;
+            } else {
+                badge.className = "self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                badge.innerText = "정상 마진 유지 (양수 CSM)";
+
+                lossCard.className = "bg-blue-50/80 p-3 rounded-lg border border-blue-100 transition-all-custom";
+                lossTitle.className = "text-[11px] text-blue-600 font-medium block";
+                lossTitle.innerText = "기말 CSM 잔액";
+                lossVal.className = "text-base font-bold text-blue-900";
+                lossVal.innerText = `${formatNum(finalCsm)} 원`;
+            }
+
+            document.getElementById('metricAccretion').innerText = `+${formatNum(accretion)}`;
+            document.getElementById('metricPreAmort').innerText = formatNum(Math.max(0, preAmortTotal));
+            document.getElementById('metricAmort').innerText = formatNum(amortization);
+
+            // Render Waterfall Chart
+            renderWaterfall(initCsm, accretion, changeCf, amortization, finalCsm, lossComponent, isDeficit);
+        }
+
+        function renderWaterfall(init, acc, cf, amort, finalCsm, lc, isDeficit) {
+            const container = document.getElementById('waterfallBars');
+            container.innerHTML = '';
+
+            const maxVal = Math.max(init + acc + Math.max(0, cf), init, 1500);
+
+            function getH(val) {
+                return Math.max(4, Math.min(100, (Math.abs(val) / maxVal) * 100));
+            }
+
+            const steps = [
+                { label: '기초', val: init, color: 'bg-slate-700', text: `${formatNum(init)}` },
+                { label: '이자', val: acc, color: 'bg-blue-500', text: `+${formatNum(acc)}` },
+                { label: '가정', val: cf, color: cf >= 0 ? 'bg-emerald-500' : 'bg-rose-500', text: `${cf >= 0 ? '+' : ''}${formatNum(cf)}` },
+                { label: '상각', val: -amort, color: 'bg-amber-500', text: `-${formatNum(amort)}` },
+                { label: '기말', val: isDeficit ? lc : finalCsm, color: isDeficit ? 'bg-rose-600' : 'bg-blue-600', text: isDeficit ? `LC ${formatNum(lc)}` : `${formatNum(finalCsm)}` }
+            ];
+
+            steps.forEach((s) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "w-1/5 h-full flex flex-col justify-end items-center relative group";
+
+                const bar = document.createElement('div');
+                bar.className = `w-full max-w-[36px] rounded-t ${s.color} transition-all duration-300 relative`;
+                bar.style.height = `${getH(s.val)}%`;
+
+                const valLabel = document.createElement('span');
+                valLabel.className = "absolute -top-5 text-[10px] font-bold text-slate-600 whitespace-nowrap";
+                valLabel.innerText = s.text;
+
+                wrapper.appendChild(valLabel);
+                wrapper.appendChild(bar);
+                container.appendChild(wrapper);
+            });
+        }
+
+        // Event Listeners
+        [initCsmInput, lockedRateInput, changeCfInput, amortRateInput].forEach(el => {
+            el.addEventListener('input', update);
+        });
+
+        // Initialize
+        update();
+    </script>
+</body>
+</html>

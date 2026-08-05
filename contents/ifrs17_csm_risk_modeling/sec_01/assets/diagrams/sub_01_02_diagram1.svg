@@ -1,0 +1,98 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" width="100%" height="100%">
+  <defs>
+    <style>
+      .title { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 16px; fill: #0f172a; }
+      .subtitle { font-family: 'Pretendard', sans-serif; font-weight: 600; font-size: 13px; fill: #475569; }
+      .box-title { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 14px; }
+      .text-bold { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 12px; }
+      .text-sm { font-family: 'Pretendard', sans-serif; font-size: 11px; fill: #ffffff; }
+      .text-dark-sm { font-family: 'Pretendard', sans-serif; font-size: 11px; fill: #1e293b; }
+      .arrow { stroke: #64748b; stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+    </style>
+    <linearGradient id="pvfcfGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="raGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#7e22ce"/>
+    </linearGradient>
+    <linearGradient id="csmGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="lcGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 전체 배경 -->
+  <rect width="800" height="380" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- 메인 헤더 -->
+  <text x="30" y="35" class="title">이익 계약 vs 손실부담계약의 부채 구조 및 손익 대조</text>
+  <text x="30" y="55" class="subtitle">유입 재원(보험료)과 부채 이행 원가의 대소 관계에 따른 회계적 비대칭 처리</text>
+
+  <!-- 좌측 섹션: 이익 계약 (Profitable Contract) -->
+  <g transform="translate(40, 75)">
+    <rect width="340" height="285" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+    <rect width="340" height="32" rx="8" fill="#ecfdf5"/>
+    <text x="15" y="21" class="box-title" fill="#047857">[유익계약] 재원(보험료) &gt; 부채 방어선</text>
+
+    <!-- 수납 보험료 축 -->
+    <rect x="25" y="50" width="100" height="215" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+    <text x="75" y="75" class="text-bold" fill="#334155" text-anchor="middle">수납 보험료</text>
+    <text x="75" y="95" class="text-bold" fill="#0f172a" text-anchor="middle">1,000원</text>
+    <text x="75" y="180" class="text-dark-sm" text-anchor="middle">(총 가용 재원)</text>
+
+    <!-- 화살표 -->
+    <path d="M 130 155 L 155 155" class="arrow" marker-end="url(#arrowhead)"/>
+
+    <!-- 적층 부채 구조 -->
+    <!-- PVFCF -->
+    <rect x="160" y="145" width="155" height="120" rx="4" fill="url(#pvfcfGrad)"/>
+    <text x="237" y="200" class="text-bold" fill="#ffffff" text-anchor="middle">PVFCF + 사업비</text>
+    <text x="237" y="218" class="text-sm" text-anchor="middle">808.35원</text>
+
+    <!-- RA -->
+    <rect x="160" y="105" width="155" height="36" rx="4" fill="url(#raGrad)"/>
+    <text x="237" y="127" class="text-bold" fill="#ffffff" text-anchor="middle">위험조정(RA): 50원</text>
+
+    <!-- CSM -->
+    <rect x="160" y="50" width="155" height="51" rx="4" fill="url(#csmGrad)"/>
+    <text x="237" y="72" class="text-bold" fill="#ffffff" text-anchor="middle">CSM: +141.65원</text>
+    <text x="237" y="88" class="text-sm" text-anchor="middle">(미실현 이익 부채 이연)</text>
+  </g>
+
+  <!-- 우측 섹션: 손실부담계약 (Onerous Contract) -->
+  <g transform="translate(420, 75)">
+    <rect width="340" height="285" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+    <rect width="340" height="32" rx="8" fill="#fef2f2"/>
+    <text x="15" y="21" class="box-title" fill="#b91c1c">[손실계약] 재원(보험료) &lt; 부채 방어선</text>
+
+    <!-- 수납 보험료 축 -->
+    <rect x="25" y="100" width="100" height="165" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+    <text x="75" y="125" class="text-bold" fill="#334155" text-anchor="middle">수납 보험료</text>
+    <text x="75" y="145" class="text-bold" fill="#0f172a" text-anchor="middle">1,000원</text>
+
+    <!-- 손실 영역 표시 -->
+    <rect x="25" y="50" width="100" height="45" rx="4" fill="url(#lcGrad)"/>
+    <text x="75" y="70" class="text-bold" fill="#ffffff" text-anchor="middle">즉시 손실 인식</text>
+    <text x="75" y="85" class="text-sm" text-anchor="middle">P&amp;L -172.99원</text>
+
+    <!-- 적층 부채 구조 -->
+    <!-- PVFCF -->
+    <rect x="160" y="110" width="155" height="155" rx="4" fill="url(#pvfcfGrad)"/>
+    <text x="237" y="180" class="text-bold" fill="#ffffff" text-anchor="middle">PVFCF + 사업비</text>
+    <text x="237" y="198" class="text-sm" text-anchor="middle">1,222.99원</text>
+
+    <!-- RA -->
+    <rect x="160" y="75" width="155" height="31" rx="4" fill="url(#raGrad)"/>
+    <text x="237" y="95" class="text-bold" fill="#ffffff" text-anchor="middle">위험조정(RA): 50원</text>
+
+    <!-- CSM 0 고정 및 손실요소 적립 -->
+    <rect x="160" y="50" width="155" height="21" rx="4" fill="#94a3b8"/>
+    <text x="237" y="65" class="text-bold" fill="#ffffff" text-anchor="middle">CSM = 0원 (고정)</text>
+  </g>
+</svg>

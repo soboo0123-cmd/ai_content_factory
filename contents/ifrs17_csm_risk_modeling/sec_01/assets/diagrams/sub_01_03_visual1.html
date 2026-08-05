@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시점별 현금흐름 및 할인 시뮬레이터 (BoY vs EoY)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .arrow-up { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+        .arrow-down { clip-path: polygon(0% 0%, 100% 0%, 50% 100%); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md border border-slate-200 p-5">
+        <div class="border-b border-slate-200 pb-4 mb-5">
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <span>⏱️</span> 현금흐름 시점 불일치 시뮬레이터 (BoY vs EoY)
+            </h2>
+            <p class="text-sm text-slate-600 mt-1">
+                기초 수납(BoY: $t-1$ 할인)과 기말 지출(EoY: $t$ 할인)의 시차 메커니즘을 할인율 조절을 통해 확인해보세요.
+            </p>
+        </div>
+
+        <!-- 컨트롤 영역 -->
+        <div class="bg-indigo-50/60 p-4 rounded-lg border border-indigo-100 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex-1 min-w-[240px]">
+                <label for="rate-slider" class="block text-sm font-semibold text-indigo-950 mb-1">
+                    할인율 ($r$): <span id="rate-val" class="text-indigo-600 font-bold text-base">3.0%</span>
+                </label>
+                <input type="range" id="rate-slider" min="0" max="10" step="0.5" value="3.0" 
+                       class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                    <span>0% (명목값)</span>
+                    <span>5%</span>
+                    <span>10%</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-center sm:text-right">
+                <div class="bg-white p-2.5 rounded-md border border-indigo-100 shadow-sm">
+                    <div class="text-xs text-slate-500">유입 현가 ($PV_{In}$)</div>
+                    <div id="pv-in-val" class="text-sm font-bold text-emerald-600">291.35 원</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-md border border-indigo-100 shadow-sm">
+                    <div class="text-xs text-slate-500">유출 현가 ($PV_{Out}$)</div>
+                    <div id="pv-out-val" class="text-sm font-bold text-rose-600">225.73 원</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 타임라인 시각화 영역 -->
+        <div class="relative py-8 px-2 border-y border-slate-100 my-6">
+            <!-- 중심 축 -->
+            <div class="absolute top-1/2 left-4 right-4 h-1 bg-slate-300 -translate-y-1/2 z-0"></div>
+
+            <!-- 시점 노드들 (t=0, t=1, t=2, t=3) -->
+            <div class="relative z-10 grid grid-cols-4 gap-2 text-center">
+                <!-- t=0 -->
+                <div class="flex flex-col items-center">
+                    <!-- BoY 유입 -->
+                    <div class="mb-2 h-20 flex flex-col justify-end items-center">
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shadow-xs">
+                            +100원 (BoY)
+                        </span>
+                        <div class="w-1 bg-emerald-500 h-8 mt-1"></div>
+                        <div class="w-3 h-2 bg-emerald-500 arrow-up"></div>
+                    </div>
+                    <!-- 노드 마커 -->
+                    <div class="w-7 h-7 rounded-full bg-slate-800 text-white font-bold text-xs flex items-center justify-center ring-4 ring-white shadow">
+                        t=0
+                    </div>
+                    <!-- EoY 유출 -->
+                    <div class="mt-2 h-20 flex flex-col justify-start items-center">
+                        <span class="text-xs text-slate-400 mt-2">유출 없음</span>
+                    </div>
+                </div>
+
+                <!-- t=1 -->
+                <div class="flex flex-col items-center">
+                    <!-- BoY 유입 -->
+                    <div class="mb-2 h-20 flex flex-col justify-end items-center">
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shadow-xs">
+                            +100원 (BoY)
+                        </span>
+                        <div class="w-1 bg-emerald-500 h-8 mt-1"></div>
+                        <div class="w-3 h-2 bg-emerald-500 arrow-up"></div>
+                    </div>
+                    <!-- 노드 마커 -->
+                    <div class="w-7 h-7 rounded-full bg-slate-700 text-white font-bold text-xs flex items-center justify-center ring-4 ring-white shadow">
+                        t=1
+                    </div>
+                    <!-- EoY 유출 -->
+                    <div class="mt-2 h-20 flex flex-col justify-start items-center">
+                        <div class="w-3 h-2 bg-rose-500 arrow-down"></div>
+                        <div class="w-1 bg-rose-500 h-6"></div>
+                        <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 shadow-xs mt-1">
+                            -70원 (EoY)
+                        </span>
+                        <span class="text-[10px] text-slate-500">(보험금60+사업비10)</span>
+                    </div>
+                </div>
+
+                <!-- t=2 -->
+                <div class="flex flex-col items-center">
+                    <!-- BoY 유입 -->
+                    <div class="mb-2 h-20 flex flex-col justify-end items-center">
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shadow-xs">
+                            +100원 (BoY)
+                        </span>
+                        <div class="w-1 bg-emerald-500 h-8 mt-1"></div>
+                        <div class="w-3 h-2 bg-emerald-500 arrow-up"></div>
+                    </div>
+                    <!-- 노드 마커 -->
+                    <div class="w-7 h-7 rounded-full bg-slate-700 text-white font-bold text-xs flex items-center justify-center ring-4 ring-white shadow">
+                        t=2
+                    </div>
+                    <!-- EoY 유출 -->
+                    <div class="mt-2 h-20 flex flex-col justify-start items-center">
+                        <div class="w-3 h-2 bg-rose-500 arrow-down"></div>
+                        <div class="w-1 bg-rose-500 h-8"></div>
+                        <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 shadow-xs mt-1">
+                            -80원 (EoY)
+                        </span>
+                        <span class="text-[10px] text-slate-500">(보험금70+사업비10)</span>
+                    </div>
+                </div>
+
+                <!-- t=3 -->
+                <div class="flex flex-col items-center">
+                    <!-- BoY 유입 -->
+                    <div class="mb-2 h-20 flex flex-col justify-end items-center">
+                        <span class="text-xs text-slate-400 mb-2">유입 종료</span>
+                    </div>
+                    <!-- 노드 마커 -->
+                    <div class="w-7 h-7 rounded-full bg-slate-700 text-white font-bold text-xs flex items-center justify-center ring-4 ring-white shadow">
+                        t=3
+                    </div>
+                    <!-- EoY 유출 -->
+                    <div class="mt-2 h-20 flex flex-col justify-start items-center">
+                        <div class="w-3 h-2 bg-rose-500 arrow-down"></div>
+                        <div class="w-1 bg-rose-500 h-10"></div>
+                        <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 shadow-xs mt-1">
+                            -90원 (EoY)
+                        </span>
+                        <span class="text-[10px] text-slate-500">(보험금80+사업비10)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결과 요약 및 핵심 메시지 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm pt-2">
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-slate-500 block text-xs">최적추정현금흐름 (PVFCF)</span>
+                <span id="pvfcf-val" class="text-base font-bold text-indigo-700">-65.62 원</span>
+                <p class="text-[11px] text-slate-500 mt-0.5">PV_Out - PV_In (마이너스 = 자산성)</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-slate-500 block text-xs">위험조정 (RA 5%)</span>
+                <span id="ra-val" class="text-base font-bold text-amber-600">11.29 원</span>
+                <p class="text-[11px] text-slate-500 mt-0.5">PV_Out × 5.0%</p>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="text-slate-500 block text-xs">초기 신계약 CSM</span>
+                <span id="csm-val" class="text-base font-bold text-emerald-600">54.33 원</span>
+                <p class="text-[11px] text-slate-500 mt-0.5">MAX(0, -(PVFCF + RA))</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('rate-slider');
+        const rateValDisplay = document.getElementById('rate-val');
+        const pvInDisplay = document.getElementById('pv-in-val');
+        const pvOutDisplay = document.getElementById('pv-out-val');
+        const pvfcfDisplay = document.getElementById('pvfcf-val');
+        const raDisplay = document.getElementById('ra-val');
+        const csmDisplay = document.getElementById('csm-val');
+
+        function updateCalculations() {
+            const r = parseFloat(slider.value) / 100;
+            rateValDisplay.textContent = (r * 100).toFixed(1) + '%';
+
+            // BoY 보험료 유입: t=0(100), t=1(100/(1+r)^1), t=2(100/(1+r)^2)
+            const pvIn = 100 + (100 / Math.pow(1 + r, 1)) + (100 / Math.pow(1 + r, 2));
+
+            // EoY 유출: t=1(70/(1+r)^1), t=2(80/(1+r)^2), t=3(90/(1+r)^3)
+            const pvOut = (70 / Math.pow(1 + r, 1)) + (80 / Math.pow(1 + r, 2)) + (90 / Math.pow(1 + r, 3));
+
+            const pvfcf = pvOut - pvIn;
+            const ra = pvOut * 0.05;
+            const csm = Math.max(0, -(pvfcf + ra));
+
+            pvInDisplay.textContent = pvIn.toFixed(2) + ' 원';
+            pvOutDisplay.textContent = pvOut.toFixed(2) + ' 원';
+            pvfcfDisplay.textContent = pvfcf.toFixed(2) + ' 원';
+            raDisplay.textContent = ra.toFixed(2) + ' 원';
+            csmDisplay.textContent = csm.toFixed(2) + ' 원';
+        }
+
+        slider.addEventListener('input', updateCalculations);
+        updateCalculations();
+    </script>
+</body>
+</html>

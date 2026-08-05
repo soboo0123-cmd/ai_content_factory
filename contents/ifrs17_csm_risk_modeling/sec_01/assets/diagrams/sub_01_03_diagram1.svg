@@ -1,0 +1,94 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="100%" height="100%">
+  <defs>
+    <!-- 테마 색상 및 그라디언트 정의 -->
+    <linearGradient id="pvInGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="pvOutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#DC2626" />
+    </linearGradient>
+    <linearGradient id="csmGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="raGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <!-- 그림자 효과 -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.1" />
+    </filter>
+  </defs>
+
+  <!-- 배경 카드 -->
+  <rect x="10" y="10" width="780" height="340" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" filter="url(#shadow)"/>
+
+  <!-- 타이틀 -->
+  <text x="35" y="45" font-family="-apple-system, sans-serif" font-size="18" font-weight="bold" fill="#0F172A">
+    IFRS 17 Day-1 초기 부채 완결성 (부채 적층 균형 구조)
+  </text>
+  <text x="35" y="68" font-family="-apple-system, sans-serif" font-size="13" fill="#64748B">
+    마이너스 순부채(PVFCF)와 상쇄 완충 항목(RA, CSM)이 결합되어 가입 시점 총부채가 0으로 수렴
+  </text>
+
+  <!-- 왼쪽: 현금흐름 현가 대조 -->
+  <g transform="translate(35, 95)">
+    <!-- 유입 카드 -->
+    <rect x="0" y="0" width="340" height="65" rx="8" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+    <text x="15" y="28" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#166534">유입 현가 (PV Inflows)</text>
+    <text x="15" y="50" font-family="-apple-system, sans-serif" font-size="20" font-weight="bold" fill="#059669">+291.35 원</text>
+    <text x="220" y="48" font-family="-apple-system, sans-serif" font-size="11" fill="#15803D">(보험료 BoY 3회)</text>
+
+    <!-- 차감 기호 -->
+    <circle cx="170" cy="80" r="12" fill="#E2E8F0"/>
+    <text x="165" y="85" font-family="-apple-system, sans-serif" font-size="16" font-weight="bold" fill="#475569">-</text>
+
+    <!-- 유출 카드 -->
+    <rect x="0" y="95" width="340" height="65" rx="8" fill="#FEF2F2" stroke="#FECACA" stroke-width="1"/>
+    <text x="15" y="123" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#991B1B">유출 현가 (PV Outflows)</text>
+    <text x="15" y="145" font-family="-apple-system, sans-serif" font-size="20" font-weight="bold" fill="#DC2626">+225.73 원</text>
+    <text x="210" y="143" font-family="-apple-system, sans-serif" font-size="11" fill="#991B1B">(보험금+사업비 EoY)</text>
+
+    <!-- 결과: PVFCF -->
+    <path d="M 170 165 L 170 185" stroke="#94A3B8" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="0" y="185" width="340" height="50" rx="8" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="15" y="206" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#334155">최적추정현금흐름 (PVFCF)</text>
+    <text x="15" y="226" font-family="-apple-system, sans-serif" font-size="15" font-weight="bold" fill="#1E293B">-65.62 원 (마이너스 부채 = 자산성)</text>
+  </g>
+
+  <!-- 중간 연결 화살표 -->
+  <g transform="translate(395, 200)">
+    <path d="M 0 0 L 25 0" stroke="#64748B" stroke-width="2.5" stroke-dasharray="4 3"/>
+    <polygon points="25,-5 35,0 25,5" fill="#64748B"/>
+  </g>
+
+  <!-- 오른쪽: IFRS 17 빌딩 블록 적층 차트 -->
+  <g transform="translate(450, 95)">
+    <!-- 부채 구성 적층 박스 -->
+    <rect x="0" y="0" width="305" height="235" rx="8" fill="#FAF5FF" stroke="#E9D5FF" stroke-width="1.5"/>
+    <text x="15" y="25" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#6B21A8">Day 1 총 보험부채 적층 구조</text>
+
+    <!-- CSM 블록 -->
+    <rect x="20" y="40" width="265" height="50" rx="6" fill="url(#csmGrad)" filter="url(#shadow)"/>
+    <text x="35" y="62" font-family="-apple-system, sans-serif" font-size="12" font-weight="600" fill="#FFFFFF">계약서비스마진 (CSM)</text>
+    <text x="35" y="79" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">+54.33 원</text>
+
+    <!-- RA 블록 -->
+    <rect x="20" y="96" width="265" height="40" rx="6" fill="url(#raGrad)" filter="url(#shadow)"/>
+    <text x="35" y="114" font-family="-apple-system, sans-serif" font-size="11" font-weight="600" fill="#FFFFFF">비금융 위험조정 (RA 5%)</text>
+    <text x="35" y="129" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">+11.29 원</text>
+
+    <!-- PVFCF 블록 (음수 상쇄) -->
+    <rect x="20" y="142" width="265" height="45" rx="6" fill="#334155" filter="url(#shadow)"/>
+    <text x="35" y="161" font-family="-apple-system, sans-serif" font-size="11" font-weight="600" fill="#94A3B8">최적추정현금흐름 (PVFCF)</text>
+    <text x="35" y="177" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#F8FAFC">-65.62 원</text>
+
+    <!-- 총합 0원 표시 라인 -->
+    <line x1="20" y1="198" x2="285" y2="198" stroke="#A855F7" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <text x="20" y="220" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#7E22CE">총 보험부채 (Total Liability) = 0.00 원</text>
+  </g>
+</svg>

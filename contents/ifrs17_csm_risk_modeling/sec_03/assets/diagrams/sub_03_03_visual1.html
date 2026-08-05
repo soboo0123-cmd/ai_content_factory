@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IFRS 17 부채 롤포워드 & P&L 시뮬레이터</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 p-6 min-h-screen font-sans">
+    <div class="max-w-6xl mx-auto bg-slate-800 rounded-xl p-6 shadow-2xl border border-slate-700">
+        <!-- Header -->
+        <div class="mb-6 border-b border-slate-700 pb-4">
+            <h1 class="text-2xl font-bold text-sky-400">K-IFRS 제1117호 부채 롤포워드 & P&L Projection</h1>
+            <p class="text-slate-400 text-sm mt-1">초기 변수 및 예실차(Experience Variance) 충격을 슬라이더로 조절하여 3개년 재무 성과의 변화를 실시간으로 추정합니다.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sidebar: Controls -->
+            <div class="space-y-6 bg-slate-850 p-4 rounded-lg border border-slate-700">
+                <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2">시뮬레이션 파라미터</h2>
+
+                <!-- Control 1: CSM -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-semibold text-slate-300">초기 CSM 잔액 (만원)</label>
+                        <span id="csm_val" class="text-sm font-bold text-sky-400">300.0</span>
+                    </div>
+                    <input type="range" id="param_csm" min="100" max="500" step="10" value="300" class="w-full accent-sky-500 bg-slate-700 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Control 2: RA -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-semibold text-slate-300">초기 RA 잔액 (만원)</label>
+                        <span id="ra_val" class="text-sm font-bold text-amber-500">200.0</span>
+                    </div>
+                    <input type="range" id="param_ra" min="50" max="400" step="10" value="200" class="w-full accent-amber-500 bg-slate-700 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Control 3: Discount Rate -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-semibold text-slate-300">연간 할인율 (%)</label>
+                        <span id="rate_val" class="text-sm font-bold text-teal-400">5.0%</span>
+                    </div>
+                    <input type="range" id="param_rate" min="0" max="15" step="0.5" value="5.0" class="w-full accent-teal-500 bg-slate-700 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Control 4: Experience Variance -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-semibold text-rose-300">1년차 실제 사고지출 변동 (만원)</label>
+                        <span id="variance_val" class="text-sm font-bold text-rose-400">0.0 (정상)</span>
+                    </div>
+                    <input type="range" id="param_variance" min="-100" max="100" step="10" value="0" class="w-full accent-rose-500 bg-slate-700 h-2 rounded-lg cursor-pointer">
+                    <p class="text-[10px] text-slate-400 mt-1">양수(+)는 사고 다발로 인한 손실 유발, 음수(-)는 사고율 감소로 인한 초과 이익 유발을 의미합니다.</p>
+                </div>
+
+                <!-- Indicator Section -->
+                <div class="p-3 bg-slate-900 rounded-lg border border-slate-700">
+                    <h3 class="text-xs font-bold text-slate-400 mb-2">실무 의사결정 모니터링 ($S_{BEP}$)</h3>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-slate-300">1년차 BEP 한계 비율:</span>
+                        <span id="s_bep_badge" class="px-2 py-0.5 text-xs font-bold rounded"></span>
+                    </div>
+                    <p id="s_bep_desc" class="text-[10px] text-slate-400 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Main Panel: Results & Graphs -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Data Table -->
+                <div class="overflow-x-auto bg-slate-900 rounded-lg border border-slate-700">
+                    <table class="min-w-full text-sm text-left">
+                        <thead class="bg-slate-800 text-xs text-slate-400 uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 text-center">연도</th>
+                                <th class="p-3 text-right">기초 CSM</th>
+                                <th class="p-3 text-right">기말 CSM</th>
+                                <th class="p-3 text-right">RA 환입</th>
+                                <th class="p-3 text-right">보험수익</th>
+                                <th class="p-3 text-right">예실차</th>
+                                <th class="p-3 text-right text-emerald-400">영업이익</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_body" class="divide-y divide-slate-800">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 h-80">
+                    <canvas id="profit_chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const paramCsm = document.getElementById('param_csm');
+        const paramRa = document.getElementById('param_ra');
+        const paramRate = document.getElementById('param_rate');
+        const paramVariance = document.getElementById('param_variance');
+
+        const csmVal = document.getElementById('csm_val');
+        const raVal = document.getElementById('ra_val');
+        const rateVal = document.getElementById('rate_val');
+        const varianceVal = document.getElementById('variance_val');
+
+        const sBepBadge = document.getElementById('s_bep_badge');
+        const sBepDesc = document.getElementById('s_bep_desc');
+        const tableBody = document.getElementById('table_body');
+
+        let chart;
+
+        // Initialize Chart
+        function initChart() {
+            const ctx = document.getElementById('profit_chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1년차 (Y1)', '2년차 (Y2)', '3년차 (Y3)'],
+                    datasets: [
+                        {
+                            label: 'CSM 상각 (수익)',
+                            data: [0, 0, 0],
+                            backgroundColor: '#38bdf8',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'RA 환입 (수익)',
+                            data: [0, 0, 0],
+                            backgroundColor: '#fbbf24',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '예실차 손익',
+                            data: [0, 0, 0],
+                            backgroundColor: '#f87171',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: '#334155' }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Calculation Logic
+        function updateSimulation() {
+            const csm = parseFloat(paramCsm.value);
+            const ra = parseFloat(paramRa.value);
+            const r = parseFloat(paramRate.value) / 100.0;
+            const variance = parseFloat(paramVariance.value); // Positive is loss, negative is gain
+
+            csmVal.textContent = csm.toFixed(1);
+            raVal.textContent = ra.toFixed(1);
+            rateVal.textContent = (r * 100).toFixed(1) + '%';
+            
+            if (variance > 0) {
+                varianceVal.textContent = `+${variance.toFixed(1)} (손실)`;
+                varianceVal.className = "text-sm font-bold text-rose-400";
+            } else if (variance < 0) {
+                varianceVal.textContent = `${variance.toFixed(1)} (이익)`;
+                varianceVal.className = "text-sm font-bold text-emerald-400";
+            } else {
+                varianceVal.textContent = "0.0 (정상)";
+                varianceVal.className = "text-sm font-bold text-slate-400";
+            }
+
+            let csm_bal = csm;
+            let ra_bal = ra;
+            const coverage_units = [1, 1, 1];
+            const expected_outflows = [70.0, 80.0, 90.0];
+
+            let tableHTML = '';
+            let csmAmortData = [];
+            let raReleaseData = [];
+            let varData = [];
+
+            let y1_s_bep = 0;
+
+            for (let t = 0; t < 3; t++) {
+                const year = t + 1;
+                
+                // CSM Roll-forward
+                const csm_interest = csm_bal * r;
+                const csm_pre_amort = csm_bal + csm_interest;
+                const remaining_cu = 3 - t;
+                const amort_rate = 1.0 / remaining_cu;
+                const csm_amortization = csm_pre_amort * amort_rate;
+                const csm_end = csm_pre_amort - csm_amortization;
+
+                // RA Roll-forward
+                const ra_release = ra_bal * amort_rate;
+                const ra_end = ra_bal - ra_release;
+
+                // Actual outflow (apply variance only on Year 1)
+                const current_variance = (t === 0) ? -variance : 0; // Negative variance input means positive profit effect
+                const insurance_revenue = expected_outflows[t] + ra_release + csm_amortization;
+                const actual_outflow = expected_outflows[t] - current_variance;
+                const insurance_op_profit = insurance_revenue - actual_outflow;
+
+                if (t === 0) {
+                    y1_s_bep = ra_release / csm_amortization;
+                }
+
+                // Append Data to Lists
+                csmAmortData.push(csm_amortization.toFixed(2));
+                raReleaseData.push(ra_release.toFixed(2));
+                varData.push(current_variance.toFixed(2));
+
+                tableHTML += `
+                    <tr class="hover:bg-slate-800 border-b border-slate-800">
+                        <td class="p-3 text-center text-slate-300 font-semibold">${year}년차</td>
+                        <td class="p-3 text-right font-mono">${csm_bal.toFixed(1)}</td>
+                        <td class="p-3 text-right font-mono text-slate-300">${csm_end.toFixed(1)}</td>
+                        <td class="p-3 text-right font-mono text-amber-400">${ra_release.toFixed(1)}</td>
+                        <td class="p-3 text-right font-mono">${insurance_revenue.toFixed(1)}</td>
+                        <td class="p-3 text-right font-mono ${current_variance >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${current_variance.toFixed(1)}</td>
+                        <td class="p-3 text-right font-mono font-bold text-emerald-400">${insurance_op_profit.toFixed(1)}</td>
+                    </tr>
+                `;
+
+                // EOY rolls forward to BOY
+                csm_bal = csm_end;
+                ra_bal = ra_end;
+            }
+
+            tableBody.innerHTML = tableHTML;
+
+            // Update BEP indicators
+            sBepBadge.textContent = `$S_{BEP}$ = ${y1_s_bep.toFixed(2)}`;
+            if (y1_s_bep > 1.0) {
+                sBepBadge.className = "px-2 py-0.5 text-xs font-bold rounded bg-amber-900 text-amber-200 border border-amber-500";
+                sBepDesc.textContent = "위험 해소 의존형 이익 구조입니다. 비금융 리스크 변동성이 하향 안정될 때는 환입 이익이 급격히 증가하지만, 반대로 대형 손해가 일어날 경우 리스크 쿠션이 부족해 손익 변동성이 폭증할 수 있습니다.";
+            } else {
+                sBepBadge.className = "px-2 py-0.5 text-xs font-bold rounded bg-sky-900 text-sky-200 border border-sky-500";
+                sBepDesc.textContent = "서비스 제공 기반의 안정형 이익 구조입니다. 손익의 기반이 보험 고유 서비스(CSM 상각)에 기인하므로, 단기적인 대형 사고 충격 하에서도 상대적으로 안정적인 경상 이익 방어력을 입증합니다.";
+            }
+
+            // Update Chart
+            chart.data.datasets[0].data = csmAmortData;
+            chart.data.datasets[1].data = raReleaseData;
+            chart.data.datasets[2].data = varData;
+            chart.update();
+        }
+
+        // Event Listeners
+        [paramCsm, paramRa, paramRate, paramVariance].forEach(item => {
+            item.addEventListener('input', updateSimulation);
+        });
+
+        // Start
+        window.onload = () => {
+            initChart();
+            updateSimulation();
+        };
+    </script>
+</body>
+</html>

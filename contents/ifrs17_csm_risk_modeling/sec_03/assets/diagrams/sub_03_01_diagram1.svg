@@ -1,0 +1,73 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box-hdr { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .box-sub { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #475569; }
+      .text-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1e293b; }
+      .arrow { stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 4,4; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#64748b" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" rx="12"/>
+
+  <!-- Main Title -->
+  <text x="380" y="30" text-anchor="middle" class="text-title">위험조정(RA) 산출 기법 비교: VaR (Stock) vs CoC (Flow)</text>
+
+  <!-- Left Container: VaR -->
+  <g transform="translate(30, 50)">
+    <rect width="330" height="240" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="330" height="40" rx="10" fill="#eff6ff"/>
+    <rect width="330" height="10" y="30" fill="#eff6ff"/>
+    <text x="165" y="25" text-anchor="middle" class="box-hdr" fill="#1d4ed8">신뢰수준법 (VaR Method)</text>
+    <text x="165" y="60" text-anchor="middle" class="box-sub" font-weight="bold" fill="#2563eb">스톡(Stock) 관점: 일시 부채 적립</text>
+
+    <!-- Graphic element for VaR -->
+    <path d="M 50,150 Q 110,150 140,90 Q 170,190 280,190" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <path d="M 140,90 Q 170,190 230,190 L 230,190 L 140,190 Z" fill="rgba(37, 99, 235, 0.2)" stroke="#2563eb" stroke-width="1.5"/>
+    <line x1="140" y1="80" x2="140" y2="190" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <line x1="230" y1="120" x2="230" y2="190" stroke="#dc2626" stroke-width="1.5"/>
+    
+    <text x="140" y="75" text-anchor="middle" font-size="10" fill="#2563eb">E[X] (평균)</text>
+    <text x="230" y="115" text-anchor="middle" font-size="10" fill="#dc2626">VaR_α</text>
+    <text x="185" y="155" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e40af">RA = VaR - E[X]</text>
+
+    <text x="165" y="220" text-anchor="middle" class="box-sub">확률분포 꼬리위험(Tail Risk) 직접 측정</text>
+  </g>
+
+  <!-- Right Container: CoC -->
+  <g transform="translate(400, 50)">
+    <rect width="330" height="240" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect width="330" height="40" rx="10" fill="#ecfdf5"/>
+    <rect width="330" height="10" y="30" fill="#ecfdf5"/>
+    <text x="165" y="25" text-anchor="middle" class="box-hdr" fill="#047857">자본비용법 (CoC Method)</text>
+    <text x="165" y="60" text-anchor="middle" class="box-sub" font-weight="bold" fill="#059669">플로우(Flow) 관점: 기간별 기회비용 할인</text>
+
+    <!-- Graphic element for CoC -->
+    <g transform="translate(40, 80)">
+      <!-- Year 1 -->
+      <rect x="10" y="20" width="50" height="80" fill="#a7f3d0" stroke="#059669"/>
+      <text x="35" y="60" text-anchor="middle" font-size="10" font-weight="bold" fill="#064e3b">RC₁×r_c</text>
+      <text x="35" y="115" text-anchor="middle" font-size="10" fill="#475569">1년차</text>
+
+      <!-- Year 2 -->
+      <rect x="90" y="40" width="50" height="60" fill="#a7f3d0" stroke="#059669"/>
+      <text x="115" y="75" text-anchor="middle" font-size="10" font-weight="bold" fill="#064e3b">RC₂×r_c</text>
+      <text x="115" y="115" text-anchor="middle" font-size="10" fill="#475569">2년차</text>
+
+      <!-- Year 3 -->
+      <rect x="170" y="70" width="50" height="30" fill="#a7f3d0" stroke="#059669"/>
+      <text x="195" y="90" text-anchor="middle" font-size="9" font-weight="bold" fill="#064e3b">RC₃×r_c</text>
+      <text x="195" y="115" text-anchor="middle" font-size="10" fill="#475569">3년차</text>
+
+      <path d="M 35,125 Q 115,145 195,125" fill="none" stroke="#047857" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+      <text x="115" y="150" text-anchor="middle" font-size="11" font-weight="bold" fill="#047857">현가 할인 합산 (Σ)</text>
+    </g>
+
+    <text x="165" y="220" text-anchor="middle" class="box-sub">요구자본(RC) 점진적 소멸 및 자본비용 누적</text>
+  </g>
+</svg>

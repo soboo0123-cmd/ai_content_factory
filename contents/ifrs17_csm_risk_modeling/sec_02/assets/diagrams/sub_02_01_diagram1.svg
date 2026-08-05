@@ -1,0 +1,86 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 320" width="100%" height="100%" style="background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <!-- Definitions for Arrowheads -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B"/>
+    </marker>
+    <marker id="arrow-danger" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#EF4444"/>
+    </marker>
+    <marker id="arrow-success" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10B981"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="20" y="30" font-size="16" font-weight="bold" fill="#0F172A">CSM 롤포워드(Roll-forward) 순환 흐름 및 손실조정 분기 구조</text>
+
+  <!-- Node 1: 기초 CSM -->
+  <g transform="translate(30, 80)" filter="url(#shadow)">
+    <rect width="130" height="70" rx="8" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+    <text x="65" y="30" font-size="13" font-weight="bold" fill="#1E293B" text-anchor="middle">1. 기초 CSM</text>
+    <text x="65" y="50" font-size="11" fill="#64748B" text-anchor="middle">CSM(t-1)</text>
+  </g>
+
+  <!-- Line 1 -> 2 -->
+  <path d="M 160 115 L 185 115" fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Node 2: 이자 부리 -->
+  <g transform="translate(195, 80)" filter="url(#shadow)">
+    <rect width="130" height="70" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+    <text x="65" y="28" font-size="13" font-weight="bold" fill="#1E40AF" text-anchor="middle">2. 이자 부리</text>
+    <text x="65" y="48" font-size="11" fill="#2563EB" text-anchor="middle">+ (CSM × rL)</text>
+  </g>
+
+  <!-- Line 2 -> 3 -->
+  <path d="M 325 115 L 350 115" fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Node 3: 가정 변경 -->
+  <g transform="translate(360, 80)" filter="url(#shadow)">
+    <rect width="140" height="70" rx="8" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="1.5"/>
+    <text x="70" y="28" font-size="13" font-weight="bold" fill="#5B21B6" text-anchor="middle">3. 미래가정 변경</text>
+    <text x="70" y="48" font-size="11" fill="#7C3AED" text-anchor="middle">± ΔCF (미래서비스)</text>
+  </g>
+
+  <!-- Line 3 -> Decision Node -->
+  <path d="M 500 115 L 535 115" fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Node 4: Decision (상각 전 잔액 평가) -->
+  <g transform="translate(545, 80)" filter="url(#shadow)">
+    <polygon points="65,0 130,35 65,70 0,35" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+    <text x="65" y="32" font-size="11" font-weight="bold" fill="#92400E" text-anchor="middle">상각전 CSM</text>
+    <text x="65" y="46" font-size="11" font-weight="bold" fill="#92400E" text-anchor="middle">≥ 0 인가?</text>
+  </g>
+
+  <!-- Path Yes (Up/Right to Node 5) -->
+  <path d="M 610 80 L 610 50 L 675 50" fill="none" stroke="#10B981" stroke-width="2" marker-end="url(#arrow-success)"/>
+  <text x="635" y="42" font-size="11" font-weight="bold" fill="#059669">예 (이익)</text>
+
+  <!-- Node 5: 당기 상각 및 기말 CSM -->
+  <g transform="translate(685, 20)" filter="url(#shadow)">
+    <rect width="135" height="60" rx="8" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/>
+    <text x="67" y="26" font-size="12" font-weight="bold" fill="#065F46" text-anchor="middle">4. 당기 상각 (P&amp;L)</text>
+    <text x="67" y="44" font-size="11" font-weight="bold" fill="#047857" text-anchor="middle">기말 CSM 잔액 이월</text>
+  </g>
+
+  <!-- Path No (Down/Right to Node 6) -->
+  <path d="M 610 150 L 610 230 L 675 230" fill="none" stroke="#EF4444" stroke-width="2" marker-end="url(#arrow-danger)"/>
+  <text x="625" y="195" font-size="11" font-weight="bold" fill="#DC2626">아니오 (손실)</text>
+
+  <!-- Node 6: 손실조정 발생 -->
+  <g transform="translate(685, 195)" filter="url(#shadow)">
+    <rect width="135" height="70" rx="8" fill="#FEF2F2" stroke="#EF4444" stroke-width="1.5"/>
+    <text x="67" y="25" font-size="12" font-weight="bold" fill="#991B1B" text-anchor="middle">CSM = 0 소멸</text>
+    <text x="67" y="43" font-size="11" font-weight="bold" fill="#DC2626" text-anchor="middle">손실조정(LC) 적립</text>
+    <text x="67" y="58" font-size="10" fill="#B91C1C" text-anchor="middle">(즉시 당기손실 반영)</text>
+  </g>
+
+  <!-- Bottom Legend Banner -->
+  <rect x="30" y="275" width="790" height="30" rx="6" fill="#F1F5F9"/>
+  <text x="425" y="294" font-size="11" fill="#475569" text-anchor="middle">
+    <tspan font-weight="bold" fill="#1E293B">핵심 메커니즘:</tspan> 이자부리 및 미래가정변동 반영 후 CSM이 음수가 될 수 없으며, 초과분은 손실조정(Loss Component)으로 격리되어 P&amp;L 손실 처리됨
+  </text>
+</svg>

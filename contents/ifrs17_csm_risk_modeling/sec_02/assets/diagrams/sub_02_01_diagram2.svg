@@ -1,0 +1,61 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="100%" height="100%" style="background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B"/>
+    </marker>
+    <filter id="shadow2" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="20" y="30" font-size="16" font-weight="bold" fill="#0F172A">K-IFRS 1117호 고정 할인율 적용 및 리스크 디커플링(De-coupling) 구조</text>
+
+  <!-- Source Container -->
+  <g transform="translate(30, 80)" filter="url(#shadow2)">
+    <rect width="180" height="150" rx="10" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5"/>
+    <text x="90" y="30" font-size="13" font-weight="bold" fill="#0F172A" text-anchor="middle">할인율 변동 요소</text>
+    <line x1="20" y1="42" x2="160" y2="42" stroke="#E2E8F0" stroke-width="1"/>
+    
+    <rect x="15" y="55" width="150" height="35" rx="6" fill="#EFF6FF" stroke="#93C5FD"/>
+    <text x="90" y="77" font-size="11" font-weight="bold" fill="#1E40AF" text-anchor="middle">최초인식 고정금리 (rL)</text>
+    
+    <rect x="15" y="100" width="150" height="35" rx="6" fill="#FEF3C7" stroke="#FDE68A"/>
+    <text x="90" y="122" font-size="11" font-weight="bold" fill="#92400E" text-anchor="middle">시장금리 변동분 (Δr)</text>
+  </g>
+
+  <!-- Arrows -->
+  <path d="M 210 112 L 285 112" fill="none" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow2)"/>
+  <path d="M 210 157 L 285 157" fill="none" stroke="#D97706" stroke-width="2" marker-end="url(#arrow2)"/>
+
+  <!-- Target Container 1: CSM -->
+  <g transform="translate(295, 60)" filter="url(#shadow2)">
+    <rect width="220" height="80" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="110" y="30" font-size="13" font-weight="bold" fill="#1E3A8A" text-anchor="middle">CSM (계약서비스마진)</text>
+    <text x="110" y="50" font-size="11" fill="#2563EB" text-anchor="middle">고정 금리(rL)로만 이자 부리</text>
+    <text x="110" y="66" font-size="10" font-weight="bold" fill="#1D4ED8" text-anchor="middle">→ 순수한 보험서비스 마진 보존</text>
+  </g>
+
+  <!-- Target Container 2: IFIE -->
+  <g transform="translate(295, 155)" filter="url(#shadow2)">
+    <rect width="220" height="80" rx="10" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+    <text x="110" y="30" font-size="13" font-weight="bold" fill="#78350F" text-anchor="middle">IFIE (보험금융손익)</text>
+    <text x="110" y="50" font-size="11" fill="#D97706" text-anchor="middle">시장이율 변동에 따른 FCF 변동 흡수</text>
+    <text x="110" y="66" font-size="10" font-weight="bold" fill="#B45309" text-anchor="middle">→ 금융 리스크 손익 전담 분리</text>
+  </g>
+
+  <!-- Final Result Box -->
+  <g transform="translate(560, 60)" filter="url(#shadow2)">
+    <rect width="210" height="175" rx="10" fill="#F0FDF4" stroke="#16A34A" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text x="105" y="30" font-size="13" font-weight="bold" fill="#14532D" text-anchor="middle">회계적 효과 (분리 성공)</text>
+    <line x1="15" y1="42" x2="195" y2="42" stroke="#BBF7D0" stroke-width="1"/>
+    
+    <text x="20" y="70" font-size="11" fill="#166534" font-weight="bold">✓ 손익 왜곡 차단</text>
+    <text x="30" y="88" font-size="10" fill="#365314">금리 변동이 영업 마진을</text>
+    <text x="30" y="102" font-size="10" fill="#365314">오염시키는 현상 방지</text>
+
+    <text x="20" y="130" font-size="11" fill="#166534" font-weight="bold">✓ 명확한 책임 회계</text>
+    <text x="30" y="148" font-size="10" fill="#365314">보험 언더라이팅 손익과</text>
+    <text x="30" y="162" font-size="10" fill="#365314">자산운용/금융 리스크 분리</text>
+  </g>
+</svg>

@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예실차 vs 계리적 가정 변경 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        input[type=range] { accent-color: #3b82f6; }
+    </style>
+</head>
+<body class="p-4 md:p-6 text-xs md:text-sm">
+    <div class="max-w-4xl mx-auto bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 mb-5">
+            <div>
+                <h1 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                    예실차 vs 계리적 가정 변경 파이프라인 시뮬레이터
+                </h1>
+                <p class="text-slate-400 text-xs mt-1">과거/현재 오차(예실차)와 미래 가정 변경이 CSM 및 P&L에 미치는 영향 비교</p>
+            </div>
+            <div class="mt-2 md:mt-0 text-right bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                <span class="text-slate-400 text-xs">기초 CSM / 할인율: </span>
+                <span class="font-mono text-blue-400 font-bold">1,000원 / 5%</span>
+            </div>
+        </div>
+
+        <!-- Controls Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+            <!-- Event A Control -->
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-red-900/30">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="font-bold text-red-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        사건 A: 당기 예실차 (과거/현재)
+                    </label>
+                    <span id="expVal" class="font-mono font-bold text-red-400 bg-red-950/80 px-2.5 py-0.5 rounded text-xs border border-red-800/50">-100 원</span>
+                </div>
+                <input type="range" id="expRange" min="-300" max="300" step="10" value="-100" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                <p class="text-[11px] text-slate-400 mt-2">
+                    * 음수(-): 당기 지급액 당초 예상 초과 (손실 요인)<br>
+                    * 양수(+): 당기 지급액 당초 예상 미달 (이익 요인)
+                </p>
+            </div>
+
+            <!-- Event B Control -->
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-blue-900/30">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="font-bold text-blue-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        사건 B: 계리적 가정 변경 (미래)
+                    </label>
+                    <span id="assumpVal" class="font-mono font-bold text-blue-400 bg-blue-950/80 px-2.5 py-0.5 rounded text-xs border border-blue-800/50">-800 원</span>
+                </div>
+                <input type="range" id="assumpRange" min="-1500" max="500" step="50" value="-800" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                <p class="text-[11px] text-slate-400 mt-2">
+                    * 음수(-): 미래 지급액 추정치 증가 (악재, CSM 흡수)<br>
+                    * 양수(+): 미래 지급액 추정치 감소 (호재, CSM 가산)
+                </p>
+            </div>
+        </div>
+
+        <!-- Simulation Metric Displays -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div class="bg-slate-800/90 p-3 rounded-lg border border-slate-700 text-center">
+                <div class="text-slate-400 text-xs mb-1">이자 부리 후 CSM</div>
+                <div id="accruedCsm" class="text-base font-bold font-mono text-slate-200">1,050 원</div>
+                <div class="text-[10px] text-slate-500">기초 1,000 + 이자 50</div>
+            </div>
+            <div class="bg-slate-800/90 p-3 rounded-lg border border-slate-700 text-center">
+                <div class="text-slate-400 text-xs mb-1">CSM 가정변동 흡수액</div>
+                <div id="csmAbsorbed" class="text-base font-bold font-mono text-blue-400">-800 원</div>
+                <div class="text-[10px] text-slate-500">CSM 잔액에서 직접 조정</div>
+            </div>
+            <div class="bg-slate-800/90 p-3 rounded-lg border border-slate-700 text-center">
+                <div class="text-slate-400 text-xs mb-1">당기 P&L 직행 손익</div>
+                <div id="pnlDirect" class="text-base font-bold font-mono text-red-400">-100 원</div>
+                <div class="text-[10px] text-slate-500">예실차 비용 즉시 반영</div>
+            </div>
+            <div class="bg-slate-800/90 p-3 rounded-lg border border-slate-700 text-center">
+                <div class="text-slate-400 text-xs mb-1">최종 종합 당기손익(P&L)</div>
+                <div id="totalPnl" class="text-base font-bold font-mono text-emerald-400">+75 원</div>
+                <div class="text-[10px] text-slate-500">상각 25 + 예실차 -100</div>
+            </div>
+        </div>
+
+        <!-- Visual Chart Section -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div class="text-xs font-bold text-slate-300 mb-3 flex justify-between items-center">
+                <span>재무제표 영향 비교 시각화 (P&L vs CSM 잔액)</span>
+                <span id="statusBadge" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800">CSM 흡수 정상 작동 중</span>
+            </div>
+            <div class="h-56 relative">
+                <canvas id="impactChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const expRange = document.getElementById('expRange');
+        const assumpRange = document.getElementById('assumpRange');
+        
+        const expVal = document.getElementById('expVal');
+        const assumpVal = document.getElementById('assumpVal');
+
+        const accruedCsmEl = document.getElementById('accruedCsm');
+        const csmAbsorbedEl = document.getElementById('csmAbsorbed');
+        const pnlDirectEl = document.getElementById('pnlDirect');
+        const totalPnlEl = document.getElementById('totalPnl');
+        const statusBadge = document.getElementById('statusBadge');
+
+        let chart;
+
+        function initChart() {
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['당기 상각 이익 (P&L)', '예실차 손익 (P&L)', '임계초과 즉시손실', '최종 기말 CSM 잔액'],
+                    datasets: [{
+                        label: '금액 (원)',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(52, 211, 153, 0.8)',
+                            'rgba(248, 113, 113, 0.8)',
+                            'rgba(239, 68, 68, 0.9)',
+                            'rgba(96, 165, 250, 0.8)'
+                        ],
+                        borderColor: [
+                            '#10b981',
+                            '#ef4444',
+                            '#dc2626',
+                            '#3b82f6'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#1e293b' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#cbd5e1' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function update() {
+            const exp = parseInt(expRange.value);
+            const assump = parseInt(assumpRange.value);
+
+            expVal.textContent = `${exp > 0 ? '+' : ''}${exp.toLocaleString()} 원`;
+            assumpVal.textContent = `${assump > 0 ? '+' : ''}${assump.toLocaleString()} 원`;
+
+            const initialCsm = 1000;
+            const rate = 0.05;
+            const accrued = initialCsm * (1 + rate); // 1050
+            const amortRate = 0.10;
+
+            let tempCsm = accrued + assump; // assump is negative for adverse change
+            let immediateLoss = 0;
+            let finalCsm = 0;
+
+            if (tempCsm >= 0) {
+                finalCsm = tempCsm * (1 - amortRate);
+                statusBadge.textContent = "CSM 흡수 정상 작동 중 (P&L 충격 완화)";
+                statusBadge.className = "px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800";
+            } else {
+                immediateLoss = Math.abs(tempCsm);
+                finalCsm = 0;
+                statusBadge.textContent = "임계값 돌파! 손실조정(LC) 발생 및 즉시 손실 처리";
+                statusBadge.className = "px-2 py-0.5 rounded text-[10px] bg-rose-950 text-rose-400 border border-rose-800";
+            }
+
+            const amortPnl = (tempCsm >= 0 ? tempCsm : 0) * amortRate;
+            const directPnl = exp;
+            const netPnl = amortPnl + directPnl - immediateLoss;
+
+            accruedCsmEl.textContent = `${accrued.toLocaleString()} 원`;
+            csmAbsorbedEl.textContent = `${assump > 0 ? '+' : ''}${assump.toLocaleString()} 원`;
+            pnlDirectEl.textContent = `${directPnl > 0 ? '+' : ''}${directPnl.toLocaleString()} 원`;
+            totalPnlEl.textContent = `${netPnl > 0 ? '+' : ''}${Math.round(netPnl).toLocaleString()} 원`;
+
+            // Chart update
+            chart.data.datasets[0].data = [
+                Math.round(amortPnl),
+                directPnl,
+                -immediateLoss,
+                Math.round(finalCsm)
+            ];
+            chart.update();
+        }
+
+        window.onload = () => {
+            initChart();
+            expRange.addEventListener('input', update);
+            assumpRange.addEventListener('input', update);
+            update();
+        };
+    </script>
+</body>
+</html>

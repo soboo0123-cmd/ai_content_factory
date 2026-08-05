@@ -1,0 +1,117 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+
+    <!-- CSM Block Gradient -->
+    <linearGradient id="csmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+
+    <!-- RA Block Gradient -->
+    <linearGradient id="raGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <!-- PVFCF Block Gradient -->
+    <linearGradient id="pvfcfGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+
+    <!-- Shadow Filter -->
+    <filter id="dropShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="800" height="480" rx="16" fill="url(#bgGrad)" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="400" y="42" font-family="Pretendard, sans-serif" font-size="20" font-weight="bold" fill="#0f172a" text-anchor="middle">
+    IFRS 17 일반측정모형(BBA) 3대 빌딩 블록 (Building Blocks)
+  </text>
+  <text x="400" y="65" font-family="Pretendard, sans-serif" font-size="13" fill="#64748b" text-anchor="middle">
+    보험부채의 측정 구조: PVFCF + RA + CSM = 전체 보험계약부채
+  </text>
+
+  <!-- Main Container -->
+  <g transform="translate(180, 85)">
+    <!-- Block 3: CSM (Top) -->
+    <g filter="url(#dropShadow)">
+      <rect x="0" y="0" width="340" height="85" rx="8" fill="url(#csmGrad)"/>
+      <text x="20" y="32" font-family="Pretendard, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">
+        3. 계약서비스마진 (CSM)
+      </text>
+      <text x="20" y="54" font-family="Pretendard, sans-serif" font-size="12" fill="#bfdbfe">
+        • 미래 서비스 제공 시 실현될 미실현 이익 (부채 유보)
+      </text>
+      <text x="20" y="70" font-family="Pretendard, sans-serif" font-size="12" fill="#bfdbfe">
+        • 서비스 제공 기간에 걸쳐 점진적 상각 (당기손익 인식)
+      </text>
+    </g>
+
+    <!-- Block 2: RA (Middle) -->
+    <g filter="url(#dropShadow)">
+      <rect x="0" y="95" width="340" height="85" rx="8" fill="url(#raGrad)"/>
+      <text x="20" y="127" font-family="Pretendard, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">
+        2. 위험조정 (RA)
+      </text>
+      <text x="20" y="149" font-family="Pretendard, sans-serif" font-size="12" fill="#fef3c7">
+        • 비금융 리스크(사망·해지 변동성)에 대한 안전 버퍼
+      </text>
+      <text x="20" y="165" font-family="Pretendard, sans-serif" font-size="12" fill="#fef3c7">
+        • 불확실성을 부담하는 대가로 요구하는 경제적 보상
+      </text>
+    </g>
+
+    <!-- Block 1: PVFCF (Bottom) -->
+    <g filter="url(#dropShadow)">
+      <rect x="0" y="190" width="340" height="110" rx="8" fill="url(#pvfcfGrad)"/>
+      <text x="20" y="222" font-family="Pretendard, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">
+        1. 최적추정현금흐름 (PVFCF / BEL)
+      </text>
+      <text x="20" y="244" font-family="Pretendard, sans-serif" font-size="12" fill="#cbd5e1">
+        • 미래 예상 현금유출(보험금/사업비) - 현금유입(보험료)
+      </text>
+      <text x="20" y="260" font-family="Pretendard, sans-serif" font-size="12" fill="#cbd5e1">
+        • 확률 가중 기댓값의 현행 무위험 할인율 적용 현재가치
+      </text>
+      <text x="20" y="284" font-family="Pretendard, sans-serif" font-size="11" font-weight="bold" fill="#38bdf8">
+        화폐의 시간가치 및 금융리스크 소거 장치
+      </text>
+    </g>
+
+    <!-- Left Bracket: FCF (Fulfilment Cash Flows) -->
+    <path d="M -15 95 L -30 95 L -30 245 L -15 245" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M -30 170 L -40 170" fill="none" stroke="#d97706" stroke-width="2.5"/>
+    <text x="-50" y="165" font-family="Pretendard, sans-serif" font-size="14" font-weight="bold" fill="#b45309" text-anchor="end">
+      이행현금흐름
+    </text>
+    <text x="-50" y="183" font-family="Pretendard, sans-serif" font-size="12" fill="#d97706" text-anchor="end">
+      (FCF = PVFCF + RA)
+    </text>
+
+    <!-- Right Bracket: Total Insurance Liability -->
+    <path d="M 355 0 L 370 0 L 370 150 L 370 300 L 355 300" fill="none" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 370 150 L 380 150" fill="none" stroke="#1e40af" stroke-width="2.5"/>
+    <text x="392" y="145" font-family="Pretendard, sans-serif" font-size="15" font-weight="bold" fill="#1e3a8a">
+      전체 보험계약부채
+    </text>
+    <text x="392" y="165" font-family="Pretendard, sans-serif" font-size="12" fill="#3b82f6">
+      = PVFCF + RA + CSM
+    </text>
+  </g>
+
+  <!-- Bottom Formula Banner -->
+  <rect x="100" y="410" width="600" height="42" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="400" y="436" font-family="Pretendard, sans-serif" font-size="14" font-weight="bold" fill="#334155" text-anchor="middle">
+    총 부채 평가 = <tspan fill="#475569">최적추정현금흐름(PVFCF)</tspan> + <tspan fill="#d97706">위험조정(RA)</tspan> + <tspan fill="#1d4ed8">계약서비스마진(CSM)</tspan>
+  </text>
+</svg>

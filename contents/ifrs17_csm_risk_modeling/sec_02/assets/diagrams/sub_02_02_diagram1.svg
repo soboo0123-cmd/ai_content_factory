@@ -1,0 +1,105 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 420" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .card { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 8px; }
+      .card-accent-blue { fill: #1e293b; stroke: #3b82f6; stroke-width: 2; rx: 8px; }
+      .card-accent-red { fill: #1e293b; stroke: #ef4444; stroke-width: 2; rx: 8px; }
+      .title { fill: #f8fafc; font-family: system-ui, -apple-system, sans-serif; font-size: 18px; font-weight: bold; }
+      .subtitle { fill: #94a3b8; font-family: system-ui, -apple-system, sans-serif; font-size: 12px; }
+      .text-main { fill: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 600; }
+      .text-sub { fill: #94a3b8; font-family: system-ui, -apple-system, sans-serif; font-size: 12px; }
+      .text-bold { font-weight: bold; }
+      .text-red { fill: #f87171; }
+      .text-blue { fill: #60a5fa; }
+      .text-green { fill: #4ade80; }
+      .text-yellow { fill: #facc15; }
+      .line { stroke: #475569; stroke-width: 2; stroke-dasharray: 4 4; }
+      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .arrow-red { stroke: #ef4444; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead-red); }
+      .arrow-blue { stroke: #3b82f6; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead-blue); }
+    </style>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+    <marker id="arrowhead-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+    </marker>
+    <marker id="arrowhead-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="850" height="420" class="bg" rx="12"/>
+
+  <!-- Main Header -->
+  <text x="30" y="40" class="title">예실차 vs 계리적 가정 변경 회계처리 경로</text>
+  <text x="30" y="60" class="subtitle">K-IFRS 제1117호: 사건의 시간축 귀속에 따른 이원화 손익 인식 메커니즘</text>
+
+  <!-- Input Column 1: Events -->
+  <g transform="translate(30, 90)">
+    <!-- Experience Variance Card -->
+    <rect x="0" y="0" width="220" height="130" class="card-accent-red"/>
+    <text x="15" y="30" class="text-main text-red">1. 예실차 (경험조정)</text>
+    <text x="15" y="55" class="text-sub">· 당기 실제 현금흐름 - 당기 예상</text>
+    <text x="15" y="75" class="text-sub">· 예: 당기 사고발생액 급증</text>
+    <rect x="15" y="90" width="190" height="24" fill="#3f1d24" rx="4"/>
+    <text x="25" y="106" class="text-sub text-red text-bold">시간 귀속: 과거 및 현재 서비스</text>
+  </g>
+
+  <g transform="translate(30, 250)">
+    <!-- Assumption Change Card -->
+    <rect x="0" y="0" width="220" height="130" class="card-accent-blue"/>
+    <text x="15" y="30" class="text-main text-blue">2. 계리적 가정 변경</text>
+    <text x="15" y="55" class="text-sub">· 미래 이행현금흐름(FCF) 추정 변동</text>
+    <text x="15" y="75" class="text-sub">· 예: 미래 손해율/해지율 재평가</text>
+    <rect x="15" y="90" width="190" height="24" fill="#1e3a8a" rx="4"/>
+    <text x="25" y="106" class="text-sub text-blue text-bold">시간 귀속: 미래 서비스 잔여기간</text>
+  </g>
+
+  <!-- Processing Column 2: Filter & Buffer -->
+  <!-- Direct Path Top -->
+  <path d="M 250 155 L 340 155" class="arrow-red"/>
+  <g transform="translate(350, 100)">
+    <rect x="0" y="0" width="200" height="110" class="card"/>
+    <text x="15" y="30" class="text-main">P&L 우회 불가</text>
+    <text x="15" y="55" class="text-sub">이미 발생하여 실현된 사건</text>
+    <text x="15" y="75" class="text-sub">이연할 미래 마진 없음</text>
+    <rect x="15" y="83" width="170" height="18" fill="#334155" rx="3"/>
+    <text x="20" y="96" class="text-sub text-yellow">즉시 손익(P&L) 직행</text>
+  </g>
+
+  <!-- Buffer Path Bottom -->
+  <path d="M 250 315 L 340 315" class="arrow-blue"/>
+  <g transform="translate(350, 260)">
+    <rect x="0" y="0" width="200" height="110" class="card-accent-blue"/>
+    <text x="15" y="30" class="text-main text-blue">CSM 완충 필터 ( Buffer )</text>
+    <text x="15" y="55" class="text-sub">미래 마진에서 차감/가산</text>
+    <text x="15" y="75" class="text-sub">고정할인율(rL) 기준 평가</text>
+    <rect x="15" y="83" width="170" height="18" fill="#1e3a8a" rx="3"/>
+    <text x="20" y="96" class="text-sub text-green">당기 손익 충격 100% 흡수</text>
+  </g>
+
+  <!-- Output Column 3: Financial Statements -->
+  <path d="M 550 155 L 610 155" class="arrow-red"/>
+  <path d="M 550 315 L 580 315 L 580 230 L 610 230" class="arrow-blue"/>
+
+  <g transform="translate(620, 110)">
+    <rect x="0" y="0" width="200" height="230" class="card"/>
+    <text x="15" y="30" class="text-main">재무제표 반영 결과</text>
+    
+    <!-- P&L Section -->
+    <rect x="10" y="45" width="180" height="75" fill="#0f172a" rx="6" stroke="#334155"/>
+    <text x="20" y="65" class="text-sub text-bold text-yellow">손익계산서 (P&L)</text>
+    <text x="20" y="85" class="text-sub text-red">· 예실차: 당기 즉시 반영</text>
+    <text x="20" y="105" class="text-sub text-green">· 가정변경: 즉시 손익 0원</text>
+
+    <!-- CSM Section -->
+    <rect x="10" y="135" width="180" height="80" fill="#0f172a" rx="6" stroke="#334155"/>
+    <text x="20" y="155" class="text-sub text-bold text-blue">재무상태표 (CSM 부채)</text>
+    <text x="20" y="175" class="text-sub text-sub">· 예실차: CSM 변동 없음</text>
+    <text x="20" y="195" class="text-sub text-blue">· 가정변경: 잔액 평탄화 차감</text>
+  </g>
+
+</svg>

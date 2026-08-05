@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSM vs 손실요소(Loss Component) 전환 시뮬레이터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 p-4 md:p-6 text-slate-800">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-slate-900 text-white p-5">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+                <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                [시뮬레이터] 미래 예상 보험금 변동에 따른 CSM 및 손실요소(Loss Component) 전환
+            </h2>
+            <p class="text-slate-300 text-sm mt-1">3년 뒤 예상 지급 보험금($C$)을 조절하여 정상계약과 손실계약의 경계(손익분기점 $C_{BEP}$)를 직접 확인하세요.</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- Constants Display -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center bg-slate-100 p-3 rounded-lg border border-slate-200 text-xs">
+                <div>수납 보험료 ($P$): <b class="text-slate-800 text-sm">1,000 원</b></div>
+                <div>할인율 ($r$): <b class="text-slate-800 text-sm">5.0%</b></div>
+                <div>만기 ($T$): <b class="text-slate-800 text-sm">3 년</b></div>
+                <div>위험조정 ($RA$): <b class="text-slate-800 text-sm">50 원</b></div>
+            </div>
+
+            <!-- Slider Control -->
+            <div class="bg-amber-50/50 p-4 rounded-lg border border-amber-200">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="font-semibold text-slate-700 text-sm">
+                        3년 차 예상 지급 보험금 기댓값 ($C$):
+                    </label>
+                    <span id="claimValue" class="text-2xl font-black text-amber-700">800 원</span>
+                </div>
+                <input type="range" id="claimSlider" min="600" max="1500" step="10" value="800" class="w-full h-2.5 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600">
+                <div class="flex justify-between text-xs text-slate-500 mt-2">
+                    <span>600원 (고수익)</span>
+                    <span class="font-bold text-amber-800">BEP ≈ 1,099.74 원</span>
+                    <span>1,500원 (대폭 손실)</span>
+                </div>
+            </div>
+
+            <!-- Calculation Results Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="text-xs font-medium text-slate-500">최적추정현재가치 ($PVFCF_0$)</div>
+                    <div class="text-xl font-bold text-slate-700 mt-1" id="pvfcfText">691.07 원</div>
+                    <div class="text-xs text-slate-400 mt-1">$C / (1.05)^3$</div>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="text-xs font-medium text-slate-500">이행현금흐름 ($FCF_0$)</div>
+                    <div class="text-xl font-bold text-slate-700 mt-1" id="fcfText">741.07 원</div>
+                    <div class="text-xs text-slate-400 mt-1">$PVFCF_0 + RA_0(50)$</div>
+                </div>
+
+                <div id="statusCard" class="p-4 rounded-lg border border-indigo-200 bg-indigo-50">
+                    <div class="text-xs font-semibold text-indigo-600" id="statusTitle">계약 상태: 정상 계약</div>
+                    <div class="text-xl font-black text-indigo-900 mt-1" id="marginText">CSM = 258.93 원</div>
+                    <div class="text-xs text-indigo-700 mt-1" id="pnlText">최초 손익(P&L): 0 원 (부채 유보)</div>
+                </div>
+            </div>
+
+            <!-- Stacked Visual Bar -->
+            <div>
+                <div class="text-xs font-semibold text-slate-600 mb-2">최초 시점($t=0$) 부채 및 손익 구조 비주얼</div>
+                <div class="h-10 w-full bg-slate-200 rounded-lg overflow-hidden flex shadow-inner text-xs font-bold text-white text-center leading-10" id="barContainer">
+                    <div id="pvfcfBar" class="bg-slate-600 transition-all duration-300" style="width: 69.1%;">PVFCF</div>
+                    <div id="raBar" class="bg-amber-500 transition-all duration-300" style="width: 5.0%;">RA</div>
+                    <div id="csmBar" class="bg-blue-600 transition-all duration-300" style="width: 25.9%;">CSM</div>
+                    <div id="lossBar" class="bg-red-600 transition-all duration-300 hidden" style="width: 0%;">손실</div>
+                </div>
+            </div>
+
+            <!-- Explanation Box -->
+            <div id="explanationBox" class="text-xs text-slate-600 bg-slate-100 p-3 rounded border border-slate-200 leading-relaxed">
+                <!-- Dynamic text from JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const P = 1000;
+        const r = 0.05;
+        const T = 3;
+        const RA = 50;
+
+        const slider = document.getElementById('claimSlider');
+        const claimValue = document.getElementById('claimValue');
+        const pvfcfText = document.getElementById('pvfcfText');
+        const fcfText = document.getElementById('fcfText');
+        const statusCard = document.getElementById('statusCard');
+        const statusTitle = document.getElementById('statusTitle');
+        const marginText = document.getElementById('marginText');
+        const pnlText = document.getElementById('pnlText');
+        const explanationBox = document.getElementById('explanationBox');
+
+        const pvfcfBar = document.getElementById('pvfcfBar');
+        const raBar = document.getElementById('raBar');
+        const csmBar = document.getElementById('csmBar');
+        const lossBar = document.getElementById('lossBar');
+
+        function update() {
+            const C = parseFloat(slider.value);
+            claimValue.textContent = C.toLocaleString() + " 원";
+
+            const pvfcf = C / Math.pow(1 + r, T);
+            const fcf = pvfcf + RA;
+            const net = P - fcf; // Premium - FCF
+
+            pvfcfText.textContent = pvfcf.toFixed(2) + " 원";
+            fcfText.textContent = fcf.toFixed(2) + " 원";
+
+            const totalScale = Math.max(P, fcf);
+
+            if (net >= 0) {
+                // Profitable contract
+                const csm = net;
+                statusCard.className = "p-4 rounded-lg border border-blue-300 bg-blue-50";
+                statusTitle.textContent = "계약 상태: 정상 계약 (Profitable)";
+                statusTitle.className = "text-xs font-semibold text-blue-700";
+                marginText.textContent = "CSM = " + csm.toFixed(2) + " 원";
+                marginText.className = "text-xl font-black text-blue-900 mt-1";
+                pnlText.textContent = "최초 당기손익(P&L): 0 원 (부채 유보)";
+
+                pvfcfBar.style.width = (pvfcf / P * 100).toFixed(1) + "%";
+                raBar.style.width = (RA / P * 100).toFixed(1) + "%";
+                csmBar.style.width = (csm / P * 100).toFixed(1) + "%";
+                csmBar.classList.remove('hidden');
+                lossBar.classList.add('hidden');
+
+                explanationBox.innerHTML = `💡 <b>정상 계약:</b> 수납 보험료($1,000$원)가 이행 부채 원가($${fcf.toFixed(2)}$원)보다 큽니다. 미실현 이익 $${csm.toFixed(2)}$원은 <b>CSM(부채)</b>으로 유보되어 계약 기간 3년 동안 분할 상각됩니다.`;
+            } else {
+                // Onerous contract
+                const loss = Math.abs(net);
+                statusCard.className = "p-4 rounded-lg border border-red-300 bg-red-50";
+                statusTitle.textContent = "계약 상태: 손실 계약 (Onerous)";
+                statusTitle.className = "text-xs font-semibold text-red-700";
+                marginText.textContent = "Loss Component = " + loss.toFixed(2) + " 원";
+                marginText.className = "text-xl font-black text-red-900 mt-1";
+                pnlText.textContent = `최초 당기손익(P&L): -${loss.toFixed(2)} 원 (즉시 손실)`;
+
+                const pvfcfPct = (pvfcf / fcf * 100).toFixed(1);
+                const raPct = (RA / fcf * 100).toFixed(1);
+
+                pvfcfBar.style.width = pvfcfPct + "%";
+                raBar.style.width = raPct + "%";
+                csmBar.classList.add('hidden');
+                lossBar.classList.remove('hidden');
+                lossBar.style.width = (loss / fcf * 100).toFixed(1) + "%";
+                lossBar.textContent = "손실요소";
+
+                explanationBox.innerHTML = `⚠️ <b>손실 계약:</b> 미래 예상 지급 보험금($${C}$원)이 손익분기 한계값($1,099.74$원)을 초과했습니다. CSM은 $0$이 되며, 초과 부담액인 <b>$${loss.toFixed(2)}$원은 가입 첫날 당기손실</b>로 즉시 처리됩니다.`;
+            }
+        }
+
+        slider.addEventListener('input', update);
+        update();
+    </script>
+</body>
+</html>

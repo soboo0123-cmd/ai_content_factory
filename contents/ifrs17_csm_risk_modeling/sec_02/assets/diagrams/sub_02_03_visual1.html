@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSM 리스크 충격 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    input[type=range] { accent-color: #2563eb; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 p-4">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md border border-slate-200 p-5">
+    <!-- Header -->
+    <div class="border-b border-slate-100 pb-3 mb-4 flex justify-between items-center">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">K-IFRS 제1117호 리스크 충격 & CSM 완충 시뮬레이터</h2>
+        <p class="text-xs text-slate-500">금리 하락 및 손해율 상승 충격 발생 시 CSM 잔액과 당기손익(P&L) 변동을 실시간으로 정량 검증합니다.</p>
+      </div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded">인터랙티브 모델링</span>
+    </div>
+
+    <!-- Controls & Chart Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <!-- Sliders Column -->
+      <div class="md:col-span-5 space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+        <h3 class="text-sm font-bold text-slate-700 border-b border-slate-200 pb-2 mb-3">충격 시나리오 파라미터 설정</h3>
+
+        <!-- Parameter 1: 기초 CSM -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-600">기초 CSM 체력 ($CSM_{t-1}$)</span>
+            <span id="val-base-csm" class="text-blue-600 font-bold">40.0 원</span>
+          </div>
+          <input type="range" id="input-base-csm" min="10" max="100" value="40" step="5" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Parameter 2: 손해율 상승률 -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-600">미래 손해율 악화 (Claims ↑)</span>
+            <span id="val-claim-shock" class="text-rose-600 font-bold">+10 %</span>
+          </div>
+          <input type="range" id="input-claim-shock" min="0" max="50" value="10" step="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Parameter 3: 금리 하락 bp -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-600">할인율 금리 하락 (Rate ↓)</span>
+            <span id="val-rate-shock" class="text-amber-600 font-bold">0 bp</span>
+          </div>
+          <input type="range" id="input-rate-shock" min="0" max="200" value="0" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Summary KPI Metrics -->
+        <div class="pt-2 border-t border-slate-200 space-y-2 text-xs">
+          <div class="flex justify-between items-center bg-white p-2 rounded border border-slate-200">
+            <span class="text-slate-600">부채 팽창액 ($\Delta FCF$)</span>
+            <span id="kpi-delta-fcf" class="font-bold text-slate-800">15.2 원</span>
+          </div>
+          <div class="flex justify-between items-center bg-white p-2 rounded border border-slate-200">
+            <span class="text-slate-600">조정 후 잔여 CSM</span>
+            <span id="kpi-rem-csm" class="font-bold text-blue-600">24.8 원</span>
+          </div>
+          <div class="flex justify-between items-center bg-white p-2 rounded border border-slate-200">
+            <span class="text-slate-600">당기 손실(P&L) 인식액</span>
+            <span id="kpi-pnl-loss" class="font-bold text-emerald-600">0.0 원</span>
+          </div>
+          <div id="status-badge" class="mt-2 text-center py-1.5 px-2 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+            안전 구간: 충격이 CSM 범위 내에 있습니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Column -->
+      <div class="md:col-span-7 flex flex-col justify-between">
+        <div class="relative h-64 w-full">
+          <canvas id="simChart"></canvas>
+        </div>
+        <div class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs text-slate-600 leading-relaxed">
+          <span class="font-bold text-blue-900">💡 핵심 원리:</span> 손해율이 상승하거나 금리가 하락하면 최적추정부채(PVFCF)가 팽창합니다($\Delta FCF > 0$). 이 팽창액이 기초 CSM 체력 이하일 경우 P&L 손실은 <strong class="text-emerald-700">0원</strong>으로 차단되지만, CSM을 초과하면 완충 벽이 무너지며 <strong class="text-rose-700">손익 절벽(Earnings Cliff)</strong>이 발생합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Variables
+    let baseCsm = 40.0;
+    let claimShockPct = 10;
+    let rateShockBp = 0;
+
+    const baseRate = 0.05; // 5%
+    const baseClaims = [70, 80]; // t=2, t=3 년차 예상 보험금
+    const baseExpense = [10, 10];
+    const basePremium = [100, 100];
+
+    // DOM Elements
+    const inputBaseCsm = document.getElementById('input-base-csm');
+    const inputClaimShock = document.getElementById('input-claim-shock');
+    const inputRateShock = document.getElementById('input-rate-shock');
+
+    const valBaseCsm = document.getElementById('val-base-csm');
+    const valClaimShock = document.getElementById('val-claim-shock');
+    const valRateShock = document.getElementById('val-rate-shock');
+
+    const kpiDeltaFcf = document.getElementById('kpi-delta-fcf');
+    const kpiRemCsm = document.getElementById('kpi-rem-csm');
+    const kpiPnlLoss = document.getElementById('kpi-pnl-loss');
+    const statusBadge = document.getElementById('status-badge');
+
+    // Chart.js Setup
+    const ctx = document.getElementById('simChart').getContext('2d');
+    const simChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['기초 CSM', '부채 팽창액(ΔFCF)', '조정 후 CSM', '당기 P&L 손실'],
+        datasets: [{
+          label: '금액 (원)',
+          data: [40, 15.2, 24.8, 0],
+          backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#ef4444'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}원`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f1f5f9' },
+            title: { display: true, text: '금액 (원)', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+
+    // PVFCF Calculation Function
+    function calculatePVFCF(rate, claimsMult) {
+      const p1 = basePremium[0] / Math.pow(1 + rate, 0); // t=1 기준
+      const p2 = basePremium[1] / Math.pow(1 + rate, 1);
+      const pvIn = p1 + p2;
+
+      const out1 = (baseClaims[0] * claimsMult + baseExpense[0]) / Math.pow(1 + rate, 1);
+      const out2 = (baseClaims[1] * claimsMult + baseExpense[1]) / Math.pow(1 + rate, 2);
+      const pvOut = out1 + out2;
+
+      return pvOut - pvIn;
+    }
+
+    function updateSimulation() {
+      baseCsm = parseFloat(inputBaseCsm.value);
+      claimShockPct = parseFloat(inputClaimShock.value);
+      rateShockBp = parseFloat(inputRateShock.value);
+
+      valBaseCsm.innerText = baseCsm.toFixed(1) + ' 원';
+      valClaimShock.innerText = '+' + claimShockPct + ' %';
+      valRateShock.innerText = '-' + rateShockBp + ' bp';
+
+      // 1. Calculate Base PVFCF
+      const basePvFcf = calculatePVFCF(baseRate, 1.0);
+
+      // 2. Calculate Shocked PVFCF
+      const shockedRate = Math.max(0.001, baseRate - (rateShockBp / 10000));
+      const shockedClaimsMult = 1.0 + (claimShockPct / 100);
+      const shockedPvFcf = calculatePVFCF(shockedRate, shockedClaimsMult);
+
+      // 3. Delta FCF
+      const deltaFcf = Math.max(0, shockedPvFcf - basePvFcf);
+
+      // 4. CSM & P&L Loss
+      let remCsm = baseCsm - deltaFcf;
+      let pnlLoss = 0;
+
+      if (remCsm < 0) {
+        pnlLoss = Math.abs(remCsm);
+        remCsm = 0;
+      }
+
+      // Update KPI DOM
+      kpiDeltaFcf.innerText = deltaFcf.toFixed(1) + ' 원';
+      kpiRemCsm.innerText = remCsm.toFixed(1) + ' 원';
+      kpiPnlLoss.innerText = pnlLoss.toFixed(1) + ' 원';
+
+      if (pnlLoss > 0) {
+        kpiPnlLoss.className = 'font-bold text-rose-600';
+        statusBadge.className = 'mt-2 text-center py-1.5 px-2 rounded text-xs font-bold bg-rose-100 text-rose-800';
+        statusBadge.innerText = '⚠️ 경고: CSM 고갈! 손익 절벽 발생 (-' + pnlLoss.toFixed(1) + '원 P&L 손실)';
+      } else {
+        kpiPnlLoss.className = 'font-bold text-emerald-600';
+        statusBadge.className = 'mt-2 text-center py-1.5 px-2 rounded text-xs font-bold bg-emerald-100 text-emerald-800';
+        statusBadge.innerText = '안전 구간: 충격이 CSM 범위 내에서 완충됩니다.';
+      }
+
+      // Update Chart
+      simChart.data.datasets[0].data = [baseCsm, deltaFcf, remCsm, pnlLoss];
+      simChart.update();
+    }
+
+    // Event Listeners
+    inputBaseCsm.addEventListener('input', updateSimulation);
+    inputClaimShock.addEventListener('input', updateSimulation);
+    inputRateShock.addEventListener('input', updateSimulation);
+
+    // Initial Run
+    updateSimulation();
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 420" width="100%" height="100%">
+  <defs>
+    <!-- Gradient Filters -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+
+    <linearGradient id="bsBoxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+
+    <linearGradient id="csmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+
+    <linearGradient id="raGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <linearGradient id="plGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312E81"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+
+    <!-- Shadow Filter -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+
+    <!-- Markers for Arrows -->
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#60A5FA"/>
+    </marker>
+
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34D399"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="820" height="420" rx="16" fill="url(#bgGrad)"/>
+
+  <!-- Outer Title Banner -->
+  <text x="410" y="36" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#F8FAFC" text-anchor="middle" letter-spacing="0.5">
+    IFRS 17 부채(BS) → 수익(PL) 이중 전환 메커니즘
+  </text>
+
+  <!-- LEFT SECTION: BALANCE SHEET (BS) -->
+  <g transform="translate(40, 65)">
+    <rect width="260" height="315" rx="12" fill="url(#bsBoxGrad)" stroke="#475569" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <rect width="260" height="40" rx="12" fill="#334155"/>
+    <path d="M 0 40 L 260 40" stroke="#475569" stroke-width="1"/>
+    <text x="130" y="26" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#94A3B8" text-anchor="middle">
+      재무상태표 (BS) 부채
+    </text>
+
+    <!-- CSM Card in BS -->
+    <g transform="translate(15, 55)">
+      <rect width="230" height="110" rx="8" fill="#1E293B" stroke="#3B82F6" stroke-width="2" filter="url(#dropShadow)"/>
+      <rect width="230" height="28" rx="8" fill="url(#csmGrad)"/>
+      <path d="M 0 28 L 230 28" stroke="#3B82F6" stroke-width="1"/>
+      <text x="115" y="19" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">
+        CSM (계약서비스마진)
+      </text>
+      <text x="115" y="55" font-family="system-ui, sans-serif" font-size="12" fill="#93C5FD" text-anchor="middle">
+        미실현 이익 유보금
+      </text>
+      <text x="115" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#64748B" text-anchor="middle">
+        [서비스 제공 시 상각 대상]
+      </text>
+    </g>
+
+    <!-- RA Card in BS -->
+    <g transform="translate(15, 180)">
+      <rect width="230" height="110" rx="8" fill="#1E293B" stroke="#10B981" stroke-width="2" filter="url(#dropShadow)"/>
+      <rect width="230" height="28" rx="8" fill="url(#raGrad)"/>
+      <path d="M 0 28 L 230 28" stroke="#10B981" stroke-width="1"/>
+      <text x="115" y="19" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">
+        RA (위험조정)
+      </text>
+      <text x="115" y="55" font-family="system-ui, sans-serif" font-size="12" fill="#A7F3D0" text-anchor="middle">
+        비금융 불확실성 방어금
+      </text>
+      <text x="115" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#64748B" text-anchor="middle">
+        [시간 경과 시 환입 대상]
+      </text>
+    </g>
+  </g>
+
+  <!-- MIDDLE SECTION: CONVERSION DRIVERS -->
+  <!-- Top Driver: Coverage Unit -->
+  <g transform="translate(320, 110)">
+    <rect width="180" height="60" rx="8" fill="#0F172A" stroke="#60A5FA" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <text x="90" y="26" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#60A5FA" text-anchor="middle">
+      보장단위 (Coverage Unit)
+    </text>
+    <text x="90" y="46" font-family="system-ui, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">
+      서비스 제공 비율 측정
+    </text>
+  </g>
+
+  <!-- Bottom Driver: Uncertainty Release -->
+  <g transform="translate(320, 235)">
+    <rect width="180" height="60" rx="8" fill="#0F172A" stroke="#34D399" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <text x="90" y="26" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#34D399" text-anchor="middle">
+      위험 경과 (Risk Release)
+    </text>
+    <text x="90" y="46" font-family="system-ui, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">
+      불확실성의 자연 소멸
+    </text>
+  </g>
+
+  <!-- CONNECTOR ARROWS -->
+  <!-- CSM -> Driver -> Revenue -->
+  <path d="M 285, 140 L 320, 140" stroke="#60A5FA" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <path d="M 500, 140 L 535, 140" stroke="#60A5FA" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- RA -> Driver -> Release Revenue -->
+  <path d="M 285, 265 L 320, 265" stroke="#34D399" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <path d="M 500, 265 L 535, 265" stroke="#34D399" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- RIGHT SECTION: INCOME STATEMENT (PL) -->
+  <g transform="translate(540, 65)">
+    <rect width="240" height="315" rx="12" fill="url(#plGrad)" stroke="#6D28D9" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <rect width="240" height="40" rx="12" fill="#4C1D95"/>
+    <path d="M 0 40 L 240 40" stroke="#6D28D9" stroke-width="1"/>
+    <text x="120" y="26" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#F3E8FF" text-anchor="middle">
+      손익계산서 (PL) 수익
+    </text>
+
+    <!-- CSM Amortization Revenue -->
+    <g transform="translate(15, 55)">
+      <rect width="210" height="75" rx="8" fill="#1E1B4B" stroke="#818CF8" stroke-width="1.5"/>
+      <text x="105" y="25" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#C7D2FE" text-anchor="middle">
+        CSM 상각 수익
+      </text>
+      <text x="105" y="48" font-family="system-ui, sans-serif" font-size="11" fill="#9CA3AF" text-anchor="middle">
+        서비스 제공 대가 환원
+      </text>
+    </g>
+
+    <!-- RA Release Revenue -->
+    <g transform="translate(15, 145)">
+      <rect width="210" height="75" rx="8" fill="#064E3B" stroke="#34D399" stroke-width="1.5"/>
+      <text x="105" y="25" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="middle">
+        RA 환입 수익
+      </text>
+      <text x="105" y="48" font-family="system-ui, sans-serif" font-size="11" fill="#9CA3AF" text-anchor="middle">
+        불확실성 소멸 대가 환원
+      </text>
+    </g>
+
+    <!-- Total Net Profit Box -->
+    <g transform="translate(15, 235)">
+      <rect width="210" height="60" rx="8" fill="#F59E0B" stroke="#FBBF24" stroke-width="2"/>
+      <text x="105" y="25" font-family="system-ui, sans-serif" font-size="13" font-weight="800" fill="#78350F" text-anchor="middle">
+        당기 보험 영업 이익
+      </text>
+      <text x="105" y="45" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#92400E" text-anchor="middle">
+        CSM 상각액 + RA 환입액
+      </text>
+    </g>
+  </g>
+</svg>
