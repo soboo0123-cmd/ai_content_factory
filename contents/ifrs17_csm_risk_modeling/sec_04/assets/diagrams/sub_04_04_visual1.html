@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품 B Repricing & Risk Premium 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 p-4 md:p-6 text-slate-800">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md border border-slate-200 p-5 md:p-6">
+    <!-- Header -->
+    <div class="border-b border-slate-200 pb-4 mb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>
+          [위젯] 상품 B Repricing &amp; Risk Premium 대시보드
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">수취 보험료 조정을 통한 손익분기점(BEP) 및 목표 RAROC 달성 여부 실시간 시뮬레이션</p>
+      </div>
+      <span id="statusBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 border border-red-200">
+        목표 미달 (Fail)
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Control Panel (Left: 5 cols) -->
+      <div class="lg:col-span-5 bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col gap-4">
+        <h3 class="text-sm font-bold text-slate-700 border-b border-slate-200 pb-2">파라미터 설정</h3>
+        
+        <!-- Slider 1: Premium -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-xs font-medium text-slate-600">수취 보험료 PV ($PV(\text{Premium})$)</label>
+            <span id="premiumVal" class="text-xs font-bold text-blue-700">1,200.0 억 원</span>
+          </div>
+          <input type="range" id="premiumSlider" min="1200" max="1500" step="5" value="1200" 
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>1,200억 (기존)</span>
+            <span>1,283.8억 (BEP)</span>
+            <span>1,500억</span>
+          </div>
+        </div>
+
+        <!-- Slider 2: Target RAROC -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-xs font-medium text-slate-600">목표 허들레이트 ($HR$)</label>
+            <span id="hrVal" class="text-xs font-bold text-slate-700">50.0 %</span>
+          </div>
+          <input type="range" id="hrSlider" min="10" max="100" step="5" value="50" 
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-600">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>10%</span>
+            <span>50% (기본)</span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <!-- Fixed Params Info -->
+        <div class="mt-2 pt-3 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
+          <div class="flex justify-between"><span>최적추정부채 ($BEL$):</span><span class="font-semibold text-slate-700">1,000억 원</span></div>
+          <div class="flex justify-between"><span>현금흐름 표준편차 ($\sigma$):</span><span class="font-semibold text-slate-700">200억 원</span></div>
+          <div class="flex justify-between"><span>99.5% VaR 요구자본 ($Capital$):</span><span class="font-semibold text-slate-700">516억 원</span></div>
+          <div class="flex justify-between"><span>자본비용률 ($r_{\text{CoC}}$):</span><span class="font-semibold text-slate-700">5.0 %</span></div>
+        </div>
+      </div>
+
+      <!-- Result Panel (Right: 7 cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div class="bg-blue-50/60 border border-blue-100 rounded-lg p-3">
+            <div class="text-[11px] text-blue-600 font-medium">위험 프레미엄 부과액</div>
+            <div id="riskPremiumMetric" class="text-lg font-bold text-blue-900 mt-1">0.0 억 원</div>
+            <div class="text-[10px] text-blue-500 mt-0.5">기존 1,200억 대비 인상분</div>
+          </div>
+          <div class="bg-emerald-50/60 border border-emerald-100 rounded-lg p-3">
+            <div class="text-[11px] text-emerald-600 font-medium">신계약 CSM</div>
+            <div id="csmMetric" class="text-lg font-bold text-emerald-900 mt-1">174.2 억 원</div>
+            <div id="csmDiff" class="text-[10px] text-emerald-600 mt-0.5">+0.0억 (원래 174.2억)</div>
+          </div>
+          <div id="rarocCard" class="bg-red-50 border border-red-200 rounded-lg p-3 col-span-2 sm:col-span-1">
+            <div class="text-[11px] text-slate-600 font-medium">달성 RAROC</div>
+            <div id="rarocMetric" class="text-xl font-extrabold text-red-600 mt-1">33.76 %</div>
+            <div id="rarocDiff" class="text-[10px] text-red-500 mt-0.5">목표(50.0%) 대비 -16.24%p</div>
+          </div>
+        </div>
+
+        <!-- Visual Bar Chart Comparison -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <h4 class="text-xs font-bold text-slate-700 mb-3">수취 보험료 분해 구조 ($PV(\text{Premium})$)</h4>
+          <div class="space-y-2">
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-slate-600">현재 입력 보험료 분해:</span>
+                <span id="barTotalLabel" class="font-bold text-slate-800">1,200억 원</span>
+              </div>
+              <div class="w-full h-6 bg-slate-200 rounded-md overflow-hidden flex text-[10px] font-bold text-white text-center leading-6">
+                <div id="barBel" class="bg-slate-600 h-full transition-all duration-300" style="width: 83.3%;">BEL (1,000억)</div>
+                <div id="barRa" class="bg-amber-500 h-full transition-all duration-300" style="width: 2.15%;">RA</div>
+                <div id="barCsm" class="bg-emerald-500 h-full transition-all duration-300" style="width: 14.55%;">CSM</div>
+              </div>
+            </div>
+
+            <!-- Target BEP Threshold Line Info -->
+            <div class="pt-2 border-t border-slate-200 flex justify-between items-center text-xs">
+              <span class="text-slate-500">목표 RAROC 달성을 위한 최소 필요 보험료 ($PV_{\text{BEP}}$):</span>
+              <span id="bepPriceLabel" class="font-bold text-blue-700">1,283.8 억 원</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Practical Strategy Note -->
+        <div id="strategyBox" class="p-3 bg-red-50 border-l-4 border-red-500 rounded text-xs text-red-800">
+          <span class="font-bold">실무 가이드:</span> 현재 가격에서는 목표 허들레이트를 충족하지 못합니다. 수취 보험료를 최소 <span id="reqIncrease" class="font-bold underline">83.8억 원</span> 이상 상향 조정하여 위험 프레미엄을 반영하십시오.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BEL = 1000.0;
+    const Z_SCORE = 2.58;
+    const SIGMA = 200.0;
+    const COC = 0.05;
+    const CAPITAL = Z_SCORE * SIGMA; // 516.0
+    const RA = CAPITAL * COC;        // 25.8
+
+    const premiumSlider = document.getElementById('premiumSlider');
+    const hrSlider = document.getElementById('hrSlider');
+
+    const premiumVal = document.getElementById('premiumVal');
+    const hrVal = document.getElementById('hrVal');
+    const statusBadge = document.getElementById('statusBadge');
+    
+    const riskPremiumMetric = document.getElementById('riskPremiumMetric');
+    const csmMetric = document.getElementById('csmMetric');
+    const csmDiff = document.getElementById('csmDiff');
+    const rarocCard = document.getElementById('rarocCard');
+    const rarocMetric = document.getElementById('rarocMetric');
+    const rarocDiff = document.getElementById('rarocDiff');
+
+    const barTotalLabel = document.getElementById('barTotalLabel');
+    const barBel = document.getElementById('barBel');
+    const barRa = document.getElementById('barRa');
+    const barCsm = document.getElementById('barCsm');
+    const bepPriceLabel = document.getElementById('bepPriceLabel');
+    const strategyBox = document.getElementById('strategyBox');
+    const reqIncrease = document.getElementById('reqIncrease');
+
+    function updateSimulator() {
+      const prem = parseFloat(premiumSlider.value);
+      const targetHR = parseFloat(hrSlider.value) / 100.0;
+
+      // Calculations
+      const riskPrem = prem - 1200.0;
+      const csm = Math.max(0, prem - BEL - RA);
+      const raroc = (csm / CAPITAL) * 100.0;
+
+      const bepPrem = BEL + Z_SCORE * SIGMA * (COC + targetHR);
+      const diffToTarget = raroc - (targetHR * 100.0);
+
+      // UI Text Updates
+      premiumVal.textContent = prem.toFixed(1) + ' 억 원';
+      hrVal.textContent = (targetHR * 100).toFixed(1) + ' %';
+      
+      riskPremiumMetric.textContent = riskPrem.toFixed(1) + ' 억 원';
+      csmMetric.textContent = csm.toFixed(1) + ' 억 원';
+      csmDiff.textContent = `+${(csm - 174.2).toFixed(1)}억 (기존 174.2억)`;
+
+      rarocMetric.textContent = raroc.toFixed(2) + ' %';
+      bepPriceLabel.textContent = bepPrem.toFixed(1) + ' 억 원';
+
+      barTotalLabel.textContent = prem.toFixed(1) + '억 원';
+
+      // Bar proportions
+      const belPct = (BEL / prem) * 100;
+      const raPct = (RA / prem) * 100;
+      const csmPct = (csm / prem) * 100;
+
+      barBel.style.width = belPct + '%';
+      barRa.style.width = raPct + '%';
+      barCsm.style.width = csmPct + '%';
+      barCsm.textContent = csm > 30 ? `CSM (${csm.toFixed(1)}억)` : '';
+
+      // Status Pass/Fail
+      if (raroc >= (targetHR * 100.0)) {
+        statusBadge.className = "px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        statusBadge.textContent = "목표 달성 (Pass)";
+
+        rarocCard.className = "bg-emerald-50 border border-emerald-200 rounded-lg p-3 col-span-2 sm:col-span-1";
+        rarocMetric.className = "text-xl font-extrabold text-emerald-600 mt-1";
+        rarocDiff.className = "text-[10px] text-emerald-600 mt-0.5";
+        rarocDiff.textContent = `목표 대비 +${diffToTarget.toFixed(2)}%p 초과`;
+
+        strategyBox.className = "p-3 bg-emerald-50 border-l-4 border-emerald-500 rounded text-xs text-emerald-800";
+        strategyBox.innerHTML = `<span class="font-bold">실무 가이드:</span> 설정된 가격(${prem.toFixed(1)}억 원)은 목표 RAROC(${targetHR*100}%)를 만족합니다. 인수 허가 가능한 프라이싱입니다.`;
+      } else {
+        statusBadge.className = "px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 border border-red-200";
+        statusBadge.textContent = "목표 미달 (Fail)";
+
+        rarocCard.className = "bg-red-50 border border-red-200 rounded-lg p-3 col-span-2 sm:col-span-1";
+        rarocMetric.className = "text-xl font-extrabold text-red-600 mt-1";
+        rarocDiff.className = "text-[10px] text-red-500 mt-0.5";
+        rarocDiff.textContent = `목표 대비 ${diffToTarget.toFixed(2)}%p 미달`;
+
+        const needed = bepPrem - prem;
+        reqIncrease.textContent = needed > 0 ? needed.toFixed(1) + '억 원' : '0억 원';
+
+        strategyBox.className = "p-3 bg-red-50 border-l-4 border-red-500 rounded text-xs text-red-800";
+        strategyBox.innerHTML = `<span class="font-bold">실무 가이드:</span> 현재 가격에서는 목표 허들레이트를 충족하지 못합니다. 수취 보험료를 최소 <span class="font-bold underline">${needed.toFixed(1)}억 원</span> 이상 추가 인상하여 Repricing하십시오.`;
+      }
+    }
+
+    premiumSlider.addEventListener('input', updateSimulator);
+    hrSlider.addEventListener('input', updateSimulator);
+
+    // Initial run
+    updateSimulator();
+  </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전사 자본 배분(Capital Allocation) 최적화 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 p-4 md:p-6 text-slate-800">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md border border-slate-200 p-5 md:p-6">
+    <!-- Header -->
+    <div class="border-b border-slate-200 pb-3 mb-5">
+      <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
+        [위젯] 전사 가용자본(1,000억 원) 최적 배분 시뮬레이터
+      </h2>
+      <p class="text-xs text-slate-500 mt-0.5">상품 A(저변동성)와 상품 B(고변동성) 간의 자본 배분 비율에 따른 전사 창출 CSM 및 평균 RAROC 가시화</p>
+    </div>
+
+    <!-- Allocation Controls -->
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <label class="text-sm font-bold text-slate-700">상품 A 자본 배분 비중</label>
+        <div class="text-sm font-extrabold text-blue-700">
+          상품 A: <span id="pctAVal">50</span>% | 상품 B: <span id="pctBVal">50</span>%
+        </div>
+      </div>
+      <input type="range" id="allocSlider" min="0" max="100" step="5" value="50" 
+             class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+      <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
+        <span>0% (전액 상품 B 배분)</span>
+        <span>50% (전통적 균등 배분)</span>
+        <span>90% (RAROC 최적 배분)</span>
+        <span>100% (전액 상품 A 배분)</span>
+      </div>
+    </div>
+
+    <!-- Comparison Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <!-- Product A Allocated -->
+      <div class="bg-emerald-50/50 border border-emerald-200 rounded-lg p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-sm font-bold text-emerald-900">상품 A (저변동성)</h3>
+            <p class="text-[11px] text-emerald-700">단위 자본당 CSM 창출력: <span class="font-bold">150.04%</span></p>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 bg-emerald-200 text-emerald-800 rounded">고효율</span>
+        </div>
+        <div class="mt-3 space-y-1.5 text-xs text-slate-700">
+          <div class="flex justify-between"><span>할당 위험자본 ($Cap_A$):</span><span id="capA" class="font-bold">500.0 억 원</span></div>
+          <div class="flex justify-between"><span>창출 CSM:</span><span id="csmA" class="font-bold text-emerald-700">750.2 억 원</span></div>
+        </div>
+      </div>
+
+      <!-- Product B Allocated -->
+      <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-sm font-bold text-amber-900">상품 B (고변동성)</h3>
+            <p class="text-[11px] text-amber-700">단위 자본당 CSM 창출력: <span class="font-bold">33.76%</span></p>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 bg-amber-200 text-amber-800 rounded">저효율</span>
+        </div>
+        <div class="mt-3 space-y-1.5 text-xs text-slate-700">
+          <div class="flex justify-between"><span>할당 위험자본 ($Cap_B$):</span><span id="capB" class="font-bold">500.0 억 원</span></div>
+          <div class="flex justify-between"><span>창출 CSM:</span><span id="csmB" class="font-bold text-amber-700">168.8 억 원</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Enterprise Outcome -->
+    <div class="bg-slate-900 text-white rounded-xl p-5 shadow-lg">
+      <div class="text-xs font-medium text-slate-400 mb-1">전사 종합 재무 성과 (Total Capital = 1,000억 원)</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <div>
+          <div class="text-xs text-slate-300">전사 총 창출 CSM</div>
+          <div id="totalCsm" class="text-3xl font-black text-emerald-400 mt-1">919.0 억 원</div>
+          <div id="csmBoost" class="text-xs text-emerald-300 mt-1">전통적 균등 배분 대비 +0.0억 원 (+0.0%)</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-300">전사 평균 RAROC</div>
+          <div id="avgRaroc" class="text-3xl font-black text-blue-400 mt-1">91.90 %</div>
+          <div id="rarocBoost" class="text-xs text-blue-300 mt-1">자본효율성 극대화 포지션</div>
+        </div>
+      </div>
+
+      <!-- Visual Comparison Bar -->
+      <div class="mt-4 pt-4 border-t border-slate-800">
+        <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+          <span>전사 CSM 구성 (상품 A vs 상품 B)</span>
+          <span id="csmRatioLabel">750.2억 (81.6%) vs 168.8억 (18.4%)</span>
+        </div>
+        <div class="w-full h-4 bg-slate-800 rounded-full overflow-hidden flex">
+          <div id="barCsmA" class="bg-emerald-500 h-full transition-all duration-300" style="width: 81.6%;"></div>
+          <div id="barCsmB" class="bg-amber-500 h-full transition-all duration-300" style="width: 18.4%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_CAPITAL = 1000.0;
+    const RAROC_A = 1.5004; // 150.04%
+    const RAROC_B = 0.3376; // 33.76%
+
+    const allocSlider = document.getElementById('allocSlider');
+    const pctAVal = document.getElementById('pctAVal');
+    const pctBVal = document.getElementById('pctBVal');
+
+    const capA = document.getElementById('capA');
+    const csmA = document.getElementById('csmA');
+    const capB = document.getElementById('capB');
+    const csmB = document.getElementById('csmB');
+
+    const totalCsm = document.getElementById('totalCsm');
+    const csmBoost = document.getElementById('csmBoost');
+    const avgRaroc = document.getElementById('avgRaroc');
+    const rarocBoost = document.getElementById('rarocBoost');
+
+    const barCsmA = document.getElementById('barCsmA');
+    const barCsmB = document.getElementById('barCsmB');
+    const csmRatioLabel = document.getElementById('csmRatioLabel');
+
+    // Baseline: 50:50 allocation
+    const baseCsm = (500 * RAROC_A) + (500 * RAROC_B); // 919.0
+
+    function updateAllocation() {
+      const pctA = parseFloat(allocSlider.value);
+      const pctB = 100.0 - pctA;
+
+      pctAVal.textContent = pctA.toFixed(0);
+      pctBVal.textContent = pctB.toFixed(0);
+
+      const allocatedCapA = TOTAL_CAPITAL * (pctA / 100.0);
+      const allocatedCapB = TOTAL_CAPITAL * (pctB / 100.0);
+
+      const generatedCsmA = allocatedCapA * RAROC_A;
+      const generatedCsmB = allocatedCapB * RAROC_B;
+
+      const grandTotalCsm = generatedCsmA + generatedCsmB;
+      const enterpriseAvgRaroc = (grandTotalCsm / TOTAL_CAPITAL) * 100.0;
+
+      capA.textContent = allocatedCapA.toFixed(1) + ' 억 원';
+      csmA.textContent = generatedCsmA.toFixed(1) + ' 억 원';
+
+      capB.textContent = allocatedCapB.toFixed(1) + ' 억 원';
+      csmB.textContent = generatedCsmB.toFixed(1) + ' 억 원';
+
+      totalCsm.textContent = grandTotalCsm.toFixed(1) + ' 억 원';
+      avgRaroc.textContent = enterpriseAvgRaroc.toFixed(2) + ' %';
+
+      const diffCsm = grandTotalCsm - baseCsm;
+      const diffPct = (diffCsm / baseCsm) * 100.0;
+
+      if (diffCsm >= 0) {
+        csmBoost.textContent = `전통적 균등 배분(50:50) 대비 +${diffCsm.toFixed(1)}억 원 (+${diffPct.toFixed(1)}%)`;
+        csmBoost.className = "text-xs text-emerald-300 mt-1 font-semibold";
+      } else {
+        csmBoost.textContent = `전통적 균등 배분(50:50) 대비 ${diffCsm.toFixed(1)}억 원 (${diffPct.toFixed(1)}%)`;
+        csmBoost.className = "text-xs text-red-400 mt-1 font-semibold";
+      }
+
+      // Bar Ratio
+      const pctCsmA = (generatedCsmA / grandTotalCsm) * 100.0;
+      const pctCsmB = 100.0 - pctCsmA;
+
+      barCsmA.style.width = pctCsmA + '%';
+      barCsmB.style.width = pctCsmB + '%';
+
+      csmRatioLabel.textContent = `${generatedCsmA.toFixed(1)}억 (${pctCsmA.toFixed(1)}%) vs ${generatedCsmB.toFixed(1)}억 (${pctCsmB.toFixed(1)}%)`;
+    }
+
+    allocSlider.addEventListener('input', updateAllocation);
+
+    // Initial run
+    updateAllocation();
+  </script>
+</body>
+</html>

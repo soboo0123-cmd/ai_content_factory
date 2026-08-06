@@ -1,0 +1,337 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자본비용법(CoC) RA 시뮬레이터</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+    input[type=range] {
+      accent-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6">
+  <div class="max-w-6xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 shadow-2xl">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-800 mb-6 gap-3">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+          자본비용법(CoC) 위험조정(RA) & 손익분기점(BEP) 시뮬레이터
+        </h2>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          비금융 변동성과 자본비용률에 따른 미래 RA 현금흐름 및 주주 가치 임계치($r_{\text{CoC, BEP}}$)를 정밀하게 시뮬레이션합니다.
+        </p>
+      </div>
+      <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-slate-300">
+        K-ICS 표준 자본비용률: <span class="text-amber-400 font-bold">6.0%</span>
+      </div>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Controls Panel (5 cols) -->
+      <div class="lg:col-span-5 bg-slate-950/60 p-4 md:p-5 rounded-xl border border-slate-800/80 space-y-5">
+        <h3 class="text-sm font-semibold text-blue-400 uppercase tracking-wider">시뮬레이션 파라미터</h3>
+        
+        <!-- Parameter 1: Std Dev -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-300">현금흐름 표준편차 ($\sigma$)</span>
+            <span id="stdVal" class="text-blue-400 font-bold">100 억 원</span>
+          </div>
+          <input type="range" id="stdRange" min="10" max="500" step="10" value="100" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-0.5">
+            <span>10억 (저변동성)</span>
+            <span>500억 (고변동성)</span>
+          </div>
+        </div>
+
+        <!-- Parameter 2: r_CoC -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-300">자본비용률 ($r_{\text{CoC}}$)</span>
+            <span id="cocVal" class="text-amber-400 font-bold">6.0 %</span>
+          </div>
+          <input type="range" id="cocRange" min="1.0" max="12.0" step="0.5" value="6.0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Parameter 3: Risk-free Rate -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-300">무위험 할인율 ($r_f$)</span>
+            <span id="rfVal" class="text-emerald-400 font-bold">3.0 %</span>
+          </div>
+          <input type="range" id="rfRange" min="1.0" max="8.0" step="0.25" value="3.0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Parameter 4: Target Margin -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-300">타깃 사업 마진 한도 ($M$)</span>
+            <span id="marginVal" class="text-purple-400 font-bold">200 억 원</span>
+          </div>
+          <input type="range" id="marginRange" min="50" max="1000" step="50" value="200" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Parameter 5: Run-off Period -->
+        <div>
+          <div class="flex justify-between text-xs font-medium mb-1">
+            <span class="text-slate-300">계약 만기 (Run-off 기간)</span>
+            <span id="periodVal" class="text-cyan-400 font-bold">5 년</span>
+          </div>
+          <input type="range" id="periodRange" min="1" max="10" step="1" value="5" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <!-- Summary KPI Cards inside Controls -->
+        <div class="pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-3">
+          <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+            <div class="text-[11px] text-slate-400">t=0 필요 요구자본</div>
+            <div id="kpiCapital" class="text-base font-bold text-indigo-300 mt-0.5">257.6 억 원</div>
+          </div>
+          <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+            <div class="text-[11px] text-slate-400">총 위험조정 (RA) PV</div>
+            <div id="kpiRA" class="text-base font-bold text-emerald-400 mt-0.5">42.47 억 원</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Dashboard & Chart Panel (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col justify-between space-y-4">
+        
+        <!-- Decision Alert Banner -->
+        <div id="alertBanner" class="p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-emerald-950/40 border-emerald-700/50">
+          <div>
+            <div class="text-xs font-medium text-emerald-400 uppercase tracking-wide">주주 가치 창출 판정 (Value Creation)</div>
+            <div class="text-sm font-semibold text-white mt-0.5 flex items-center gap-2">
+              <span id="bepStatusText">PASS: 현 자본비용률(6.0%) 대비 충분한 마진 확보</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] text-slate-400">임계 자본비용률 ($r_{\text{CoC, BEP}}$)</div>
+            <div id="bepRateText" class="text-lg font-extrabold text-emerald-300">28.25 %</div>
+          </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 flex-1 min-h-[260px] flex flex-col justify-center">
+          <div class="text-xs font-semibold text-slate-400 mb-2 flex justify-between items-center">
+            <span>연도별 요구자본 런오프 및 자본비용(CoC) 현금흐름 현가</span>
+            <span class="text-[10px] text-slate-500">단위: 억 원</span>
+          </div>
+          <div class="w-full h-56">
+            <canvas id="cocChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Mini Table -->
+        <div class="overflow-x-auto bg-slate-950/40 rounded-xl border border-slate-800">
+          <table class="w-full text-left text-[11px] text-slate-300">
+            <thead class="bg-slate-800/60 text-slate-400 uppercase text-[10px]">
+              <tr>
+                <th class="p-2 pl-3">연도(t)</th>
+                <th class="p-2">기초 요구자본</th>
+                <th class="p-2">CoC 발생액</th>
+                <th class="p-2">할인요소</th>
+                <th class="p-2 pr-3 text-right">CoC 현가(PV)</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTable" class="divide-y divide-slate-800/50 font-mono">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Global Elements
+    const stdRange = document.getElementById('stdRange');
+    const cocRange = document.getElementById('cocRange');
+    const rfRange = document.getElementById('rfRange');
+    const marginRange = document.getElementById('marginRange');
+    const periodRange = document.getElementById('periodRange');
+
+    const stdVal = document.getElementById('stdVal');
+    const cocVal = document.getElementById('cocVal');
+    const rfVal = document.getElementById('rfVal');
+    const marginVal = document.getElementById('marginVal');
+    const periodVal = document.getElementById('periodVal');
+
+    const kpiCapital = document.getElementById('kpiCapital');
+    const kpiRA = document.getElementById('kpiRA');
+    const bepStatusText = document.getElementById('bepStatusText');
+    const bepRateText = document.getElementById('bepRateText');
+    const alertBanner = document.getElementById('alertBanner');
+    const scheduleTable = document.getElementById('scheduleTable');
+
+    const zAlpha = 2.5758293; // 99.5% confidence level
+    let myChart = null;
+
+    function initChart() {
+      const ctx = document.getElementById('cocChart').getContext('2d');
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: '기초 요구자본 (Capital_{t-1})',
+              data: [],
+              backgroundColor: 'rgba(99, 102, 241, 0.3)',
+              borderColor: 'rgba(99, 102, 241, 0.8)',
+              borderWidth: 1,
+              yAxisID: 'yCapital',
+              order: 2
+            },
+            {
+              label: 'CoC 현금흐름 현가 (PV)',
+              type: 'line',
+              data: [],
+              borderColor: '#10b981',
+              backgroundColor: '#10b981',
+              borderWidth: 2,
+              pointRadius: 4,
+              yAxisID: 'yCoC',
+              order: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            },
+            yCapital: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: '요구자본 (억 원)', color: '#818cf8', font: { size: 10 } },
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#818cf8', font: { size: 10 } }
+            },
+            yCoC: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'CoC 현가 (억 원)', color: '#34d399', font: { size: 10 } },
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#34d399', font: { size: 10 } }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#cbd5e1', font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    function updateSimulation() {
+      const sigma = parseFloat(stdRange.value); // 억 원
+      const cocRate = parseFloat(cocRange.value) / 100.0;
+      const rfRate = parseFloat(rfRange.value) / 100.0;
+      const marginTarget = parseFloat(marginRange.value); // 억 원
+      const years = parseInt(periodRange.value);
+
+      // Display Labels Update
+      stdVal.textContent = `${sigma} 억 원`;
+      cocVal.textContent = `${(cocRate * 100).toFixed(1)} %`;
+      rfVal.textContent = `${(rfRate * 100).toFixed(2)} %`;
+      marginVal.textContent = `${marginTarget} 억 원`;
+      periodVal.textContent = `${years} 년`;
+
+      // Calculation
+      const capital0 = zAlpha * sigma; // t=0 초기 요구자본
+      let totalRA = 0;
+      let raPerUnitCoc = 0;
+
+      const labels = [];
+      const capitalData = [];
+      const pvData = [];
+      let tableHtml = '';
+
+      for (let t = 1; t <= years; t++) {
+        labels.push(`${t}년차`);
+        const capPrev = capital0 * (years - (t - 1)) / years; // 기초 자본
+        const cocFlow = capPrev * cocRate;
+        const df = 1 / Math.pow(1 + rfRate, t);
+        const pvFlow = cocFlow * df;
+
+        totalRA += pvFlow;
+        raPerUnitCoc += capPrev * df;
+
+        capitalData.push(capPrev.toFixed(2));
+        pvData.push(pvFlow.toFixed(2));
+
+        tableHtml += `
+          <tr class="hover:bg-slate-800/30">
+            <td class="p-2 pl-3 font-semibold text-slate-400">${t}년차</td>
+            <td class="p-2">${capPrev.toFixed(1)}억</td>
+            <td class="p-2 text-amber-300/90">${cocFlow.toFixed(2)}억</td>
+            <td class="p-2 text-slate-400">${df.toFixed(4)}</td>
+            <td class="p-2 pr-3 text-right font-bold text-emerald-400">${pvFlow.toFixed(2)}억</td>
+          </tr>
+        `;
+      }
+
+      // BEP Calculation
+      const rCocBep = (marginTarget / raPerUnitCoc) * 100.0; // %
+
+      // Update KPI Cards
+      kpiCapital.textContent = `${capital0.toFixed(1)} 억 원`;
+      kpiRA.textContent = `${totalRA.toFixed(2)} 억 원`;
+      bepRateText.textContent = `${rCocBep.toFixed(2)} %`;
+
+      // Update Alert Banner
+      const currentCocPercent = cocRate * 100.0;
+      if (rCocBep >= currentCocPercent) {
+        alertBanner.className = "p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-emerald-950/40 border-emerald-700/50";
+        bepStatusText.textContent = `PASS: 가치 창출 가능 (r_CoC_BEP ${rCocBep.toFixed(1)}% ≥ 적용 금리 ${currentCocPercent.toFixed(1)}%)`;
+        bepStatusText.className = "text-emerald-300 font-semibold";
+        bepRateText.className = "text-lg font-extrabold text-emerald-300";
+      } else {
+        alertBanner.className = "p-4 rounded-xl border flex items-center justify-between transition-all duration-300 bg-rose-950/40 border-rose-700/50";
+        bepStatusText.textContent = `FAIL: 가치 훼손 경고 (r_CoC_BEP ${rCocBep.toFixed(1)}% < 적용 금리 ${currentCocPercent.toFixed(1)}%)`;
+        bepStatusText.className = "text-rose-300 font-semibold";
+        bepRateText.className = "text-lg font-extrabold text-rose-300";
+      }
+
+      // Update Table & Chart
+      scheduleTable.innerHTML = tableHtml;
+
+      myChart.data.labels = labels;
+      myChart.data.datasets[0].data = capitalData;
+      myChart.data.datasets[1].data = pvData;
+      myChart.update();
+    }
+
+    // Event Listeners
+    [stdRange, cocRange, rfRange, marginRange, periodRange].forEach(input => {
+      input.addEventListener('input', updateSimulation);
+    });
+
+    // Initialize on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      updateSimulation();
+    });
+  </script>
+</body>
+</html>
