@@ -84,10 +84,11 @@ $$\sum_{t=1}^{5} R_t = 0.09531 + (-0.10536) + 0.09531 + 0.09531 + (-0.10536) = 0
 
 확률의 총합은 당연히 $q + (1-q) = 1$로 보존됩니다. 기댓값의 정의(각 상태의 실현 가치와 확률의 곱에 대한 합산)에 따라, 1기간 로그수익률의 기댓값 $\hat{\mu}$를 다음과 같이 명쾌하게 유도할 수 있습니다.
 
-$$\hat{\mu} = E[R] = q \cdot \ln u + (1-q) \cdot \ln d$$
-
-$$\hat{\mu} =E[R] = q \big(\ln(u) - \ln(d)\big) + \ln(d)$$
-$$\hat{\mu} =E[R] = q \ln\left(\frac{u}{d}\right) + \ln(d)$$
+\begin{aligned}
+\hat{\mu} = E[R] &= q \cdot \ln u + (1-q) \cdot \ln d \\
+&= q(\ln u - \ln d) + \ln d \\
+&= q \ln\left(\frac{u}{d}\right) + \ln d
+\end{aligned}
 
 
 ---
