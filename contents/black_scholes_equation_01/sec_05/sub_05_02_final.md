@@ -87,6 +87,7 @@ $$\sum_{t=1}^{5} R_t = 0.09531 + (-0.10536) + 0.09531 + 0.09531 + (-0.10536) = 0
 $$
 \begin{aligned}
 \hat{\mu} = E[R] &= q \cdot \ln u + (1-q) \cdot \ln d \\
+&= q \ln(u) + \ln(d) - q \ln(d)$$ \\
 &= q(\ln u - \ln d) + \ln d \\
 &= q \ln\left(\frac{u}{d}\right) + \ln d
 \end{aligned}
