@@ -86,6 +86,10 @@ $$\sum_{t=1}^{5} R_t = 0.09531 + (-0.10536) + 0.09531 + 0.09531 + (-0.10536) = 0
 
 $$\hat{\mu} = E[R] = q \cdot \ln u + (1-q) \cdot \ln d$$
 
+$$\hat{\mu} =E[R] = q \big(\ln(u) - \ln(d)\big) + \ln(d)$$
+$$\hat{\mu} =E[R] = q \ln\left(\frac{u}{d}\right) + \ln(d)$$
+
+
 ---
 
 ### 2.4 q-측도 하 1기간 로그수익률의 분산($\hat{\sigma}^2$) 유도
