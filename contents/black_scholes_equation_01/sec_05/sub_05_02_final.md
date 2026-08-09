@@ -75,7 +75,7 @@ $$\sum_{t=1}^{5} R_t = 0.09531 + (-0.10536) + 0.09531 + 0.09531 + (-0.10536) = 0
 
 두 계산 결과는 정확하게 일치합니다. 로그의 성질인 $\ln(A \cdot B) = \ln A + \ln B$ 덕분에 기하학적 곱셈 경로가 산술적인 단순 덧셈으로 치환된 것입니다.
 
-$$\ln(u \cdot d \cdot u \cdot u \cdot d) = \ln u + \ln d + \ln u + \ln u + \ln d) = 3\ln u + 2\ln d$$
+$$\ln(u \cdot d \cdot u \cdot u \cdot d) = \ln u + \ln d + \ln u + \ln u + \ln d = 3\ln u + 2\ln d$$
 
 이 식을 총 시행 횟수 $N=5$로 나누면 **1회 시행당 평균 로그수익률**을 구할 수 있습니다.
 
