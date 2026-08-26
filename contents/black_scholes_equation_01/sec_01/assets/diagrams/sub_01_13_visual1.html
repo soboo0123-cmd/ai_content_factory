@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -6,289 +6,546 @@
   <title>위험중립확률 인터랙티브 시뮬레이터</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- MathJax for rendering equations in widgets -->
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  
+  <!-- MathJax 3.x 설정 및 비동기 스크립트 로드 (polyfill.io 제거 완료) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
     body {
       font-family: 'Inter', 'Noto Sans KR', sans-serif;
     }
+    /* 수식 영역 렌더링 시 레이아웃 흔들림 방지 */
+    .math-container {
+      contain: layout size;
+    }
   </style>
 </head>
-<body class="bg-slate-50 p-4 md:p-6 flex items-center justify-center min-h-screen">
-  <div class="max-w-5xl w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+<body class="bg-slate-100 p-3 md:p-6 flex items-center justify-center min-h-screen">
+  <div class="max-w-6xl w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    
     <!-- 헤더 -->
-    <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-6 text-white">
-      <h1 class="text-xl md:text-2xl font-bold tracking-tight">위험중립확률(Risk-Neutral Probability) 시뮬레이터</h1>
-      <p class="text-slate-300 text-xs md:text-sm mt-1">시장 변수들을 직접 조절하여 가상의 위험중립확률 $p$가 변하는 조건과 구조를 시각적으로 체험하세요.</p>
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-5 md:p-6 text-white">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h1 class="text-xl md:text-2xl font-bold tracking-tight">위험중립확률(Risk-Neutral Probability) 시뮬레이터</h1>
+        <span class="px-3 py-1 bg-indigo-500/30 border border-indigo-400/40 rounded-full text-xs font-semibold text-indigo-200">
+          $\mathbb{E}^Q[S_1] = (1+r)S$ 균형 탐색
+        </span>
+      </div>
+      <p class="text-slate-300 text-xs md:text-sm mt-1.5 leading-relaxed">
+        위험중립 세계에서는 <strong>주식의 미래 기대값 $\mathbb{E}[S_1]$</strong>과 <strong>은행 이자로 성장한 가치 $(1+r)S$</strong>가 정확히 일치합니다. 확률 $p$를 직접 조절하여 기대값이 일치하는 지점($p^*$)을 찾아보세요.
+      </p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
-      <!-- 조절 패널 (왼쪽) -->
-      <div class="lg:col-span-5 p-6 border-b lg:border-b-0 lg:border-r border-slate-200 bg-slate-50/50">
-        <h2 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-          <span class="p-1.5 bg-indigo-600 text-white rounded-lg text-xs">01</span> 시장 파라미터 조절
-        </h2>
-
-        <!-- 초기 주가 S -->
-        <div class="mb-5">
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1">
-              초기 주가 ($S$)
+      
+      <!-- [좌측 패널] 컨트롤러 영역 (5 cols) -->
+      <div class="lg:col-span-5 p-5 md:p-6 border-b lg:border-b-0 lg:border-r border-slate-200 bg-slate-50/70 space-y-4">
+        
+        <!-- 섹션 1: 가상 확률 p 직접 조절 카드 -->
+        <div class="bg-indigo-50/90 border border-indigo-200 rounded-xl p-4 shadow-sm">
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-sm font-bold text-indigo-950 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+              가상 상승 확률 ($p$) 조절
             </label>
-            <span class="text-sm font-bold text-slate-900" id="val-S">10,000 원</span>
+            <span class="text-base font-extrabold text-indigo-700 bg-white px-2.5 py-0.5 rounded-lg border border-indigo-200 shadow-inner" id="val-p">
+              62.5%
+            </span>
           </div>
-          <input type="range" id="input-S" min="5000" max="20000" step="500" value="10000" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
-        </div>
+          <input type="range" id="input-p" min="0" max="100" step="0.5" value="62.5" class="w-full h-2.5 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
+            <span>0% (하락 확정)</span>
+            <span class="text-indigo-600 font-bold" id="label-p-star">이론 균형: 62.5%</span>
+            <span>100% (상승 확정)</span>
+          </div>
 
-        <!-- 무위험 이자율 r -->
-        <div class="mb-5">
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1">
-              무위험 이자율 ($r$)
+          <!-- 자동 맞춤 및 고정 제어 버튼 -->
+          <div class="mt-3 pt-3 border-t border-indigo-200/60 flex items-center justify-between gap-2">
+            <button id="btn-snap-p" class="flex-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 transition text-white text-xs font-bold rounded-lg shadow flex items-center justify-center gap-1">
+              <span>🎯 균형 확률($p^*$)에 맞추기</span>
+            </button>
+            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 select-none">
+              <input type="checkbox" id="check-auto-sync" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+              <span>자동 연동</span>
             </label>
-            <span class="text-sm font-bold text-amber-600" id="val-r">5.0%</span>
-          </div>
-          <input type="range" id="input-r" min="0" max="40" step="0.5" value="5" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500">
-        </div>
-
-        <!-- 상승률 u -->
-        <div class="mb-5">
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1">
-              상승률 배수 ($u$)
-            </label>
-            <span class="text-sm font-bold text-emerald-600" id="val-u">1.20</span>
-          </div>
-          <input type="range" id="input-u" min="1.01" max="1.80" step="0.01" value="1.20" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500">
-        </div>
-
-        <!-- 하락률 d -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="text-sm font-semibold text-slate-700 flex items-center gap-1">
-              하락률 배수 ($d$)
-            </label>
-            <span class="text-sm font-bold text-red-600" id="val-d">0.80</span>
-          </div>
-          <input type="range" id="input-d" min="0.50" max="0.99" step="0.01" value="0.80" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500">
-        </div>
-
-        <!-- 수식 요약 카드 -->
-        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-          <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">실시간 대입 수식</h3>
-          <div class="text-slate-700 text-sm space-y-1.5">
-            <div class="flex justify-between">
-              <span>상승 확률 $p$:</span>
-              <span class="font-bold text-indigo-700" id="formula-p">p = \frac{1.05 - 0.80}{1.20 - 0.80}</span>
-            </div>
-            <div class="flex justify-between border-t border-indigo-100/50 pt-1.5 mt-1.5">
-              <span>하락 확률 $1-p$:</span>
-              <span class="font-bold text-slate-700" id="formula-down">1-p = \frac{1.20 - 1.05}{1.20 - 0.80}</span>
-            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 시각화 및 경고 영역 (오른쪽) -->
-      <div class="lg:col-span-7 p-6 flex flex-col justify-between bg-white min-h-[400px]">
+        <!-- 섹션 2: 시장 환경 파라미터 -->
         <div>
-          <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
-            <span class="flex items-center gap-2">
-              <span class="p-1.5 bg-indigo-600 text-white rounded-lg text-xs">02</span> 이항 모델 트리 실시간 반응
-            </span>
-            <span id="status-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-              차익거래 불가능 (정상)
-            </span>
+          <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> 시장 환경 파라미터
           </h2>
 
+          <!-- 초기 주가 S -->
+          <div class="mb-3">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-semibold text-slate-700">초기 주가 ($S$)</span>
+              <span class="text-xs font-bold text-slate-900" id="val-S">10,000 원</span>
+            </div>
+            <input type="range" id="input-S" min="5000" max="20000" step="500" value="10000" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-700">
+          </div>
+
+          <!-- 무위험 이자율 r -->
+          <div class="mb-3">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-semibold text-slate-700">무위험 이자율 ($r$)</span>
+              <span class="text-xs font-bold text-amber-600" id="val-r">5.0%</span>
+            </div>
+            <input type="range" id="input-r" min="0" max="30" step="0.5" value="5" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500">
+          </div>
+
+          <!-- 상승률 배수 u -->
+          <div class="mb-3">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-semibold text-slate-700">상승 배수 ($u$) [주가: <span id="label-uS" class="font-bold text-emerald-600">12,000원</span>]</span>
+              <span class="text-xs font-bold text-emerald-600" id="val-u">1.20 배</span>
+            </div>
+            <input type="range" id="input-u" min="1.01" max="1.80" step="0.01" value="1.20" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+          </div>
+
+          <!-- 하락률 배수 d -->
+          <div class="mb-1">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-semibold text-slate-700">하락 배수 ($d$) [주가: <span id="label-dS" class="font-bold text-red-600">8,000원</span>]</span>
+              <span class="text-xs font-bold text-red-600" id="val-d">0.80 배</span>
+            </div>
+            <input type="range" id="input-d" min="0.50" max="0.99" step="0.01" value="0.80" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500">
+          </div>
+        </div>
+
+        <!-- 섹션 3: 실시간 수식 카드 (고정 높이 및 흔들림 방지 적용) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm space-y-1 text-xs">
+          <div class="text-slate-500 font-bold border-b border-slate-100 pb-1.5 flex justify-between items-center">
+            <span>수학적 균형 조건식</span>
+            <span class="text-indigo-600 font-mono text-[11px] font-semibold">\(\mathbb{E}[S_1] = (1+r)S\)</span>
+          </div>
+          
+          <!-- p* 수식 박스 (높이 54px 완벽 고정) -->
+          <div class="min-h-[54px] flex items-center justify-center overflow-hidden">
+            <div id="math-p-star" class="w-full text-center text-slate-800">
+              $$p^* = \frac{1.05 - 0.80}{1.20 - 0.80} = 62.5\%$$
+            </div>
+          </div>
+
+          <!-- E[S1] 기대값 수식 박스 (높이 44px 완벽 고정) -->
+          <div class="min-h-[44px] flex items-center justify-center border-t border-slate-100 overflow-hidden">
+            <div id="math-expectation" class="w-full text-center text-slate-800">
+              $$\mathbb{E}[S_1] = 0.63(12,000) + 0.38(8,000) = 10,500\text{원}$$
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- [우측 패널] 시각화 및 비교 분석 영역 (7 cols) -->
+      <div class="lg:col-span-7 p-5 md:p-6 flex flex-col justify-between bg-white space-y-4">
+        
+        <div>
+          <!-- 상단 상태바 및 차익거래 경고 -->
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm md:text-base font-bold text-slate-800 flex items-center gap-1.5">
+              <span>📊 실시간 가치 비교 & 이항 트리</span>
+            </h2>
+            <span id="badge-equilibrium" class="px-3 py-1 rounded-full text-xs font-extrabold transition-colors">
+              계산 중...
+            </span>
+          </div>
+
           <!-- 차익거래 발생 경고창 -->
-          <div id="arbitrage-warning" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-            <div class="flex gap-2">
-              <svg class="h-5 w-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <div id="arbitrage-warning" class="hidden mb-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+            <div class="flex gap-2.5">
+              <svg class="h-5 w-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
               </svg>
               <div>
-                <h3 class="text-sm font-bold text-red-800">무위험 차익거래 발생! (조건 위배)</h3>
-                <p class="text-xs text-red-700 mt-1" id="arbitrage-desc">현재 설정은 시장 균형 조건인 \(d < 1+r < u\)를 만족하지 못합니다. 실제 시장이라면 누구나 리스크 없이 수익을 올릴 수 있어 파생상품 가격 책정이 불가능해집니다.</p>
+                <h3 class="text-xs font-bold text-red-800">무위험 차익거래 발생! (시장 균형 붕괴)</h3>
+                <p class="text-[11px] text-red-700 mt-0.5" id="arbitrage-desc">
+                  현재 조건은 \(d < 1+r < u\)를 만족하지 않아, 어떤 확률 \(p\)를 주어도 주식의 기대값과 무위험 성장이 일치할 수 없습니다.
+                </p>
               </div>
             </div>
           </div>
 
-          <!-- 트리 렌더링 컨테이너 -->
-          <div class="relative bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-center h-[280px]">
-            <svg id="tree-svg" class="w-full h-full" viewBox="0 0 500 240">
-              <!-- 연결선 -->
-              <line id="line-up" x1="80" y1="120" x2="380" y2="40" stroke="#10b981" stroke-width="3" />
-              <line id="line-down" x1="80" y1="120" x2="380" y2="200" stroke="#ef4444" stroke-width="3" />
-              <line id="line-mid" x1="80" y1="120" x2="380" y2="120" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 3" />
+          <!-- 실시간 저울 비교 카드 -->
+          <div class="grid grid-cols-2 gap-3 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <!-- 주식 기대 가치 -->
+            <div class="bg-white p-3 rounded-lg border border-indigo-100 shadow-sm">
+              <span class="text-[11px] font-bold text-indigo-900 block mb-0.5">📈 주식의 기대 미래가치 $\mathbb{E}[S_1]$</span>
+              <span class="text-base md:text-lg font-black text-indigo-600 block" id="card-exp-val">10,500 원</span>
+              <span class="text-[10px] text-slate-500 font-medium" id="card-exp-sub">확률 p = 62.5% 적용</span>
+            </div>
 
-              <!-- 선 위의 텍스트 (확률) -->
-              <rect x="200" y="55" width="80" height="22" rx="4" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
-              <text id="text-p" x="240" y="71" fill="#0369a1" font-size="11" font-weight="700" text-anchor="middle">p = 62.5%</text>
+            <!-- 무위험 성장 가치 -->
+            <div class="bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
+              <span class="text-[11px] font-bold text-amber-900 block mb-0.5">🏦 무위험 성장가치 $(1+r)S$</span>
+              <span class="text-base md:text-lg font-black text-amber-600 block" id="card-rf-val">10,500 원</span>
+              <span class="text-[10px] text-slate-500 font-medium" id="card-rf-sub">이자율 r = 5.0% 적용</span>
+            </div>
+          </div>
 
-              <rect x="200" y="165" width="80" height="22" rx="4" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
-              <text id="text-1p" x="240" y="181" fill="#b91c1c" font-size="11" font-weight="700" text-anchor="middle">1-p = 37.5%</text>
+          <!-- 이항 트리 SVG 시각화 -->
+          <div class="relative bg-slate-950 rounded-2xl p-2 md:p-4 h-[260px] flex items-center justify-center overflow-hidden border border-slate-800 shadow-inner">
+            <svg id="tree-svg" class="w-full h-full" viewBox="0 0 540 240">
+              <defs>
+                <linearGradient id="upGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#10b981" />
+                </linearGradient>
+                <linearGradient id="downGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#ef4444" />
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="glow" />
+                  <feComposite in="SourceGraphic" in2="glow" operator="over" />
+                </filter>
+              </defs>
 
-              <!-- 노드 그리기 -->
-              <!-- 현재 자산 -->
-              <circle cx="80" cy="120" r="28" fill="#1e293b" />
-              <text x="80" y="121" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">S</text>
-              <text id="node-S" x="80" y="160" fill="#1e293b" font-size="12" font-weight="bold" text-anchor="middle">10,000원</text>
+              <!-- 연결 브랜치 선 -->
+              <line x1="70" y1="120" x2="400" y2="40" stroke="url(#upGrad)" stroke-width="2.5" stroke-opacity="0.8" />
+              <line x1="70" y1="120" x2="400" y2="200" stroke="url(#downGrad)" stroke-width="2.5" stroke-opacity="0.8" />
 
-              <!-- 상승 자산 -->
-              <circle cx="380" cy="40" r="28" fill="#10b981" />
-              <text x="380" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">uS</text>
-              <text id="node-uS" x="380" y="80" fill="#047857" font-size="12" font-weight="bold" text-anchor="middle">12,000원</text>
+              <!-- 무위험 성장 기준선 (노란 점선) -->
+              <line id="line-rf" x1="70" y1="120" x2="400" y2="120" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4" opacity="0.9" />
 
-              <!-- 하락 자산 -->
-              <circle cx="380" cy="200" r="28" fill="#ef4444" />
-              <text x="380" y="201" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">dS</text>
-              <text id="node-dS" x="380" y="240" fill="#b91c1c" font-size="12" font-weight="bold" text-anchor="middle">8,000원</text>
+              <!-- 현재 기대가치 위치 추적선 (보라색 실선) -->
+              <line id="line-exp" x1="70" y1="120" x2="400" y2="120" stroke="#a855f7" stroke-width="2.5" opacity="0.9" />
 
-              <!-- 무위험 자산 성장선 -->
-              <rect x="340" y="105" width="80" height="30" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1" />
-              <text x="380" y="120" fill="#92400e" font-size="9" font-weight="bold" text-anchor="middle">(1+r)S</text>
-              <text id="node-rS" x="380" y="131" fill="#b45309" font-size="9" font-weight="bold" text-anchor="middle">10,500원</text>
+              <!-- 노드: 초기 주가 S -->
+              <circle cx="70" cy="120" r="26" fill="#1e1b4b" stroke="#6366f1" stroke-width="2" />
+              <text x="70" y="118" fill="#e0e7ff" font-size="10" font-weight="bold" text-anchor="middle">현재 S</text>
+              <text id="svg-node-S" x="70" y="132" fill="#a5b4fc" font-size="9" font-weight="bold" text-anchor="middle">10,000원</text>
+
+              <!-- 노드: 상승 uS -->
+              <circle cx="400" cy="40" r="26" fill="#064e3b" stroke="#10b981" stroke-width="2" />
+              <text x="400" y="38" fill="#a7f3d0" font-size="10" font-weight="bold" text-anchor="middle">상승 (uS)</text>
+              <text id="svg-node-uS" x="400" y="52" fill="#6ee7b7" font-size="9" font-weight="bold" text-anchor="middle">12,000원</text>
+
+              <!-- 노드: 하락 dS -->
+              <circle cx="400" cy="200" r="26" fill="#7f1d1d" stroke="#ef4444" stroke-width="2" />
+              <text x="400" y="198" fill="#fecaca" font-size="10" font-weight="bold" text-anchor="middle">하락 (dS)</text>
+              <text id="svg-node-dS" x="400" y="212" fill="#fca5a5" font-size="9" font-weight="bold" text-anchor="middle">8,000원</text>
+
+              <!-- 브랜치 위 확률 뱃지 -->
+              <g transform="translate(200, 52)">
+                <rect x="-35" y="-10" width="70" height="20" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+                <text id="svg-text-p" x="0" y="4" fill="#34d399" font-size="10" font-weight="bold" text-anchor="middle">p = 62.5%</text>
+              </g>
+
+              <g transform="translate(200, 188)">
+                <rect x="-42" y="-10" width="84" height="20" rx="10" fill="#0f172a" stroke="#ef4444" stroke-width="1.5"/>
+                <text id="svg-text-1p" x="0" y="4" fill="#f87171" font-size="10" font-weight="bold" text-anchor="middle">1-p = 37.5%</text>
+              </g>
+
+              <!-- 우측 타겟 인디케이터: 무위험 성장선 라벨 (노란색) -->
+              <g id="group-rf-tag" transform="translate(430, 120)">
+                <rect x="0" y="-11" width="95" height="22" rx="4" fill="#78350f" stroke="#f59e0b" stroke-width="1" />
+                <text x="5" y="4" fill="#fef3c7" font-size="9" font-weight="bold">(1+r)S: </text>
+                <text id="svg-text-rf" x="50" y="4" fill="#fde68a" font-size="9" font-weight="bold">10,500</text>
+              </g>
+
+              <!-- 우측 동적 인디케이터: 주식 기대값 라벨 (보라색) -->
+              <g id="group-exp-tag" transform="translate(430, 120)">
+                <circle cx="-5" cy="0" r="5" fill="#c084fc" filter="url(#glow)" />
+                <rect x="0" y="-11" width="95" height="22" rx="4" fill="#581c87" stroke="#a855f7" stroke-width="1.5" />
+                <text x="5" y="4" fill="#f3e8ff" font-size="9" font-weight="bold">E[S₁]: </text>
+                <text id="svg-text-exp" x="48" y="4" fill="#e9d5ff" font-size="9" font-weight="bold">10,500</text>
+              </g>
             </svg>
           </div>
         </div>
 
-        <!-- 하단 해석 및 분석 가이드 -->
-        <div class="mt-4 border-t border-slate-100 pt-4">
-          <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-            💡 시나리오 실시간 해석
+        <!-- 하단 실시간 분석 해설 가이드 -->
+        <div class="border-t border-slate-100 pt-3">
+          <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1">
+            <span>💡</span> <strong>원리 및 시나리오 분석:</strong>
           </h3>
           <p id="scenario-analysis" class="text-xs text-slate-600 mt-1 leading-relaxed">
-            무위험 성장 가치 <strong>10,500원</strong>은 상승 자산(12,000원)과 하락 자산(8,000원) 사이에 완벽하게 정착해 있습니다. 따라서 상승 확률 <strong>62.5%</strong>는 완벽하게 위험중립 세계의 균형을 대변합니다.
+            로딩 중...
           </p>
         </div>
+
       </div>
     </div>
   </div>
 
   <script>
+    // DOM 요소 참조
+    const inputP = document.getElementById('input-p');
     const inputS = document.getElementById('input-S');
     const inputr = document.getElementById('input-r');
     const inputu = document.getElementById('input-u');
     const inputd = document.getElementById('input-d');
 
+    const valP = document.getElementById('val-p');
     const valS = document.getElementById('val-S');
     const valr = document.getElementById('val-r');
     const valu = document.getElementById('val-u');
     const vald = document.getElementById('val-d');
 
-    const nodeS = document.getElementById('node-S');
-    const nodeuS = document.getElementById('node-uS');
-    const nodedS = document.getElementById('node-dS');
-    const noderS = document.getElementById('node-rS');
+    const labelPStar = document.getElementById('label-p-star');
+    const labeluS = document.getElementById('label-uS');
+    const labeldS = document.getElementById('label-dS');
 
-    const textp = document.getElementById('text-p');
-    const text1p = document.getElementById('text-1p');
+    const btnSnapP = document.getElementById('btn-snap-p');
+    const checkAutoSync = document.getElementById('check-auto-sync');
 
-    const formulaP = document.getElementById('formula-p');
-    const formulaDown = document.getElementById('formula-down');
+    const cardExpVal = document.getElementById('card-exp-val');
+    const cardExpSub = document.getElementById('card-exp-sub');
+    const cardRfVal = document.getElementById('card-rf-val');
+    const cardRfSub = document.getElementById('card-rf-sub');
 
-    const statusBadge = document.getElementById('status-badge');
+    const badgeEquilibrium = document.getElementById('badge-equilibrium');
     const arbitrageWarning = document.getElementById('arbitrage-warning');
     const arbitrageDesc = document.getElementById('arbitrage-desc');
     const scenarioAnalysis = document.getElementById('scenario-analysis');
 
-    const lineUp = document.getElementById('line-up');
-    const lineDown = document.getElementById('line-down');
+    const mathPStar = document.getElementById('math-p-star');
+    const mathExpectation = document.getElementById('math-expectation');
 
-    function formatNumber(num) {
+    const svgNodeS = document.getElementById('svg-node-S');
+    const svgNodeuS = document.getElementById('svg-node-uS');
+    const svgNodedS = document.getElementById('svg-node-dS');
+    const svgTextP = document.getElementById('svg-text-p');
+    const svgText1P = document.getElementById('svg-text-1p');
+    const svgTextRf = document.getElementById('svg-text-rf');
+    const svgTextExp = document.getElementById('svg-text-exp');
+    
+    const lineRf = document.getElementById('line-rf');
+    const lineExp = document.getElementById('line-exp');
+    const groupRfTag = document.getElementById('group-rf-tag');
+    const groupExpTag = document.getElementById('group-exp-tag');
+
+    function formatKRW(num) {
       return Math.round(num).toLocaleString() + " 원";
     }
 
-    function update() {
+    // SVG Y좌표 보간 (상승: Y=40, 하락: Y=200)
+    function getYCoordinate(val, minVal, maxVal) {
+      if (maxVal === minVal) return 120;
+      const ratio = (val - minVal) / (maxVal - minVal);
+      const clampedRatio = Math.max(0, Math.min(1, ratio));
+      return 200 - clampedRatio * (200 - 40);
+    }
+
+    // MathJax 디바운싱 및 비동기 큐 관리 (화면 떨림 완벽 방지)
+    let mathJaxTimer = null;
+    let isRendering = false;
+    let pendingRender = false;
+    let nextLatexPStar = '';
+    let nextLatexExp = '';
+
+    function queueMathJax(latexPStar, latexExp) {
+      nextLatexPStar = latexPStar;
+      nextLatexExp = latexExp;
+
+      if (mathJaxTimer) clearTimeout(mathJaxTimer);
+      mathJaxTimer = setTimeout(processMathJaxQueue, 40); // 40ms 디바운스
+    }
+
+    async function processMathJaxQueue() {
+      if (!window.MathJax || !MathJax.typesetPromise) return;
+      if (isRendering) {
+        pendingRender = true;
+        return;
+      }
+
+      isRendering = true;
+      mathPStar.innerHTML = nextLatexPStar;
+      mathExpectation.innerHTML = nextLatexExp;
+
+      try {
+        await MathJax.typesetPromise([mathPStar, mathExpectation]);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        isRendering = false;
+        if (pendingRender) {
+          pendingRender = false;
+          processMathJaxQueue();
+        }
+      }
+    }
+
+    function update(origin = 'param') {
       const S = parseFloat(inputS.value);
       const r = parseFloat(inputr.value) / 100;
       const u = parseFloat(inputu.value);
       const d = parseFloat(inputd.value);
 
-      // 텍스트 출력 업데이트
-      valS.textContent = S.toLocaleString() + " 원";
-      valr.textContent = (r * 100).toFixed(1) + "%";
-      valu.textContent = u.toFixed(2);
-      vald.textContent = d.toFixed(2);
-
-      // 노드 금액 업데이트
-      nodeS.textContent = formatNumber(S);
-      nodeuS.textContent = formatNumber(u * S);
-      nodedS.textContent = formatNumber(d * S);
-      noderS.textContent = formatNumber((1 + r) * S);
-
-      // 수식 표기용 상태값 준비
       const growthFactor = 1 + r;
-      const numeratorP = (growthFactor - d).toFixed(3);
-      const denominatorP = (u - d).toFixed(3);
-      const numeratorDown = (u - growthFactor).toFixed(3);
+      const uS = u * S;
+      const dS = d * S;
+      const rfS = growthFactor * S;
 
-      // 공식 텍스트 동적 변경 (MathJax 렌더링 지원 가능하도록 텍스트 구성)
-      formulaP.textContent = `p = \\frac{${growthFactor.toFixed(2)} - ${d.toFixed(2)}}{${u.toFixed(2)} - ${d.toFixed(2)}}`;
-      formulaDown.textContent = `1-p = \\frac{${u.toFixed(2)} - ${growthFactor.toFixed(2)}}{${u.toFixed(2)} - ${d.toFixed(2)}}`;
-      
-      // MathJax 큐 업데이트
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-      }
+      // 파라미터 텍스트 업데이트 (즉시 반영)
+      valS.textContent = formatKRW(S);
+      valr.textContent = (r * 100).toFixed(1) + "%";
+      valu.textContent = u.toFixed(2) + " 배";
+      vald.textContent = d.toFixed(2) + " 배";
+      labeluS.textContent = formatKRW(uS);
+      labeldS.textContent = formatKRW(dS);
 
-      // 조건 확인 d < 1+r < u
+      // 균형 위험중립확률 p* 계산
       const isNormal = (d < growthFactor) && (growthFactor < u);
+      const pStar = isNormal ? (growthFactor - d) / (u - d) : null;
 
       if (isNormal) {
-        // 정상 상태
-        statusBadge.textContent = "차익거래 불가능 (정상)";
-        statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
-        arbitrageWarning.classList.add('hidden');
-
-        // 확률 계산
-        const p = (growthFactor - d) / (u - d);
-        const pPercent = (p * 100).toFixed(1);
-        const downPercent = ((1 - p) * 100).toFixed(1);
-
-        textp.textContent = `p = ${pPercent}%`;
-        text1p.textContent = `1-p = ${downPercent}%`;
-
-        // 선 스타일 복원
-        lineUp.setAttribute('stroke', '#10b981');
-        lineDown.setAttribute('stroke', '#ef4444');
-
-        // 시나리오 설명 업데이트
-        scenarioAnalysis.innerHTML = `무위험 성장 가치 <strong>${formatNumber((1+r)*S)}</strong>은 상승 가치(${formatNumber(u*S)})와 하락 가치(${formatNumber(d*S)}) 사이에 정상적으로 정착되어 금융 균형을 만족하고 있습니다. 이에 따라 위험을 고려하지 않는 투자자가 수긍하는 가상의 상승 확률은 <strong>${pPercent}%</strong>로 자동 계산됩니다.`;
-
+        labelPStar.textContent = `이론 균형: ${(pStar * 100).toFixed(1)}%`;
+        if (checkAutoSync.checked && origin === 'param') {
+          inputP.value = (pStar * 100).toFixed(1);
+        }
       } else {
-        // 비정상 (차익거래 가능)
-        statusBadge.textContent = "차익거래 가능 (위험!)";
-        statusBadge.className = "px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800";
+        labelPStar.textContent = `이론 균형: 계산 불가`;
+      }
+
+      // 현재 p값 및 주식 기대값 E[S1]
+      const p = parseFloat(inputP.value) / 100;
+      valP.textContent = (p * 100).toFixed(1) + "%";
+      const expectedS = p * uS + (1 - p) * dS;
+
+      // 비교 카드 텍스트 업데이트 (즉시 반영)
+      cardExpVal.textContent = formatKRW(expectedS);
+      cardExpSub.textContent = `확률 p = ${(p*100).toFixed(1)}% 적용 시`;
+      cardRfVal.textContent = formatKRW(rfS);
+      cardRfSub.textContent = `이자율 r = ${(r*100).toFixed(1)}% 성장`;
+
+      // SVG 노드 텍스트 업데이트
+      svgNodeS.textContent = Math.round(S).toLocaleString() + "원";
+      svgNodeuS.textContent = Math.round(uS).toLocaleString() + "원";
+      svgNodedS.textContent = Math.round(dS).toLocaleString() + "원";
+      svgTextP.textContent = `p = ${(p * 100).toFixed(1)}%`;
+      svgText1P.textContent = `1-p = ${((1 - p) * 100).toFixed(1)}%`;
+      svgTextRf.textContent = Math.round(rfS).toLocaleString();
+      svgTextExp.textContent = Math.round(expectedS).toLocaleString();
+
+      // SVG Y좌표 실시간 이동
+      const yExp = getYCoordinate(expectedS, dS, uS);
+      lineExp.setAttribute('y2', yExp);
+      groupExpTag.setAttribute('transform', `translate(430, ${yExp})`);
+
+      let yRf = 120;
+      if (growthFactor >= u) {
+        yRf = 25;
+      } else if (growthFactor <= d) {
+        yRf = 215;
+      } else {
+        yRf = getYCoordinate(rfS, dS, uS);
+      }
+      lineRf.setAttribute('y2', yRf);
+      groupRfTag.setAttribute('transform', `translate(430, ${yRf})`);
+
+      // 일치도 판정
+      const diff = Math.abs(expectedS - rfS);
+      const isMatched = isNormal && (diff < S * 0.005);
+
+      // LaTeX 문자열 생성
+      let pStarLatex = '';
+      let expLatex = `$$\\mathbb{E}[S_1] = ${p.toFixed(2)}(${Math.round(uS).toLocaleString()}) + ${(1-p).toFixed(2)}(${Math.round(dS).toLocaleString()}) = ${Math.round(expectedS).toLocaleString()}\\text{원}$$`;
+
+      if (!isNormal) {
+        badgeEquilibrium.textContent = "⚠️ 차익거래 가능 (균형 불가)";
+        badgeEquilibrium.className = "px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200";
         arbitrageWarning.classList.remove('hidden');
 
-        textp.textContent = "계산 불가";
-        text1p.textContent = "계산 불가";
-
-        lineUp.setAttribute('stroke', '#cbd5e1');
-        lineDown.setAttribute('stroke', '#cbd5e1');
-
         if (growthFactor >= u) {
-          arbitrageDesc.innerHTML = `무위험 수익률 <strong>${(r*100).toFixed(1)}%</strong>이 너무 우수하여 주식이 가장 이상적으로 올랐을 때의 수익률보다 높거나 같습니다. 투자자는 위험을 안고 주식을 살 필요 없이 무위험 자산에만 올인할 것이며, 은행 대출을 활용한 리스크 프리 무위험 차익거래가 주식 매도 방향으로 쏠립니다.`;
-          scenarioAnalysis.innerHTML = `<span class="text-red-600 font-bold">⚠️ 경고:</span> 무위험 성장선이 상승 한계 uS 위에 올라섰습니다. 시장이 붕괴되어 모델이 작동하지 않습니다.`;
-        } else if (growthFactor <= d) {
-          arbitrageDesc.innerHTML = `주가가 폭락했을 때의 하락선 d가 무위험 이자율보다 높거나 같습니다. 투자자들은 예금을 탈탈 털어 무조건 주식을 구매할 것이며, 은행에서 무제한 대출을 받아 공짜 점심(무위험 차익거래)을 영위하고자 할 것입니다.`;
-          scenarioAnalysis.innerHTML = `<span class="text-red-600 font-bold">⚠️ 경고:</span> 무위험 성장선이 하락선 dS 밑으로 내려갔습니다. 시장에 무한 대출 차익거래가 성행하여 시스템이 유지될 수 없습니다.`;
+          arbitrageDesc.innerHTML = `무위험 이자율(\(${(r*100).toFixed(1)}\%\))이 주식의 최고 상승률(\(${((u-1)*100).toFixed(1)}\%\))보다 높습니다. 어떤 확률 \(p\)를 부여해도 주식의 기대 가치가 안전한 예금 가치를 따라잡을 수 없습니다.`;
+        } else {
+          arbitrageDesc.innerHTML = `주식이 최악으로 폭락했을 때의 수익률(\(${((d-1)*100).toFixed(1)}\%\))조차 무위험 이자율보다 높습니다. 주식 매수가 무조건 유리하므로 무위험 성장과 같아지는 확률이 없습니다.`;
         }
+
+        scenarioAnalysis.innerHTML = `<strong class="text-red-600">시장 붕괴:</strong> 차익거래 부재 조건 \(d < 1+r < u\)가 위배되어, 주식 기대값과 무위험 성장이 일치하는 위험중립확률 \(p^*\)가 존재할 수 없습니다.`;
+        pStarLatex = `$$p^* = \\text{존재 불가 (조건 위배)}$$`;
+
+      } else {
+        arbitrageWarning.classList.add('hidden');
+
+        if (isMatched) {
+          badgeEquilibrium.textContent = "🎉 완벽 균형 달성 (E[S₁] = (1+r)S)";
+          badgeEquilibrium.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 ring-2 ring-emerald-400/30";
+
+          scenarioAnalysis.innerHTML = `
+            현재 설정한 확률 <strong>p = ${(p*100).toFixed(1)}%</strong>는 주식의 기대 미래가치(<strong>${formatKRW(expectedS)}</strong>)를 은행 예금 가치(<strong>${formatKRW(rfS)}</strong>)와 완벽히 일치시킵니다. 
+            바로 이 확률이 <strong>'위험중립확률 ($p^*$)'</strong>입니다.
+          `;
+        } else if (expectedS > rfS) {
+          const gap = expectedS - rfS;
+          badgeEquilibrium.textContent = "📈 주식 기대값 > 무위험 성장";
+          badgeEquilibrium.className = "px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200";
+
+          scenarioAnalysis.innerHTML = `
+            현재 확률(\(${(p*100).toFixed(1)}\%\))에서는 주식 기대값(<strong>${formatKRW(expectedS)}</strong>)이 무위험 성장가치보다 <strong>+${formatKRW(gap)}</strong>만큼 높습니다. 
+            $p$ 슬라이더를 <strong>${(pStar*100).toFixed(1)}%</strong>로 낮추어 균형을 맞춰보세요.
+          `;
+        } else {
+          const gap = rfS - expectedS;
+          badgeEquilibrium.textContent = "📉 주식 기대값 < 무위험 성장";
+          badgeEquilibrium.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200";
+
+          scenarioAnalysis.innerHTML = `
+            현재 확률(\(${(p*100).toFixed(1)}\%\))에서는 주식 기대값(<strong>${formatKRW(expectedS)}</strong>)이 무위험 성장가치보다 <strong>-${formatKRW(gap)}</strong>만큼 낮습니다. 
+            $p$ 슬라이더를 <strong>${(pStar*100).toFixed(1)}%</strong>로 높여 균형을 맞춰보세요.
+          `;
+        }
+
+        pStarLatex = `$$p^* = \\frac{${growthFactor.toFixed(2)} - ${d.toFixed(2)}}{${u.toFixed(2)} - ${d.toFixed(2)}} = ${(pStar*100).toFixed(1)}\\%$$`;
       }
+
+      // MathJax 렌더링을 큐에 전달하여 떨림 방지
+      queueMathJax(pStarLatex, expLatex);
     }
 
-    // 슬라이더 조절 시 이벤트 등록
-    inputS.addEventListener('input', update);
-    inputr.addEventListener('input', update);
-    inputu.addEventListener('input', update);
-    inputd.addEventListener('input', update);
+    // 슬라이더 및 버튼 이벤트 리스너
+    inputP.addEventListener('input', () => {
+      checkAutoSync.checked = false; // 사용자가 직접 움직이면 자동 연동 일시 해제
+      update('p');
+    });
+
+    [inputS, inputr, inputu, inputd].forEach(input => {
+      input.addEventListener('input', () => update('param'));
+    });
+
+    btnSnapP.addEventListener('click', () => {
+      const r = parseFloat(inputr.value) / 100;
+      const u = parseFloat(inputu.value);
+      const d = parseFloat(inputd.value);
+      const growthFactor = 1 + r;
+
+      if (d < growthFactor && growthFactor < u) {
+        const pStar = (growthFactor - d) / (u - d);
+        inputP.value = (pStar * 100).toFixed(1);
+        checkAutoSync.checked = true;
+        update('param');
+      }
+    });
+
+    checkAutoSync.addEventListener('change', () => {
+      if (checkAutoSync.checked) {
+        update('param');
+      }
+    });
 
     // 초기 실행
-    update();
+    window.addEventListener('DOMContentLoaded', () => {
+      update('param');
+    });
   </script>
 </body>
 </html>
