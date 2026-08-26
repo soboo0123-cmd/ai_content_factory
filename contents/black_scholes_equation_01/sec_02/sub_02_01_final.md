@@ -64,7 +64,7 @@ $$\text{복제 비용} = \Delta \cdot S_0 + B = 0.5 \cdot 100 - 40 = 10 \text{ (
 
 아래의 인터랙티브 시뮬레이터를 조작하면서 주가와 행사가격, 이자율의 변화에 따라 복제 포트폴리오의 주식 비중($\Delta$)과 채권 차입액($B$)이 어떻게 실시간으로 재산출되어 정확히 수렴하는지 관찰해 보시기 바랍니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_02/assets/diagrams/sub_02_01_visual1.html" width="100%" height="780px" frameborder="0" scrolling="yes"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_02/assets/diagrams/sub_02_01_visual1.html" width="100%" height="800px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 
