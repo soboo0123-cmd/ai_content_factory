@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Animation Player</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0c0c0c; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 95vh; }
+        #viewer { position: relative; width: 95%; max-width: 1400px; height: 600px; background: #000; border-radius: 12px; overflow: hidden; border: 2px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        #canvas-container { position: absolute; width: 100%; top: 50px; left: 0; transition: transform 0.6s ease-in-out; }
+        .math-row { position: absolute; font-size: 38px; white-space: nowrap; display: flex; align-items: center; min-height: 80px; height: auto; opacity: 0; transition: opacity 0.4s ease; }
+        
+        .animate-glyph:not(svg):not([class*="-line"]):not([class*="vlist"]):not(.hide-tail):not(.svg-align) { display: inline-block !important; }
+        .math-clone *:not(.hide-tail) { overflow: visible !important; }
+
+        #commentary-box { width: 95%; max-width: 1400px; box-sizing: border-box; margin-top: 15px; background: rgba(15, 15, 15, 0.9); border: 1px solid #333; padding: 18px; border-radius: 8px; font-size: 15px; line-height: 1.6; min-height: 40px; z-index: 5; }
+        .controls { display: flex; gap: 15px; margin-top: 15px; width: 95%; max-width: 1400px; align-items: stretch; }
+        button { flex: 1; padding: 12px; background: #222; color: #fff; border: 1px solid #444; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #333; border-color: #4facfe; }
+        button.btn-primary { background: #4facfe; border-color: #00f2fe; color: #fff; }
+        button.btn-primary:hover { background: #00f2fe; }
+        
+        .step-indicator-wrapper { display: flex; align-items: center; justify-content: center; background: #111; border: 1px solid #333; padding: 0 15px; border-radius: 6px; flex: 0.6; }
+        #step-indicator-select { background: transparent; border: none; color: #4facfe; font-weight: bold; font-size: 14px; outline: none; cursor: pointer; text-align: center; width: 100%; appearance: auto; }
+        #step-indicator-select option { background: #111; color: #fff; }
+    </style>
+</head>
+<body>
+<div id="viewer"><div id="canvas-container"></div></div>
+<div id="commentary-box"></div>
+<div class="controls">
+    <button id="btn-prev">◀ 이전 단계</button>
+    <div class="step-indicator-wrapper">
+        <select id="step-indicator-select"></select>
+    </div>
+    <button id="btn-next" class="btn-primary">다음 단계 (애니메이션 재생) ▶</button>
+</div>
+
+<script>
+    gsap.registerPlugin(MotionPathPlugin);
+
+    const stepsData = [
+  {
+    "tex": "\\text{위험중립확률} p",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "S_0(1+r) = p \\cdot uS_0 + (1-p) \\cdot dS_0",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "(1+r) = p \\cdot u\\dfrac{S_0}{S_0} + (1-p) \\cdot d\\dfrac{S_0}{S_0}",
+    "commentary": "양변을 $S_0$로 나눠줍니다.",
+    "audioFile": "",
+    "highlight": [
+      0,
+      1,
+      11,
+      12,
+      21,
+      22
+    ],
+    "mapping": [
+      [
+        [
+          0,
+          1
+        ],
+        [
+          9,
+          10,
+          22,
+          23
+        ],
+        {
+          "effect": "distribute",
+          "path_arc": -1.57
+        }
+      ]
+    ],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "(1+r) = p \\cdot u + (1-p) \\cdot d",
+    "commentary": " $S_0$가 약분되어 사라집니다.",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [
+      [
+        [
+          9,
+          10,
+          11,
+          12,
+          13,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        [],
+        {
+          "effect": "slide_up_out"
+        }
+      ]
+    ],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  }
+];
+    let activeIdx = 0; let stepPositions = []; const MATH_GAP = 50; let currentAudio = null;
+    const canvasContainer = document.getElementById('canvas-container'); const viewer = document.getElementById('viewer');
+    const commentaryBox = document.getElementById('commentary-box'); 
+    const stepSelect = document.getElementById('step-indicator-select');
+
+    stepsData.forEach((_, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `📚 ${idx + 1} / ${stepsData.length} 단계`;
+        stepSelect.appendChild(opt);
+    });
+
+    stepSelect.addEventListener('change', (e) => {
+        updateStepState(parseInt(e.target.value), false);
+    });
+
+    function playAudio(audioFile) {
+        if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+        if (audioFile) {
+            currentAudio = new Audio(audioFile); currentAudio.play().catch(e => console.warn("오디오 재생 실패:", e));
+        }
+    }
+
+    function renderAll() {
+        canvasContainer.innerHTML = '';
+        stepsData.forEach((step, idx) => {
+            const row = document.createElement('div'); row.className = 'math-row'; row.id = 'math-row-' + idx;
+            row.style.top = '0px'; row.style.opacity = '0'; canvasContainer.appendChild(row);
+            katex.render(step.tex, row, { throwOnError: false, output: 'html' });
+            const glyphs = extractKaTeXGlyphs(row); glyphs.forEach(g => g.classList.add('animate-glyph'));
+        });
+        requestAnimationFrame(() => { 
+            alignEquationsByEquals(); 
+            let currentTop = 0; stepPositions = [];
+            stepsData.forEach((_, idx) => {
+                const row = document.getElementById('math-row-' + idx);
+                if (row) {
+                    stepPositions.push(currentTop); row.style.top = currentTop + 'px';
+                    const rect = row.getBoundingClientRect(); const h = rect.height > 0 ? rect.height : 80; currentTop += h + MATH_GAP;
+                }
+            });
+            updateStepState(0, false); 
+        });
+    }
+
+    function alignEquationsByEquals() {
+        const viewerWidth = viewer.getBoundingClientRect().width;
+        stepsData.forEach((_, idx) => {
+            const row = document.getElementById('math-row-' + idx); if (!row) return;
+            gsap.set(row, { clearProps: "transform,left" });
+            let eqSign = row.querySelector('.mrel');
+            if (!eqSign) eqSign = Array.from(row.querySelectorAll('span')).find(el => el.textContent.trim() === '=');
+            const rowRect = row.getBoundingClientRect(); let expectedCenter = viewerWidth / 2;
+            if (eqSign) {
+                const eqRect = eqSign.getBoundingClientRect(); const eqCenterRel = (eqRect.left - rowRect.left) + (eqRect.width / 2);
+                let expectedLeft = (viewerWidth / 2) - eqCenterRel; let expectedRight = expectedLeft + rowRect.width;
+                if (expectedLeft > 0 && expectedRight < viewerWidth) expectedCenter = expectedLeft + (rowRect.width / 2);
+            }
+            let scaleRatio = 1; if (rowRect.width > viewerWidth - 40) scaleRatio = (viewerWidth - 40) / rowRect.width;
+            row.style.left = expectedCenter + 'px';
+            gsap.set(row, { xPercent: -50, scale: scaleRatio, transformOrigin: 'center center' }); row.dataset.scale = scaleRatio;
+        });
+    }
+
+    function adjustCameraScroll(stepIdx, animate) {
+        if (stepPositions.length === 0) return;
+        const viewerHeight = viewer.getBoundingClientRect().height; const rowTop = stepPositions[stepIdx] || 0;
+        let targetY = (viewerHeight / 3) - rowTop; if (targetY > 50) targetY = 50; 
+        if (animate) gsap.to(canvasContainer, { y: targetY, duration: 0.65, ease: "power2.inOut" });
+        else gsap.set(canvasContainer, { y: targetY });
+    }
+
+    function extractKaTeXGlyphs(container) {
+        const elements = Array.from(container.querySelectorAll('*'));
+        let results = [];
+        elements.forEach(el => {
+            const tag = el.tagName.toUpperCase();
+            if (tag === 'SPAN') {
+                const cls = typeof el.className === 'string' ? el.className : '';
+                if (cls.includes('frac-line')) { el.dataset.mathType = 'frac-line'; results.push(el); return; }
+                if (cls.includes('hide-tail') || cls.includes('sqrt-sign')) { el.dataset.mathType = 'sqrt-symbol'; results.push(el); return; }
+                if (cls.includes('vlist') || cls.includes('pstrut')) return;
+
+                let cleanText = el.textContent.trim().replace(/[\u200B-\u200D\uFEFF]/g, '');
+                if (cleanText.length > 0) {
+                    let hasTextChild = false;
+                    for (let i = 0; i < el.children.length; i++) {
+                        let childText = el.children[i].textContent.trim().replace(/[\u200B-\u200D\uFEFF]/g, '');
+                        if (childText.length > 0) { hasTextChild = true; break; }
+                    }
+                    if (!hasTextChild) {
+                        const chunks = cleanText.match(/(\d+(?:\.\d+)?|[a-zA-Z]+|[^a-zA-Z\d])/g);
+                        if (chunks && chunks.length > 1 && el.children.length === 0) {
+                            el.innerHTML = '';
+                            chunks.forEach(chunk => {
+                                const chunkSpan = document.createElement('span'); chunkSpan.textContent = chunk;
+                                el.appendChild(chunkSpan); results.push(chunkSpan);
+                            });
+                        } else { results.push(el); }
+                    }
+                }
+            } else if (tag === 'SVG') {
+                if (el.closest('.hide-tail') || el.closest('.sqrt-sign')) return;
+                if (el.closest('.sqrt')) el.dataset.mathType = 'sqrt-symbol'; else el.dataset.mathType = 'svg-generic';
+                results.push(el);
+            }
+        });
+        return results.filter(el => { const rect = el.getBoundingClientRect(); return !(rect.width === 0 && rect.height === 0); });
+    }
+
+    function updateCommentary(text) {
+        let safeText = text || '이 단계에 기록된 코멘트가 존재하지 않습니다.';
+        safeText = safeText.replace(/\$([^\$]+)\$/g, function(match, math) {
+            try { return katex.renderToString(math, { throwOnError: false }); } catch(e) { return match; }
+        });
+        commentaryBox.innerHTML = '<span style="color:#4facfe; font-weight:bold;">설명:</span> ' + safeText;
+    }
+
+    function indicateGlyphs(rowElement, indices, onComplete) {
+        if (!indices || indices.length === 0) { onComplete(); return; }
+        const glyphs = extractKaTeXGlyphs(rowElement);
+        const targets = indices.map(idx => glyphs[idx]).filter(Boolean);
+        if (targets.length === 0) { onComplete(); return; }
+        const tl = gsap.timeline({ onComplete: onComplete });
+        tl.to(targets, { scale: 1.4, color: '#ffb142', textShadow: '0 0 15px #ffb142, 0 0 25px #ffb142', duration: 0.35, ease: "power2.out", stagger: 0.05 })
+          .to(targets, { scale: 1.0, color: '', textShadow: '', duration: 0.35, ease: "power2.in", stagger: 0.05 }, "+=0.1");
+    }
+
+    function updateStepState(targetIdx, animate = true) {
+        const existingClone = document.getElementById('math-row-clone'); if (existingClone) existingClone.remove();
+        
+        activeIdx = targetIdx; 
+        stepSelect.value = activeIdx;
+
+        stepsData.forEach((_, idx) => {
+            const row = document.getElementById('math-row-' + idx);
+            if (row) {
+                gsap.killTweensOf(row); gsap.killTweensOf(row.querySelectorAll('.animate-glyph'));
+                if (idx < activeIdx) {
+                    row.style.opacity = '1'; row.style.top = stepPositions[idx] + 'px';
+                    extractKaTeXGlyphs(row).forEach(g => gsap.set(g, {clearProps: "transform,opacity", opacity: 1}));
+                } else if (idx === activeIdx) {
+                    if (!animate) {
+                        row.style.opacity = '1'; row.style.top = stepPositions[idx] + 'px';
+                        extractKaTeXGlyphs(row).forEach(g => gsap.set(g, {clearProps: "transform,opacity", opacity: 1}));
+                    } else if (activeIdx === 0) { 
+                        gsap.set(row, { opacity: 0, top: '0px' }); gsap.to(row, { opacity: 1, duration: 1.0 });
+                    } else { row.style.opacity = '0'; }
+                } else { row.style.opacity = '0'; }
+            }
+        });
+        updateCommentary(stepsData[activeIdx].commentary);
+        if (animate) { if (activeIdx === 0) playAudio(stepsData[activeIdx].audioFile); } 
+        else { if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; } }
+        if (!animate) adjustCameraScroll(activeIdx, false);
+        if (animate && activeIdx > 0) playStepAnimation(activeIdx);
+    }
+
+    function playStepAnimation(stepIdx) {
+        const prevRow = document.getElementById('math-row-' + (stepIdx - 1)); const currRow = document.getElementById('math-row-' + stepIdx);
+        if (!prevRow || !currRow) return;
+        const prevTopPosition = stepPositions[stepIdx - 1]; const finalTopPosition = stepPositions[stepIdx];
+        const step = stepsData[stepIdx]; const transitionType = step.transition || 'auto';
+        const unmappedBehavior = step.unmappedBehavior || 'sequential'; const unmappedStaggerVal = step.unmappedStagger !== undefined ? step.unmappedStagger : 0.25;
+        playAudio(step.audioFile); 
+
+        if (transitionType === 'fade_all') {
+            gsap.set(prevRow, { opacity: 1 }); gsap.set(currRow, { top: finalTopPosition + 'px', opacity: 1 });
+            const currGlyphs = extractKaTeXGlyphs(currRow); currGlyphs.forEach(g => gsap.set(g, { opacity: 0 }));
+            indicateGlyphs(prevRow, step.highlight, () => {
+                adjustCameraScroll(stepIdx, true); gsap.to(currGlyphs, { opacity: 1, duration: 0.8, stagger: 0.02, ease: "power2.out" });
+            }); return;
+        }
+
+        gsap.set(prevRow, { opacity: 0 });
+        const originalPrevGlyphs = extractKaTeXGlyphs(prevRow);
+        originalPrevGlyphs.forEach(g => gsap.set(g, { clearProps: "transform,opacity", opacity: 1 }));
+
+        const cloneRow = prevRow.cloneNode(true); cloneRow.id = 'math-row-clone'; cloneRow.className = 'math-row math-clone';
+        gsap.set(cloneRow, { opacity: 1 }); canvasContainer.appendChild(cloneRow);
+        gsap.set(currRow, { top: prevTopPosition + 'px', opacity: 1 });
+        const currGlyphs = extractKaTeXGlyphs(currRow); currGlyphs.forEach(g => gsap.set(g, { opacity: 0 }));
+
+        const prevScale = parseFloat(prevRow.dataset.scale || 1); const currScale = parseFloat(currRow.dataset.scale || 1);
+        const doScaleAnimation = () => { return new Promise(resolve => { if (Math.abs(prevScale - currScale) > 0.001) { gsap.to(cloneRow, { scale: currScale, duration: 0.5, ease: "power2.inOut", onComplete: resolve }); } else { resolve(); } }); };
+
+        doScaleAnimation().then(() => {
+            indicateGlyphs(cloneRow, step.highlight, () => {
+                const cloneGlyphs = extractKaTeXGlyphs(cloneRow);
+                executeTransition(cloneGlyphs, currGlyphs, step.mapping, 1.0, transitionType, unmappedBehavior, unmappedStaggerVal, () => {
+                    cloneRow.remove(); adjustCameraScroll(stepIdx, true);
+                    gsap.to(currRow, { top: finalTopPosition + 'px', duration: 0.65, ease: "power2.inOut" });
+                    gsap.to(prevRow, { opacity: 1, duration: 0.65, ease: "power2.inOut" });
+                });
+            });
+        });
+    }
+
+    // [🚀 개선됨] 복합 인자 블록 단위 Factor/Distribute 및 다대일 수렴 렌더링 최적화 엔진
+    function executeTransition(prevGlyphs, currGlyphs, mapping, speed, transitionType, unmappedBehavior, unmappedStaggerVal, onComplete) {
+        const currRow = currGlyphs.length > 0 ? currGlyphs[0].closest('.math-row') : null;
+        const currScale = currRow ? parseFloat(currRow.dataset.scale || 1) : 1;
+        const baseDuration = 1.4 * speed;
+        const tl = gsap.timeline({ onComplete: onComplete });
+
+        const prevMetrics = prevGlyphs.map(el => {
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return {
+                rect: r,
+                centerX: r.left + (r.width / 2),
+                centerY: r.top + (r.height / 2),
+                width: r.width,
+                height: r.height
+            };
+        });
+
+        const currMetrics = currGlyphs.map(el => {
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return {
+                rect: r,
+                centerX: r.left + (r.width / 2),
+                centerY: r.top + (r.height / 2),
+                width: r.width,
+                height: r.height
+            };
+        });
+
+        let moves = []; let fadeOuts = []; let fadeIns = [];
+
+        mapping.forEach(item => {
+            let sItems = item[0]; let tItems = item[1]; let opts = item[2] || {};
+            let sArr = sItems !== null && sItems !== undefined ? (Array.isArray(sItems) ? sItems : [sItems]) : null;
+            let tArr = tItems !== null && tItems !== undefined ? (Array.isArray(tItems) ? tItems : [tItems]) : null;
+            if (sArr && sArr.length === 0) sArr = null;
+            if (tArr && tArr.length === 0) tArr = null;
+
+            if (sArr && tArr) {
+                if (opts.effect === 'distribute') {
+                    const sLen = sArr.length;
+                    tArr.forEach((t, j) => {
+                        const sIdx = sArr[j % sLen];
+                        const blockIdx = Math.floor(j / sLen);
+                        let curOpts = { ...opts };
+                        if (opts.stagger) {
+                            curOpts.delay = (opts.delay || 0) + (blockIdx * opts.stagger);
+                        }
+                        moves.push([sIdx, t, curOpts]);
+                    });
+                } else if (opts.effect === 'factor') {
+                    const tLen = tArr.length;
+                    sArr.forEach((s, i) => {
+                        const tIdx = tArr[i % tLen];
+                        const blockIdx = Math.floor(i / tLen);
+                        let curOpts = { ...opts };
+                        if (opts.stagger) {
+                            curOpts.delay = (opts.delay || 0) + (blockIdx * opts.stagger);
+                        }
+                        moves.push([s, tIdx, curOpts]);
+                    });
+                } else {
+                    let len = Math.min(sArr.length, tArr.length);
+                    for (let i = 0; i < len; i++) {
+                        let curOpts = { ...opts };
+                        if (opts.stagger) {
+                            curOpts.delay = (opts.delay || 0) + (i * opts.stagger);
+                        }
+                        moves.push([sArr[i], tArr[i], curOpts]);
+                    }
+                }
+            } else if (sArr && !tArr) {
+                sArr.forEach((s, i) => {
+                    let curOpts = { ...opts };
+                    if (opts.stagger) curOpts.delay = (opts.delay || 0) + (i * opts.stagger);
+                    fadeOuts.push([s, null, curOpts]);
+                });
+            } else if (!sArr && tArr) {
+                tArr.forEach((t, i) => {
+                    let curOpts = { ...opts };
+                    if (opts.stagger) curOpts.delay = (opts.delay || 0) + (i * opts.stagger);
+                    fadeIns.push([null, t, curOpts]);
+                });
+            }
+        });
+
+        let handledSrc = new Set([...moves.map(p=>p[0]), ...fadeOuts.map(p=>p[0])]);
+        let handledTgt = new Set([...moves.map(p=>p[1]), ...fadeIns.map(p=>p[1])]);
+
+        for (let i = 0; i < prevGlyphs.length; i++) {
+            if (!handledSrc.has(i)) {
+                let sEl = prevGlyphs[i];
+                let sKey = sEl.textContent.trim().replace(/[​-‍﻿]/g, '');
+                if (!sKey) {
+                    if (sEl.dataset.mathType) sKey = sEl.dataset.mathType;
+                    else if (sEl.tagName.toUpperCase() === 'SVG') sKey = 'svg-generic';
+                }
+                for (let j = 0; j < currGlyphs.length; j++) {
+                    if (!handledTgt.has(j)) {
+                        let tEl = currGlyphs[j];
+                        let tKey = tEl.textContent.trim().replace(/[​-‍﻿]/g, '');
+                        if (!tKey) {
+                            if (tEl.dataset.mathType) tKey = tEl.dataset.mathType;
+                            else if (tEl.tagName.toUpperCase() === 'SVG') tKey = 'svg-generic';
+                        }
+                        if (sKey === tKey && sKey !== "") {
+                            moves.push([i, j, { isAuto: true }]); 
+                            handledSrc.add(i); 
+                            handledTgt.add(j); 
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        let additionalMoves = [];
+        moves.forEach(pair => {
+            let sIdx = pair[0];
+            let tIdx = pair[1];
+            let sEl = prevGlyphs[sIdx];
+            let tEl = currGlyphs[tIdx];
+            if (!sEl || !tEl) return;
+
+            let sSqrt = sEl.closest('.sqrt');
+            let tSqrt = tEl.closest('.sqrt');
+
+            if (sSqrt && tSqrt) {
+                let srcSiblings = [];
+                prevGlyphs.forEach((g, idx) => { if (g.closest('.sqrt') === sSqrt) srcSiblings.push(idx); });
+                let tgtSiblings = [];
+                currGlyphs.forEach((g, idx) => { if (g.closest('.sqrt') === tSqrt) tgtSiblings.push(idx); });
+
+                srcSiblings.forEach(si => {
+                    if (!handledSrc.has(si)) {
+                        let sGlyph = prevGlyphs[si];
+                        let sType = sGlyph.dataset.mathType || sGlyph.tagName.toUpperCase();
+                        let sText = sGlyph.textContent.trim();
+
+                        for (let ti of tgtSiblings) {
+                            if (!handledTgt.has(ti)) {
+                                let tGlyph = currGlyphs[ti];
+                                let tType = tGlyph.dataset.mathType || tGlyph.tagName.toUpperCase();
+                                let tText = tGlyph.textContent.trim();
+
+                                if ((sType === tType && sType !== 'SPAN') || (sText && sText === tText)) {
+                                    additionalMoves.push([si, ti, { isAuto: true }]);
+                                    handledSrc.add(si);
+                                    handledTgt.add(ti);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        moves = moves.concat(additionalMoves);
+
+        const unmappedSrc = prevGlyphs.filter((_, i) => !handledSrc.has(i));
+        const unmappedTgt = currGlyphs.filter((_, i) => !handledTgt.has(i));
+        const unmapStagger = unmappedBehavior === 'sequential' ? unmappedStaggerVal : 0;
+
+        if (unmappedSrc.length > 0) {
+            tl.to(unmappedSrc, { opacity: 0, duration: baseDuration * 0.4, stagger: unmapStagger }, 0);
+        }
+        if (unmappedTgt.length > 0) {
+            tl.to(unmappedTgt, { opacity: 1, duration: baseDuration * 0.4, stagger: unmapStagger }, baseDuration * 0.5);
+        }
+
+        fadeOuts.forEach(pair => {
+            const sEl = prevGlyphs[pair[0]]; const options = pair[2] || {};
+            const curDur = (options.duration ? options.duration * speed : baseDuration) * 0.4;
+            const tOff = options.delay || 0;
+            if (sEl) {
+                if (options.effect === 'slide_up_out') tl.to(sEl, { opacity: 0, y: -25 / currScale, ease: "power2.in", duration: curDur }, tOff);
+                else if (options.effect === 'slide_down_out') tl.to(sEl, { opacity: 0, y: 25 / currScale, ease: "power2.in", duration: curDur }, tOff);
+                else tl.to(sEl, { opacity: 0, duration: curDur }, tOff);
+            }
+        });
+
+        fadeIns.forEach(pair => {
+            const tEl = currGlyphs[pair[1]]; const options = pair[2] || {};
+            const curDur = (options.duration ? options.duration * speed : baseDuration) * 0.4;
+            const tOff = (options.delay || 0) + baseDuration * 0.5;
+            if (tEl) {
+                if (options.effect === 'slide_up_in') {
+                    gsap.set(tEl, { opacity: 0, x: 0, y: -25 / currScale });
+                    tl.to(tEl, { opacity: 1, y: 0, ease: "power2.out", duration: curDur }, tOff);
+                } else if (options.effect === 'slide_down_in') {
+                    gsap.set(tEl, { opacity: 0, x: 0, y: 25 / currScale });
+                    tl.to(tEl, { opacity: 1, y: 0, ease: "power2.out", duration: curDur }, tOff);
+                } else {
+                    gsap.set(tEl, { opacity: 0 }); tl.to(tEl, { opacity: 1, duration: curDur }, tOff);
+                }
+            }
+        });
+
+        // 타겟 기호별 최장 완료 시점 사전 계산
+        const tgtMaxEndTimeMap = new Map();
+        moves.forEach(pair => {
+            const tIdx = pair[1];
+            const options = pair[2] || {};
+            const curDur = options.duration ? options.duration * speed : baseDuration;
+            const tOff = options.delay || 0;
+            const endTime = tOff + curDur;
+            const prevMax = tgtMaxEndTimeMap.get(tIdx) || 0;
+            if (endTime > prevMax) {
+                tgtMaxEndTimeMap.set(tIdx, endTime);
+            }
+        });
+
+        const handledTgtSetup = new Set();
+        const handledTgtArrivalAnim = new Set();
+        const handledSrcFadeAnim = new Set();
+
+        moves.forEach(pair => {
+            const sIdx = pair[0];
+            const tIdx = pair[1];
+            const sEl = prevGlyphs[sIdx]; 
+            const tEl = currGlyphs[tIdx]; 
+            const options = pair[2] || {};
+            if (!sEl || !tEl) return;
+
+            const sMetric = prevMetrics[sIdx];
+            const tMetric = currMetrics[tIdx];
+            if (!sMetric || !tMetric) return;
+
+            let isSqrtSvg = (sEl.dataset.mathType === 'sqrt-symbol' || tEl.dataset.mathType === 'sqrt-symbol' || sEl.tagName.toUpperCase() === 'SVG' || tEl.tagName.toUpperCase() === 'SVG');
+            let isFrac = (sEl.dataset.mathType === 'frac-line' || tEl.dataset.mathType === 'frac-line');
+
+            let dx = (tMetric.centerX - sMetric.centerX) / currScale;
+            let dy = (tMetric.centerY - sMetric.centerY) / currScale;
+
+            gsap.set([sEl, tEl], { transformOrigin: "center center" });
+
+            const curDur = options.duration ? options.duration * speed : baseDuration;
+            const tOff = options.delay || 0;
+            
+            let sAnim = { duration: curDur, ease: "power2.inOut" }; 
+            let tAnim = { duration: curDur, ease: "power2.inOut" };
+
+            let sScaleX = 1; let tInitScaleX = 1;
+            let sScale = 1; let tInitScale = 1;
+
+            if (isSqrtSvg || isFrac) {
+                if (tMetric.width > 0 && sMetric.width > 0) {
+                    sScaleX = tMetric.width / sMetric.width;
+                    tInitScaleX = sMetric.width / tMetric.width;
+                }
+            } else {
+                if (tMetric.height > 0 && sMetric.height > 0) {
+                    let scaleRatio = tMetric.height / sMetric.height;
+                    if (Math.abs(scaleRatio - 1) > 0.02) {
+                        sScale = scaleRatio;
+                        tInitScale = 1 / scaleRatio;
+                    }
+                }
+            }
+
+            const isFromCopy = !!options.from_copy;
+            const isDistribute = (options.effect === 'distribute');
+            const isFadeOrSlide = (options.effect === 'fade' || options.effect === 'slide_up_out' || options.effect === 'slide_down_out' || options.effect === 'slide_up_in' || options.effect === 'slide_down_in');
+
+            if (isFadeOrSlide) {
+                if (!handledTgtSetup.has(tIdx)) {
+                    gsap.set(tEl, { x: 0, y: 0, opacity: 0 });
+                    handledTgtSetup.add(tIdx);
+                }
+
+                if (options.effect === 'fade') {
+                    sAnim.x = 0; sAnim.y = 0; sAnim.opacity = 0; 
+                    tAnim.x = 0; tAnim.y = 0; tAnim.opacity = 1;
+                } else if (options.effect === 'slide_up_out') {
+                    sAnim.y = -25 / currScale; sAnim.opacity = 0; 
+                    tAnim.x = 0; tAnim.y = 0; tAnim.opacity = 1;
+                } else if (options.effect === 'slide_down_out') {
+                    sAnim.y = 25 / currScale; sAnim.opacity = 0; 
+                    tAnim.x = 0; tAnim.y = 0; tAnim.opacity = 1;
+                } else if (options.effect === 'slide_up_in') {
+                    sAnim.x = dx; sAnim.y = dy; sAnim.opacity = 0;
+                    gsap.set(tEl, { x: 0, y: -25 / currScale, opacity: 0 }); 
+                    tAnim.x = 0; tAnim.y = 0; tAnim.opacity = 1;
+                } else if (options.effect === 'slide_down_in') {
+                    sAnim.x = dx; sAnim.y = dy; sAnim.opacity = 0;
+                    gsap.set(tEl, { x: 0, y: 25 / currScale, opacity: 0 }); 
+                    tAnim.x = 0; tAnim.y = 0; tAnim.opacity = 1;
+                }
+                
+                tl.to(sEl, sAnim, tOff); 
+                tl.to(tEl, tAnim, tOff);
+                
+                tl.set(sEl, { opacity: 0 }, tOff + curDur); 
+                if (!handledTgtArrivalAnim.has(tIdx)) {
+                    const arrivalTime = tgtMaxEndTimeMap.get(tIdx) || (tOff + curDur);
+                    tl.set(tEl, { opacity: 1, scaleX: 1, scale: 1, x: 0, y: 0 }, arrivalTime);
+                    handledTgtArrivalAnim.add(tIdx);
+                }
+
+            } else if (isFromCopy || isDistribute) {
+                sAnim.x = 0; 
+                sAnim.y = 0; 
+                sAnim.scale = 1;
+                sAnim.scaleX = 1;
+                sAnim.opacity = isFromCopy ? 1 : 0; 
+
+                if (!handledTgtSetup.has(tIdx)) {
+                    let initProps = {
+                        x: -dx,
+                        y: -dy,
+                        opacity: 1,
+                        transformOrigin: "center center"
+                    };
+                    if (isSqrtSvg || isFrac) {
+                        initProps.scaleX = tInitScaleX;
+                    } else {
+                        initProps.scale = tInitScale;
+                    }
+                    gsap.set(tEl, initProps);
+                    handledTgtSetup.add(tIdx);
+                }
+
+                tAnim.opacity = 1;
+                if (isSqrtSvg || isFrac) {
+                    tAnim.scaleX = 1;
+                } else {
+                    tAnim.scale = 1;
+                }
+
+                let arcVal = options.path_arc !== undefined ? parseFloat(options.path_arc) : (isDistribute ? 1.57 : 0);
+                if (arcVal !== 0 && (dx !== 0 || dy !== 0)) {
+                    let theta = arcVal;
+                    let L = Math.hypot(dx, dy); 
+                    let h = (L / 2) * Math.tan(theta / 4);
+                    let nx = dy / L; 
+                    let ny = -dx / L; 
+                    let mx = dx / 2; 
+                    let my = dy / 2;
+                    let peakX = mx + nx * h; 
+                    let peakY = my + ny * h;
+                    tAnim.motionPath = { path: [ {x: peakX - dx, y: peakY - dy}, {x: 0, y: 0} ] };
+                } else {
+                    tAnim.x = 0;
+                    tAnim.y = 0;
+                }
+
+                tl.to(sEl, sAnim, tOff);
+                tl.to(tEl, tAnim, tOff);
+
+                if (!handledSrcFadeAnim.has(sIdx)) {
+                    tl.set(sEl, { opacity: isFromCopy ? 1 : 0, scale: 1, scaleX: 1, x: 0, y: 0 }, tOff + curDur);
+                    handledSrcFadeAnim.add(sIdx);
+                }
+                if (!handledTgtArrivalAnim.has(tIdx)) {
+                    const arrivalTime = tgtMaxEndTimeMap.get(tIdx) || (tOff + curDur);
+                    tl.set(tEl, { opacity: 1, scaleX: 1, scale: 1, x: 0, y: 0 }, arrivalTime);
+                    handledTgtArrivalAnim.add(tIdx);
+                }
+
+            } else {
+                if (!handledTgtSetup.has(tIdx)) {
+                    gsap.set(tEl, { x: 0, y: 0, opacity: 0 });
+                    handledTgtSetup.add(tIdx);
+                }
+
+                if (isSqrtSvg || isFrac) {
+                    sAnim.scaleX = sScaleX;
+                } else {
+                    sAnim.scale = sScale;
+                }
+
+                sAnim.x = dx; 
+                sAnim.y = dy;
+                
+                tAnim.x = 0; 
+                tAnim.y = 0; 
+                tAnim.opacity = 0;
+
+                if (options.effect === 'factor') {
+                    let theta = parseFloat(options.path_arc || -1.57);
+                    if (dx !== 0 || dy !== 0) {
+                        let L = Math.hypot(dx, dy); 
+                        let h = (L / 2) * Math.tan(theta / 4);
+                        let nx = dy / L; 
+                        let ny = -dx / L; 
+                        let mx = dx / 2; 
+                        let my = dy / 2;
+                        let peakX = mx + nx * h; 
+                        let peakY = my + ny * h;
+                        sAnim.motionPath = { path: [ {x: peakX, y: peakY}, {x: dx, y: dy} ] };
+                    }
+                } else if (options.path_arc && (dx !== 0 || dy !== 0)) {
+                    let theta = parseFloat(options.path_arc); 
+                    let L = Math.hypot(dx, dy); 
+                    let h = (L / 2) * Math.tan(theta / 4);
+                    let nx = dy / L; 
+                    let ny = -dx / L; 
+                    let mx = dx / 2; 
+                    let my = dy / 2; 
+                    let peakX = mx + nx * h; 
+                    let peakY = my + ny * h;
+                    sAnim.motionPath = { path: [ {x: peakX, y: peakY}, {x: dx, y: dy} ] }; 
+                }
+
+                tl.to(sEl, sAnim, tOff); 
+                tl.to(tEl, tAnim, tOff); 
+
+                tl.set(sEl, { opacity: 0 }, tOff + curDur); 
+                if (!handledTgtArrivalAnim.has(tIdx)) {
+                    const arrivalTime = tgtMaxEndTimeMap.get(tIdx) || (tOff + curDur);
+                    tl.set(tEl, { opacity: 1, scaleX: 1, scale: 1, x: 0, y: 0 }, arrivalTime); 
+                    handledTgtArrivalAnim.add(tIdx);
+                }
+            }
+        });
+    }
+
+    document.getElementById('btn-next').addEventListener('click', () => { if (activeIdx < stepsData.length - 1) { updateStepState(activeIdx + 1, true); } else { alert('마지막 수식 단계입니다.'); } });
+    document.getElementById('btn-prev').addEventListener('click', () => { if (activeIdx > 0) { updateStepState(activeIdx - 1, false); } else { alert('첫 수식 단계입니다.'); } });
+    window.onload = renderAll;
+</script>
+</body>
+</html>
