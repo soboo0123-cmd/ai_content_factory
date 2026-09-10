@@ -1,7 +1,7 @@
 * [🏠 노벨상 수식의 향기](home.md)
 
 * **고등학교 수학**
-  * [1.1 경우의 수 직접 나열](contents/black_scholes_equation_01/sec_01/sub_00_00_final.md)
+  * [0.0 요약](contents/black_scholes_equation_01/sec_01/sub_00_00_final.md)
   * [1.1 경우의 수 직접 나열](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
   * [1.2 순열: 순서대로 나열](contents/black_scholes_equation_01/sec_01/sub_01_02_final.md)
   * [1.3 조합: 그룹(조)을 합함](contents/black_scholes_equation_01/sec_01/sub_01_03_final.md)
