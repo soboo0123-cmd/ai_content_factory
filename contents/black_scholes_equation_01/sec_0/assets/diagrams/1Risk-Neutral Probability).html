@@ -60,7 +60,7 @@
     "audioFile": "",
     "highlight": [],
     "mapping": [],
-    "transition": "auto",
+    "transition": "fade_all",
     "unmappedBehavior": "sequential",
     "unmappedStagger": 0.25
   },
@@ -120,6 +120,102 @@
         [],
         {
           "effect": "slide_up_out"
+        }
+      ]
+    ],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "(1+r) = p \\cdot u + d - p \\cdot d",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [
+      16
+    ],
+    "mapping": [
+      [
+        16,
+        [
+          10,
+          14
+        ],
+        {
+          "effect": "distribute",
+          "path_arc": -1.57
+        }
+      ]
+    ],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "(1+r) - d= p \\cdot u  - p \\cdot d",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [
+      [
+        [
+          9,
+          10
+        ],
+        [
+          5,
+          6
+        ],
+        {
+          "path_arc": -1.04
+        }
+      ]
+    ],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "(1+r) - d= p ( u  -  d )",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [
+      [
+        [
+          8,
+          12
+        ],
+        8,
+        {
+          "effect": "factor",
+          "path_arc": -2
+        }
+      ]
+    ],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "\\dfrac{(1+r) - d}{ u  -  d }= p ",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [
+      [
+        [
+          10,
+          11,
+          12
+        ],
+        [
+          0,
+          1,
+          2
+        ],
+        {
+          "path_arc": 1.04
         }
       ]
     ],
