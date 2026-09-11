@@ -20,7 +20,7 @@ $$p = \frac{(1+r) - d}{u - d}$$
 
 유도과정은 다음과 같습니다.
 
-<iframe src="contents/black_scholes_equation_01/sec_0/assets/diagrams/1Risk-Neutral Probability).html" width="100%" height="720px" frameborder="0" scrolling="yes"></iframe>
+<iframe src="contents/black_scholes_equation_01/sec_0/assets/diagrams/1Risk-Neutral Probability).html" width="100%" height="750px" frameborder="0" scrolling="yes"></iframe>
 
 ---
 ## 2. 복제포트폴리오
