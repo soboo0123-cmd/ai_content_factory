@@ -31,11 +31,9 @@
       },
       addCopyText(math, doc) {
         const adaptor = doc.adaptor;
-        // 중복 렌더링 방지
         if (adaptor.getAttribute(math.typesetRoot, 'data-copytext-added')) return;
         adaptor.setAttribute(math.typesetRoot, 'data-copytext-added', 'true');
 
-        // 수식 안에 원본 텍스트(mjx-copytext)를 생성해둠
         const text = adaptor.node('mjx-copytext', {}, [
           adaptor.text(math.start.delim + math.math + math.end.delim)
         ]);
@@ -43,42 +41,34 @@
       }
     };
 
-    // 2. ★ 핵심: 브라우저 복사(Copy) 이벤트 가로채기 ★
+    // 2. 브라우저 복사(Copy) 이벤트 가로채기
     document.addEventListener('copy', function(event) {
       const selection = window.getSelection();
-      // 선택 영역이 없거나, 일반 버튼 클릭인 경우 무시
       if (!selection || selection.isCollapsed) return;
 
-      // 사용자가 드래그한 영역을 메모리상에 복제
       const div = document.createElement('div');
       for (let i = 0; i < selection.rangeCount; i++) {
         div.appendChild(selection.getRangeAt(i).cloneContents());
       }
 
-      // 드래그한 영역 안에 수식(mjx-container)이 있는지 확인
       const mathElements = div.querySelectorAll('mjx-container');
-      if (mathElements.length === 0) return; // 수식이 없으면 브라우저 기본 복사 진행
+      if (mathElements.length === 0) return;
 
-      // 수식이 있다면, 복사용 텍스트(LaTeX)를 추출해서 수식 요소 자체를 텍스트로 싹 교체함
       mathElements.forEach(mjx => {
         const copyTextNode = mjx.querySelector('mjx-copytext');
         if (copyTextNode) {
-          // 수식 덩어리를 순수 텍스트(예: $\frac{L}{E}$)로 바꿔치기 (줄바꿈 원천 차단)
           mjx.replaceWith(document.createTextNode(copyTextNode.textContent));
         }
       });
 
-      // 브라우저가 문맥(띄어쓰기, 문단)을 완벽하게 계산하도록 화면 밖에 임시 부착
       div.style.position = 'fixed';
       div.style.left = '-9999px';
       div.style.top = '0';
       document.body.appendChild(div);
       
-      const textToCopy = div.innerText; // 완성된 순수 텍스트 추출
-      
+      const textToCopy = div.innerText;
       document.body.removeChild(div);
 
-      // 클립보드에 수정된 텍스트 덮어쓰기 및 기본 복사 차단
       if (event.clipboardData) {
         event.clipboardData.setData('text/plain', textToCopy);
         event.preventDefault(); 
@@ -90,12 +80,10 @@
 
   <!-- 커스텀 스타일 -->
   <style>
-    /* 1. 수식 컨테이너를 상대 위치로 잡아줌 */
     mjx-container {
       position: relative !important;
     }
 
-    /* 화면에 렌더링된 수식은 드래그되지 않도록 차단 (글씨 깨짐 방지) */
     mjx-container > mjx-math,
     mjx-container > svg {
       user-select: none !important;
@@ -104,7 +92,6 @@
       -ms-user-select: none !important;
     }
 
-    /* 복사용 숨김 텍스트를 인라인(inline) 요소로 변경하여 줄바꿈 방지 */
     mjx-copytext {
       display: none !important;
     }
@@ -117,14 +104,12 @@
       font-size: 0.95rem !important;
     }
     
-    /* CodeMirror 에디터 폰트 설정 */
     .CodeMirror {
       font-family: Consolas, "JetBrains Mono", "Roboto Mono", Monaco, monospace;
       font-size: 1rem;
-      height: 100%; /* 에디터가 남은 공간을 꽉 채우도록 변경 */
+      height: 100%;
     }
 
-    /* 출력창 내부 이미지 반응형 처리 */
     #outputPanel img {
       max-width: 100%;
       height: auto;
@@ -132,6 +117,91 @@
       margin-top: 10px;
       margin-bottom: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    /* ========================================================================= */
+    /* 시뮬레이터(iframe) 래퍼 및 플로팅 툴바 스타일                             */
+    /* ========================================================================= */
+    .custom-iframe-container {
+      position: relative;
+      width: 100%;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #1e1e1e;
+      border: 1px solid rgba(128, 128, 128, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.25s ease-in-out;
+    }
+
+    .custom-iframe-container iframe {
+      display: block;
+      width: 100%;
+      border: none;
+    }
+
+    .custom-iframe-toolbar {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+      background: rgba(25, 25, 25, 0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .custom-iframe-btn {
+      background: transparent;
+      border: none;
+      color: #e5e7eb;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .custom-iframe-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    /* 큰 화면 보기 (확대/모달) 모드 활성화 시 */
+    .custom-iframe-container.is-expanded {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      z-index: 200 !important;
+      background: #121212 !important;
+      padding: 50px 16px 16px 16px !important;
+      box-sizing: border-box !important;
+    }
+
+    .custom-iframe-container.is-expanded iframe {
+      height: 100% !important;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .custom-iframe-container.is-expanded .custom-iframe-toolbar {
+      top: 10px;
+      right: 16px;
+      background: rgba(35, 35, 35, 0.95);
     }
   </style>
 </head>
@@ -149,7 +219,6 @@
       homepage: 'docsify.md',
       relativePath: false,
 
-      // 다크 모드 상세 설정
       darklightTheme: {
         siteFont: "PT Sans",
         defaultTheme: 'dark',
@@ -188,15 +257,88 @@
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
 
-  <!-- ========================================================================= -->
-  <!-- 파이썬 플레이그라운드 추가 영역 (코드 실행 및 복사 연동) -->
-  <!-- ========================================================================= -->
+  <!-- iframe 자동 감지 및 큰 화면/새 창 툴바 플러그인 -->
+  <script>
+    window.$docsify = window.$docsify || {};
+    window.$docsify.plugins = [].concat(window.$docsify.plugins || [], [
+      function(hook, vm) {
+        hook.doneEach(function() {
+          document.body.style.overflow = '';
 
-  <!-- CodeMirror 스크립트 -->
+          const iframes = document.querySelectorAll('.markdown-section iframe:not([data-enhanced])');
+          iframes.forEach(iframe => {
+            iframe.setAttribute('data-enhanced', 'true');
+
+            // 1. 컨테이너 래퍼 생성
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-iframe-container';
+            iframe.parentNode.insertBefore(wrapper, iframe);
+            wrapper.appendChild(iframe);
+
+            // 2. 툴바 생성
+            const toolbar = document.createElement('div');
+            toolbar.className = 'custom-iframe-toolbar';
+
+            // 새 창 버튼
+            const newTabBtn = document.createElement('button');
+            newTabBtn.className = 'custom-iframe-btn';
+            newTabBtn.innerHTML = '<span>↗</span> 새 창';
+            newTabBtn.title = '새 탭에서 크게 열기';
+            newTabBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              window.open(iframe.src, '_blank');
+            });
+
+            // 큰 화면 확대 버튼
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'custom-iframe-btn expand-btn';
+            expandBtn.innerHTML = '<span>⛶</span> 크게 보기';
+            expandBtn.title = '화면 가득 채우기 (ESC로 닫기)';
+
+            function toggleExpand() {
+              const isExpanded = wrapper.classList.toggle('is-expanded');
+              if (isExpanded) {
+                expandBtn.innerHTML = '<span>✕</span> 닫기';
+                expandBtn.style.background = '#e11d48';
+                document.body.style.overflow = 'hidden';
+              } else {
+                expandBtn.innerHTML = '<span>⛶</span> 크게 보기';
+                expandBtn.style.background = 'transparent';
+                document.body.style.overflow = '';
+              }
+            }
+
+            expandBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              toggleExpand();
+            });
+
+            toolbar.appendChild(newTabBtn);
+            toolbar.appendChild(expandBtn);
+            wrapper.appendChild(toolbar);
+          });
+        });
+      }
+    ]);
+
+    // ESC 키 입력 감지
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const expanded = document.querySelector('.custom-iframe-container.is-expanded');
+        if (expanded) {
+          const expandBtn = expanded.querySelector('.expand-btn');
+          if (expandBtn) expandBtn.click();
+        }
+      }
+    });
+  </script>
+
+  <!-- ========================================================================= -->
+  <!-- 파이썬 플레이그라운드 영역 -->
+  <!-- ========================================================================= -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 
-  <!-- 로딩 오버레이 -->
   <div id="loadingOverlay" style="position: fixed; inset: 0; z-index: 105; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(3px);">
     <div style="background: #1e1e1e; padding: 30px; border-radius: 12px; text-align: center; color: white; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
       <h3 style="margin-top:0; color: #42b983;">Python 엔진 다운로드 중...</h3>
@@ -204,7 +346,6 @@
     </div>
   </div>
 
-  <!-- 플레이그라운드 UI -->
   <section id="playgroundWrapper" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 99; transform: translateY(100%); transition: transform 0.3s ease-in-out; background: #1e1e1e; border-top: 1px solid #333; padding: 16px; padding-bottom: 24px; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); height: 90vh; display: flex; flex-direction: column;">
     <div style="max-width: 860px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; height: 100%;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: white;">
@@ -215,7 +356,6 @@
         <button id="closePlaygroundBtn" style="background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-weight: bold; transition: background 0.2s;">닫기 ▼</button>
       </div>
       
-      <!-- 에디터 영역 -->
       <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; background: #2b2b2b; flex: 1; display: flex; flex-direction: column;">
         <textarea id="editor">print("여기에 파이썬 코드를 작성하거나 본문에서 복사해오세요.")</textarea>
       </div>
@@ -225,7 +365,6 @@
         <button id="clearBtn" style="background: #444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">지우기</button>
       </div>
       
-      <!-- 출력창 영역: 텍스트와 HTML 요소(이미지)를 모두 담기 위해 div 활용 -->
       <div id="outputPanel" style="margin-top: 12px; background: #0b0f19; color: #dbeafe; padding: 12px; border-radius: 8px; border: 1px solid #222; height: 35%; min-height: 120px; overflow-y: auto; font-family: Consolas, monospace; font-size: 0.95rem; white-space: pre-wrap; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start;">실행 결과가 이곳에 출력됩니다.</div>
     </div>
   </section>
@@ -235,7 +374,6 @@
     let isPyodideLoading = false;
     let isPyodideReady = false;
 
-    // 1. 에디터 초기화
     window.addEventListener('DOMContentLoaded', () => {
       editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
         mode: 'python',
@@ -245,7 +383,6 @@
       });
     });
 
-    // 2. 창 여닫기
     const wrapper = document.getElementById('playgroundWrapper');
     function showPlayground() {
       wrapper.style.transform = 'translateY(0)';
@@ -256,7 +393,6 @@
     }
     document.getElementById('closePlaygroundBtn').addEventListener('click', hidePlayground);
 
-    // 3. 복사 버튼 가로채기
     document.addEventListener('click', (e) => {
       const copyBtn = e.target.closest('.docsify-copy-code-button');
       if (copyBtn) {
@@ -276,23 +412,19 @@
       }
     });
 
-    // [핵심 1] 출력창에 텍스트를 노드 형태로 안전하게 추가하는 함수
-    // 기존의 textContent += 방식은 기존에 그려진 <img> 태그를 삭제해버리므로 이를 방지
     function appendTextOutput(message, color = '#dbeafe') {
       const out = document.getElementById('outputPanel');
       const span = document.createElement('span');
       span.textContent = message + '\n';
       span.style.color = color;
       out.appendChild(span);
-      out.scrollTop = out.scrollHeight; // 자동 스크롤
+      out.scrollTop = out.scrollHeight;
     }
 
-    // 4. 엔진 로드 및 코드 실행
     document.getElementById('runBtn').addEventListener('click', async function() {
       const out = document.getElementById('outputPanel');
       const status = document.getElementById('engineStatus');
 
-      // 4-1. 엔진 부팅
       if (!isPyodideReady) {
         if (isPyodideLoading) return; 
         isPyodideLoading = true;
@@ -304,13 +436,13 @@
         try {
           await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js'; // 안정적인 버전
+            script.src = 'https://cdn.jsdelivr.net/pyodide/v0.29.4/full/pyodide.js';
             script.onload = resolve;
             script.onerror = reject;
             document.head.appendChild(script);
           });
 
-          pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/' });
+          pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.29.4/full/' });
           isPyodideReady = true;
           this.textContent = '▶ 코드 실행';
           status.textContent = '엔진 준비됨';
@@ -328,63 +460,50 @@
         document.getElementById('loadingOverlay').style.display = 'none';
       }
 
-      // 4-2. 코드 실행 로직
       this.disabled = true;
       this.style.opacity = '0.5';
-      out.innerHTML = ''; // 실행 전 출력창 초기화
+      out.innerHTML = '';
       
       try {
-        // print() 출력을 appendTextOutput 함수로 연결
         pyodide.setStdout({ batched: (m) => appendTextOutput(m) });
         pyodide.setStderr({ batched: (m) => appendTextOutput(m, '#f87171') });
         
         const pythonCode = editor.getValue();
 
-        // 패키지 자동 다운로드 확인
         appendTextOutput("필요한 라이브러리를 확인하고 다운로드하는 중입니다...\n(최초 1회만 시간이 소요됩니다)\n", '#fbbf24');
         await pyodide.loadPackagesFromImports(pythonCode);
         
-        // 다운로드 안내문 지우기 (초기화)
         out.innerHTML = '';
 
-        // [핵심 2] Matplotlib 처리: 그래프를 브라우저 DOM이 아닌 이미지(Base64)로 렌더링하도록 강제 설정
-        // 사용자의 코드에 matplotlib이 포함되어 있다면 아래 설정 코드를 백그라운드에서 먼저 실행
         if (pythonCode.includes('matplotlib') || pythonCode.includes('plt.')) {
           const matplotlibSetupCode = `
 import sys
 if 'matplotlib.pyplot' not in sys.modules:
     import matplotlib
-    matplotlib.use('Agg') # GUI 창을 띄우지 않는 백엔드 사용
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import io, base64
     from js import document
 
-    # plt.show()를 가로채는 커스텀 함수
     def custom_show(*args, **kwargs):
         buf = io.BytesIO()
-        # 다크테마 출력창에서도 잘 보이도록 배경색을 흰색으로 강제 지정
         plt.savefig(buf, format='png', bbox_inches='tight', facecolor='white')
         buf.seek(0)
         img_data = base64.b64encode(buf.read()).decode('utf-8')
         
-        # 자바스크립트를 호출하여 출력창에 <img> 태그 생성 및 삽입
         out_panel = document.getElementById('outputPanel')
         img = document.createElement('img')
         img.src = "data:image/png;base64," + img_data
         out_panel.appendChild(img)
         
-        # 스크롤 맨 아래로
         out_panel.scrollTop = out_panel.scrollHeight
-        
-        plt.clf() # 다음 그래프를 위해 캔버스 초기화
+        plt.clf()
 
-    # 기존 plt.show를 우리가 만든 커스텀 함수로 덮어쓰기
     plt.show = custom_show
           `;
           await pyodide.runPythonAsync(matplotlibSetupCode);
         }
 
-        // 사용자가 작성한 실제 코드 실행
         await pyodide.runPythonAsync(pythonCode);
 
       } catch (err) {
@@ -395,7 +514,6 @@ if 'matplotlib.pyplot' not in sys.modules:
       this.style.opacity = '1';
     });
 
-    // 5. 출력창 비우기 기능 수정 (innerHTML 활용)
     document.getElementById('clearBtn').addEventListener('click', () => {
       document.getElementById('outputPanel').innerHTML = '<span style="color:#bbb;">결과가 지워졌습니다.</span>';
     });
