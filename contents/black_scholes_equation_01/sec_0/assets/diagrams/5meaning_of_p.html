@@ -45,348 +45,42 @@
 
     const stepsData = [
   {
-    "tex": "\\text{복제 포트폴리오에 이어서...}",
-    "commentary": "$C_u$와 $C_d$ 로 정리한 식에서",
+    "tex": "p=\\dfrac{(1+r)  - d}{u - d}",
+    "commentary": "위험 중립 확률p입니다.",
     "audioFile": "",
     "highlight": [],
     "mapping": [],
-    "transition": "fade_all",
+    "transition": "auto",
     "unmappedBehavior": "sequential",
     "unmappedStagger": 0.25
   },
   {
-    "tex": "= \\frac{1}{1+r} \\left[ \\left( \\frac{(1+r) - d}{u - d} \\right) C_u + \\left( \\frac{u - (1+r)}{u - d} \\right) C_d \\right]",
-    "commentary": "$C_u$와 $C_d$ 로 정리한 식에서",
-    "audioFile": "",
-    "highlight": [],
-    "mapping": [],
-    "transition": "fade_all",
-    "unmappedBehavior": "sequential",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "\\frac{(1+r) - d}{u - d} + \\frac{u - (1+r)}{u - d}",
-    "commentary": "$C_u$와 $C_d$ 앞에 곱해진 두 계수의 합이 $1$이 되는지 확인하기 위해 두 분수를 더해봅니다.",
+    "tex": "p(u-d)=(1+r)-d",
+    "commentary": "분모를 좌변으로 이항합니다.",
     "audioFile": "",
     "highlight": [],
     "mapping": [
       [
         [
-          0,
-          1,
           2,
           3,
-          4,
-          5,
-          6,
-          7,
-          19,
-          20,
-          21,
-          23,
-          35,
-          36,
-          37,
-          38
-        ],
-        [],
-        {
-          "effect": "slide_up_out"
-        }
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "group",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "= \\frac{(1+r) - d + u - (1+r)}{u - d}",
-    "commentary": "분모가 $u - d$로 같으므로 공통분모로 두 분수를 하나로 합칩니다.",
-    "audioFile": "",
-    "highlight": [
-      0,
-      1,
-      2,
-      12,
-      13,
-      14
-    ],
-    "mapping": [
-      [
-        [
-          0,
-          1,
-          2,
-          12,
-          13,
-          14
-        ],
-        [
-          1,
-          2,
-          3
-        ],
-        {
-          "effect": "factor",
-          "path_arc": -1
-        }
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "group",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "= \\frac{(1+r) - (1+r) + u - d}{u - d}",
-    "commentary": "상쇄할 수 있는 항을 모으기 위해 $(1+r)$과 $-(1+r)$을 나란히 배치하도록 순서를 바꿉니다.",
-    "audioFile": "",
-    "highlight": [
-      10,
-      11,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19
-    ],
-    "mapping": [
-      [
-        [
-          14,
-          15,
-          16,
-          17,
-          18,
-          19
-        ],
-        [
-          10,
-          11,
-          12,
-          13,
-          14,
-          15
-        ],
-        {
-          "path_arc": 1.5
-        }
-      ],
-      [
-        [
-          10,
-          11
-        ],
-        [
-          18,
-          19
-        ],
-        {
-          "path_arc": 1.5
-        }
-      ],
-      [
-        [
-          12,
-          13
-        ],
-        [
-          16,
-          17
-        ],
-        {}
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "group",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "= \\frac{(\\cancel{1+r}) - (\\cancel{1+r}) + u - d}{u - d}",
-    "commentary": "$(1+r) - (1+r) = 0$이 되어",
-    "audioFile": "",
-    "highlight": [],
-    "mapping": [],
-    "transition": "auto",
-    "unmappedBehavior": "sequential",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "= \\frac{u - d}{u - d}",
-    "commentary": "$(1+r) - (1+r) = 0$이 되어 분자에서 상쇄되어 사라집니다.",
-    "audioFile": "",
-    "highlight": [],
-    "mapping": [
-      [
-        [
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17
-        ],
-        [],
-        {
-          "effect": "slide_up_out"
-        }
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "group",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "= 1",
-    "commentary": "분모와 분자가 같으므로 약분되어 두 계수의 합이 정확히 $1$이 됨을 알 수 있습니다.",
-    "audioFile": "",
-    "highlight": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7
-    ],
-    "mapping": [
-      [
-        [
-          1,
-          2,
-          3,
-          5,
-          6,
-          7
-        ],
-        [
-          1
-        ],
-        {
-          "effect": "factor"
-        }
-      ],
-      [
-        [
           4
         ],
-        [],
-        {
-          "effect": "fade"
-        }
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "group",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "\\text{[결론] } \\frac{(1+r) - d}{u - d} + \\frac{u - (1+r)}{u - d} = 1",
-    "commentary": "방금 게수를 합하면 1이 되는 것을 확인했습니다.",
-    "audioFile": "",
-    "highlight": [],
-    "mapping": [
-      [
-        [],
         [
-          0,
-          1,
           2,
           3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-          24,
-          25,
-          26
+          4
         ],
         {
-          "effect": "slide_up_in",
-          "stagger": 0.08
+          "path_arc": 1.04
         }
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "sequential",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "p + \\frac{u - (1+r)}{u - d} = 1",
-    "commentary": "$\n첫 번째 계수를 확률 p로 정의합니다.\n\\\\\n\\qquad p = \\frac{(1+r) - d}{u - d}\n$",
-    "audioFile": "",
-    "highlight": [
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14
-    ],
-    "mapping": [
+      ],
       [
+        [],
         [
-          0,
           1,
-          2,
-          3
+          5
         ],
-        [],
-        {
-          "effect": "slide_up_out",
-          "duration": 0.05
-        }
-      ],
-      [
-        [
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14
-        ],
-        [],
-        {
-          "effect": "slide_down_out"
-        }
-      ],
-      [
-        [],
-        0,
         {
           "effect": "slide_up_in",
           "delay": 0.5
@@ -398,134 +92,63 @@
     "unmappedStagger": 0.25
   },
   {
-    "tex": "\\text{두번째항 계수: }\\frac{u - (1+r)}{u - d} = 1 - p",
-    "commentary": "좌변의 $p$를 우변으로 이항하면, 다른 쪽 계수는 자연스럽게 $1 - p$가 됩니다.",
-    "audioFile": "",
-    "highlight": [
-      0,
-      1
-    ],
-    "mapping": [
-      [
-        0,
-        21,
-        {
-          "path_arc": 1.04
-        }
-      ],
-      [
-        1,
-        20,
-        {
-          "path_arc": 1.04,
-          "delay": 0.25
-        }
-      ],
-      [
-        [],
-        [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        {
-          "effect": "slide_up_in",
-          "delay": 0.8,
-          "stagger": 0.05
-        }
-      ]
-    ],
-    "transition": "auto",
-    "unmappedBehavior": "group",
-    "unmappedStagger": 0.25
-  },
-  {
-    "tex": "= \\frac{1}{1+r} \\left[ \\left( \\frac{(1+r) - d}{u - d} \\right) C_u + \\left( \\frac{u - (1+r)}{u - d} \\right) C_d \\right]",
-    "commentary": "구한 $p$와 $1 - p$를 원래 수식에 대입하면, ",
+    "tex": "pu-pd  =(1+r) -d",
+    "commentary": "p를 괄호 안으로 분배합니다.",
     "audioFile": "",
     "highlight": [],
     "mapping": [],
-    "transition": "fade_all",
+    "transition": "auto",
     "unmappedBehavior": "sequential",
     "unmappedStagger": 0.25
   },
   {
-    "tex": "= \\frac{1}{1+r} \\left[ {\\textcolor{#e53935}{p}} C_u + {\\textcolor{#e53935}{(}}{\\textcolor{#e53935}{1}} {\\textcolor{#e53935}{-}} {\\textcolor{#e53935}{p}}{\\textcolor{#e53935}{)}} C_d \\right]",
-    "commentary": "옵션 가격을 기댓값 형태로 표현한 최종 공식을 완성하게 됩니다.",
+    "tex": "pu+d-pd  =(1+r)",
+    "commentary": "우변의 $-d$를 좌변으로 이항합니다.",
     "audioFile": "",
     "highlight": [],
-    "mapping": [
-      [
-        [
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19
-        ],
-        [],
-        {
-          "effect": "slide_down_out"
-        }
-      ],
-      [
-        [],
-        7,
-        {
-          "effect": "slide_up_in"
-        }
-      ],
-      [
-        [
-          23,
-          24,
-          25,
-          26,
-          27,
-          28,
-          29,
-          30,
-          31,
-          32,
-          33,
-          34,
-          35
-        ],
-        [],
-        {
-          "effect": "slide_down_out",
-          "delay": 0.3
-        }
-      ],
-      [
-        [],
-        [
-          11,
-          12,
-          13,
-          14,
-          15
-        ],
-        {
-          "effect": "slide_up_in",
-          "delay": 0.3
-        }
-      ]
-    ],
+    "mapping": [],
     "transition": "auto",
-    "unmappedBehavior": "group",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "pu+(1-p)d  =(1+r)",
+    "commentary": "d로 묶어줍니다.",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "(1+r) = pu+(1-p)d",
+    "commentary": "영상과 동일하게 좌, 우변을 바꿉니다.",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "S_0(1+r) = puS_0+(1-p)dS_0",
+    "commentary": "양변에 현재의 주가 $S_0$를 곱해줍니다.",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
+    "unmappedStagger": 0.25
+  },
+  {
+    "tex": "\\underbrace{S_0(1+r)}_{\\text{이자율로 증식}} = \\underbrace{p}_{\\text{확률}}\\underbrace{uS_0}_{값}+\\underbrace{(1-p)}_{\\text{확률}}\\underbrace{dS_0}_{\\text{값}}",
+    "commentary": "수정 요망",
+    "audioFile": "",
+    "highlight": [],
+    "mapping": [],
+    "transition": "auto",
+    "unmappedBehavior": "sequential",
     "unmappedStagger": 0.25
   }
 ];
