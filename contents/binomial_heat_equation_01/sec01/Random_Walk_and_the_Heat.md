@@ -704,7 +704,7 @@ $$1 > \lambda_1 \ge \lambda_2 \ge \cdots \ge \lambda_N > -1$$
 
 $$p_n(x, y; A) = \mathbb{P}\{S_n = y, T_A > n \mid S_0 = x\}, \quad x, y \in A$$
 
-그러면 $\#(A) = N$일 때:
+$|A| = N$일 때:
 
 $$p_n(x, y; A) = \sum_{j=1}^N c_j(x) \lambda_j^n \phi_j(y)$$
 
