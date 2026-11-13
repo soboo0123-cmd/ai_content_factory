@@ -27,7 +27,7 @@ $$\mathbb{P}\{X_j = 1\} = \mathbb{P}\{X_j = -1\} = \frac{1}{2}$$
 
 ---
 
-```
+
                        S_n
                      3 |
                        |
@@ -42,7 +42,7 @@ $$\mathbb{P}\{X_j = 1\} = \mathbb{P}\{X_j = -1\} = \frac{1}{2}$$
                     -2 |
                        |
                     -3 |
-```
+
 ---
 **그림 1. $x=0$에서의 1차원 랜덤 워크 (Figure 1. One dimensional random walk with $x = 0$)**
 
