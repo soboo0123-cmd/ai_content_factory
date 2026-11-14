@@ -4,7 +4,7 @@
 
 ## 🚀 책 제목
 - [의사결정론 시작하기](contents/py_decision_01/sec_01/sub_01_01_v1.md)
-- [노벨상 수식의 향기](contents/black_scholes_equation_01/sec_01/sub_01_01_final.md)
+- [노벨상 수식의 향기](contents/black_scholes_equation_01/sec_0/CRR_원고_요약.md)
 - [환 헤지 정책 재검토](contents/fx_hedge_strategy_01/sec_01/sub_01_01_final.md)
 - [SCM 산출 및 상각](contents/ifrs17_csm_risk_modeling/sec_01/sub_01_01_final.md)
 - [이산 열방정식](contents/binomial_heat_equation_01/sec01/Random_Walk_and_the_Heat.md)**
