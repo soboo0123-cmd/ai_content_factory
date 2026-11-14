@@ -1,6 +1,7 @@
 * [🏠 노벨상 수식의 향기](home.md)
 
 * **고등학교 수학**
+  * [0.0 원고_요약](contents/black_scholes_equation_01/sec_0/CRR_원고_요약.md)
   * [0.0 원고1](contents/black_scholes_equation_01/sec_0/CRR_원고.md)
   * [0.0 원고2](contents/black_scholes_equation_01/sec_0/CRR_원고2.md)
   * [0.0 요약_미완](contents/black_scholes_equation_01/sec_0/sub_00_00_final.md)
