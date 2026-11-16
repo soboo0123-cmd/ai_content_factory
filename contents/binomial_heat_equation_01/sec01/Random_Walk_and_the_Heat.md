@@ -124,6 +124,30 @@ $$(1.1) \quad \lim_{n \to \infty} b_n = C_0, \quad \text{단, } b_n = \frac{n!}{
 
 $$(1.2) \quad \frac{b_n}{b_{n-1}} = e \left( \frac{n-1}{n} \right)^{n - \frac{1}{2}} = e \left( 1 - \frac{1}{n} \right)^n \left( 1 - \frac{1}{n} \right)^{-1/2}$$
 
+> 제시된 이미지의 식 (1.1)에 정의된 $b_n$으로부터 $n \ge 2$일 때 맨 아래 식 (1.2)와 같은 결과가 유도되는 과정은 다음과 같습니다.
+> 1. $b_n$과 $b_{n-1}$의 정의
+> 식 (1.1)에 따라 $b_n$은 다음과 같습니다:
+> $$b_n = \frac{n!}{n^{n+\frac{1}{2}}e^{-n}}$$
+> 이를 바탕으로 $b_{n-1}$을 구하면 다음과 같습니다.
+> $$b_{n-1} = \frac{(n-1)!}{(n-1)^{(n-1)+\frac{1}{2}}e^{-(n-1)}} = \frac{(n-1)!}{(n-1)^{n-\frac{1}{2}}e^{-n+1}}$$
+> 
+> 2. 비율 $\frac{b_n}{b_{n-1}}$ 계산
+> 두 항의 비를 구하기 위해 식을 세우면 다음과 같습니다:
+> $$\frac{b_n}{b_{n-1}} = \frac{\frac{n!}{n^{n+\frac{1}{2}}e^{-n}}}{\frac{(n-1)!}{(n-1)^{n-\frac{1}{2}}e^{-n+1}}} = \frac{n!}{(n-1)!} \times \frac{(n-1)^{n-\frac{1}{2}}}{n^{n+\frac{1}{2}}} \times \frac{e^{-n+1}}{e^{-n}}$$
+> 이를 세 가지 부분(팩토리얼, 거듭제곱, 지수)으로 나누어 정리합니다.
+> - **팩토리얼 항:**
+> $$\frac{n!}{(n-1)!} = n$$
+> - **지수 항:**
+> $$\frac{e^{-n+1}}{e^{-n}} = \frac{e^{-n} \cdot e^1}{e^{-n}} = e$$
+> - **거듭제곱 항:**
+> $$\frac{(n-1)^{n-\frac{1}{2}}}{n^{n+\frac{1}{2}}} = \frac{(n-1)^{n-\frac{1}{2}}}{n^{(n-\frac{1}{2})+1}} = \frac{(n-1)^{n-\frac{1}{2}}}{n^{n-\frac{1}{2}} \cdot n} = \frac{1}{n} \left(\frac{n-1}{n}\right)^{n-\frac{1}{2}}$$
+> 
+> 3. 최종 식 도출
+> 위의 세 성분을 모두 곱해주면 앞의 $n$과 분모의 $n$이 소거됩니다:
+> $$\frac{b_n}{b_{n-1}} = n \times \left[ \frac{1}{n} \left(\frac{n-1}{n}\right)^{n-\frac{1}{2}} \right] \times e = e \left(\frac{n-1}{n}\right)^{n-\frac{1}{2}}$$
+> 괄호 안을 나누어 정리하면 최종적으로 아래와 같은 식 (1.2)가 완성됩니다:
+> $$\frac{b_n}{b_{n-1}} = e \left(1 - \frac{1}{n}\right)^{n-\frac{1}{2}}$$
+
 $\delta_n = (b_n / b_{n-1}) - 1$이라 놓았을 때, 우리는 $\sum |\delta_n| < \infty$임을 보일 것입니다.
 
 > **♦ 정리: 나머지 항을 가진 테일러 정리 (Taylor's Theorem with Remainder)**
